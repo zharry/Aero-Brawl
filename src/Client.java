@@ -8,7 +8,9 @@ import javax.swing.JOptionPane;
 public class Client {
 
 	InputStream in;
+	Thread inThread;
 	OutputStream out;
+	Thread outThread;
 
 	public Client() {
 
@@ -23,15 +25,31 @@ public class Client {
 
 	public void run() throws IOException {
 
-		// Make connection and initialize data streams
+		// Make connection to server
 		String serverAddress = getServerAddress();
-		Socket socket = new Socket(serverAddress, 9001);
-		in = socket.getInputStream();
-		out = socket.getOutputStream();
+		Socket socket = new Socket(serverAddress, AeroBrawlMain.SERVER_PORT);
 
-		// Processes data from server
-		while (true) {
-		}
+		// Create Threads for processing server information
+		in = socket.getInputStream();
+		inThread = new Thread(new Runnable() {
+			public void run() {
+				// Input Reader
+				while (true) {
+					
+				}
+			}
+		});
+		inThread.start();
+		out = socket.getOutputStream();
+		outThread = new Thread(new Runnable() {
+			public void run() {
+				// Output Writer
+				while (true) {
+					
+				}
+			}
+		});
+		outThread.start();
 	}
 
 }
