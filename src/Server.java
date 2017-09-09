@@ -1,26 +1,33 @@
 import java.io.IOException;
-import java.net.ServerSocket;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.Socket;
 
-public class Server {
+public class Server extends Thread {
 
-	public Server() throws IOException {
+	private Socket socket;
+	private InputStream in;
+	private OutputStream out;
 
-		ServerSocket listener = new ServerSocket(AeroBrawlMain.SERVER_PORT);
-		System.out.println("Server started on localhost:" + AeroBrawlMain.SERVER_PORT);
-
-		try {
-			while (true) {
-				Socket socket = listener.accept();
-				try {
-					// Server
-				} finally {
-					socket.close();
-				}
-			}
-		} finally {
-			listener.close();
-		}
+	public Server(Socket socket) {
+		this.socket = socket;
 	}
 
+	public void run() {
+		try {
+
+			// Create players data streams
+			in = socket.getInputStream();
+			out = socket.getOutputStream();
+
+			// Internal Game Logic and Processing
+			while (true) {
+			}
+		} catch (IOException e) {
+			System.out.println(e);
+
+			// Client Disconnects Code
+		} finally {
+		}
+	}
 }
