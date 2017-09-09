@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.net.ServerSocket;
 
 import javax.swing.JOptionPane;
 
@@ -22,20 +21,14 @@ public class AeroBrawlMain {
 			// Start and Run code for client
 			System.out.println("Running as client.");
 			Client client = new Client();
-			client.run();
+			client.start();
 
 		} else if (select == 1) {
 
 			// Start and Run code for server
 			System.out.println("Running as server.");
-			ServerSocket listener = new ServerSocket(SERVER_PORT);
-			try {
-				while (true) {
-					new Server(listener.accept()).start();
-				}
-			} finally {
-				listener.close();
-			}
+			Server server = new Server();
+			server.start();
 
 		} else {
 			// Close Launcher
