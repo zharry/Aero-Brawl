@@ -15,11 +15,10 @@ public class ClientListener implements SocketListener {
 
 	public void connected(Connection con) {
 		consoleLog(con, "Connected!");
-		con.sendTcp(new Packet.Ping());
 	}
 
 	public void disconnected(Connection con) {
-
+		consoleLog(con, "Disconnected!");
 	}
 
 	static void consoleLog(Connection con, String msg) {
