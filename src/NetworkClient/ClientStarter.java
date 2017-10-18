@@ -1,6 +1,7 @@
 package NetworkClient;
 
 import java.net.ConnectException;
+import java.util.Scanner;
 
 import com.jmr.wrapper.client.Client;
 
@@ -15,6 +16,15 @@ public class ClientStarter {
 		client.connect();
 		if (client.isConnected()) {
 			System.out.println("Client connected to " + IP + ":" + port);
+			
+			Scanner s = new Scanner(System.in);
+			while(true) {
+				String str = s.nextLine();
+				if (str.equals("Ping")) {
+					client.getServerConnection().sendTcp(new Packet.Ping());
+				}
+			}
+			
 		} else {
 			throw new ConnectException();
 		}

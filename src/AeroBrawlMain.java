@@ -24,47 +24,50 @@ public class AeroBrawlMain {
 			// Specify Connection details
 			String serverIP;
 			int serverPort;
-			tryUntil: while (true)
+			getIP: while (true)
 				try {
 					String[] serverIPPort = ((String) JOptionPane.showInputDialog(null, "Server IP:Port",
-							"Connect to server", JOptionPane.PLAIN_MESSAGE, null, null, "localhost:" + SERVER_PORT))
-									.split(":");
+							"Connect to server", JOptionPane.PLAIN_MESSAGE, null, null, "localhost")).split(":");
 					serverIP = serverIPPort[0];
 					serverPort = serverIPPort.length == 1 ? SERVER_PORT : Integer.parseInt(serverIPPort[1]);
-					break tryUntil;
+					break getIP;
 				} catch (Exception e) {
 					displayError(1);
 				}
 
 			// Start and Run code for client
 			System.out.println("Launching as Client.");
-			try {
-				ClientStarter client = new ClientStarter(serverIP, serverPort);
-			} catch (Exception e) {
-				displayError(0);
-			}
+			createClient: while (true)
+				try {
+					ClientStarter client = new ClientStarter(serverIP, serverPort);
+					break createClient;
+				} catch (Exception e) {
+					displayError(0);
+				}
 
 			// Create Server
 		} else if (select == 1) {
 
 			// Specify Host listening port
 			int serverPort;
-			tryUntil: while (true)
+			createServer: while (true)
 				try {
 					serverPort = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Server Port",
 							"Create Server", JOptionPane.PLAIN_MESSAGE, null, null, SERVER_PORT));
-					break tryUntil;
+					break createServer;
 				} catch (Exception e) {
 					displayError(1);
 				}
 
 			// Start and Run code for server
 			System.out.println("Launching as Host.");
-			try {
-				ServerStarter server = new ServerStarter(serverPort);
-			} catch (Exception e) {
-				displayError(2);
-			}
+			startServer: while (true)
+				try {
+					ServerStarter server = new ServerStarter(serverPort);
+					break startServer;
+				} catch (Exception e) {
+					displayError(2);
+				}
 
 			// Close Game
 		} else {
