@@ -1,4 +1,4 @@
-package NetworkServer;
+package networkserver;
 
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
 import com.jmr.wrapper.server.Server;

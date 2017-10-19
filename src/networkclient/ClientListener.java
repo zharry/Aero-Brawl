@@ -1,4 +1,4 @@
-package NetworkClient;
+package networkclient;
 
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.listener.SocketListener;
@@ -6,8 +6,8 @@ import com.jmr.wrapper.common.listener.SocketListener;
 public class ClientListener implements SocketListener {
 
 	public void received(Connection con, Object object) {
-		if (object instanceof Packet.Ping) {
-			long diff = System.currentTimeMillis() - ((Packet.Ping) object).time;
+		if (object instanceof packet.Ping) {
+			long diff = System.currentTimeMillis() - ((packet.Ping) object).time;
 			NetworkUtil.log(con, "Ping Recieved! Ping: " + diff + "ms");
 		}
 

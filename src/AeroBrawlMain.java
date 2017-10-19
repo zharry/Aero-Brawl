@@ -5,8 +5,8 @@ import javax.swing.JOptionPane;
 
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
 
-import NetworkClient.ClientStarter;
-import NetworkServer.ServerStarter;
+import networkclient.ClientStarter;
+import networkserver.ServerStarter;
 
 public class AeroBrawlMain {
 

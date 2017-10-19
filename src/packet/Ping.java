@@ -1,4 +1,4 @@
-package Packet;
+package packet;
 
 public class Ping extends Packet {
 

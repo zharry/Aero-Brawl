@@ -1,4 +1,4 @@
-package NetworkClient;
+package networkclient;
 
 import java.net.ConnectException;
 import java.util.Scanner;
@@ -21,7 +21,7 @@ public class ClientStarter {
 			while(true) {
 				String str = s.nextLine();
 				if (str.equals("Ping")) {
-					client.getServerConnection().sendTcp(new Packet.Ping());
+					client.getServerConnection().sendTcp(new packet.Ping());
 				}
 			}
 			

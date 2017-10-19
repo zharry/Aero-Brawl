@@ -1,4 +1,4 @@
-package NetworkClient;
+package networkclient;
 
 import com.jmr.wrapper.common.Connection;
 
