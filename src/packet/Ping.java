@@ -2,10 +2,14 @@ package packet;
 
 public class Ping extends Packet {
 
-	public long time;
+	private long time;
 
 	public Ping() {
 		time = System.currentTimeMillis();
+	}
+
+	public long getTime() {
+		return time;
 	}
 
 }

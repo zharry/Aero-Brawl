@@ -7,7 +7,7 @@ public class ClientListener implements SocketListener {
 
 	public void received(Connection con, Object object) {
 		if (object instanceof packet.Ping) {
-			long diff = System.currentTimeMillis() - ((packet.Ping) object).time;
+			long diff = System.currentTimeMillis() - ((packet.Ping) object).getTime();
 			NetworkUtil.log(con, "Ping Recieved! Ping: " + diff + "ms");
 		}
 
