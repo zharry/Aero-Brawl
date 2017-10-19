@@ -1,6 +1,12 @@
 import java.io.IOException;
+import java.net.ConnectException;
 
 import javax.swing.JOptionPane;
+
+import com.jmr.wrapper.common.exceptions.NNCantStartServer;
+
+import NetworkClient.ClientStarter;
+import NetworkServer.ServerStarter;
 
 public class AeroBrawlMain {
 
@@ -10,31 +16,110 @@ public class AeroBrawlMain {
 
 	public static void main(String[] args) throws IOException {
 
-		// Launcher; Selector for creating a lobby room or joining an existing
-		// one
-		Object[] options = { "Join Game", "Create Server" };
-		int select = JOptionPane.showOptionDialog(null, "Select game mode:", TITLE + " v." + VERSION,
-				JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null, options, options[0]);
-
-		if (select == 0) {
-
-			// Start and Run code for client
-			System.out.println("Running as client.");
-			Client client = new Client();
-			client.start();
-
-		} else if (select == 1) {
-
-			// Start and Run code for server
-			System.out.println("Running as server.");
-			Server server = new Server();
-			server.start();
+		if (args.length != 0) {
+			if (args[0].equals("nogui"))
+				try {
+					runServer(SERVER_PORT);
+				} catch (NNCantStartServer e) {
+					e.printStackTrace();
+				}
 
 		} else {
-			// Close Launcher
-			System.exit(0);
+
+			// Selector for creating a lobby room or joining an existing one
+			int select = JOptionPane.showOptionDialog(null, "Select game mode:", TITLE + " v." + VERSION,
+					JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE, null,
+					new Object[] { "Join Game", "Create Server" }, "Join Game");
+
+			// Join Game
+			if (select == 0) {
+
+				// Specify Connection details
+				String serverIP;
+				int serverPort;
+				getIP: while (true)
+					try {
+						String[] serverIPPort = ((String) JOptionPane.showInputDialog(null, "Server IP:Port",
+								"Connect to server", JOptionPane.PLAIN_MESSAGE, null, null, "localhost")).split(":");
+						serverIP = serverIPPort[0];
+						serverPort = serverIPPort.length == 1 ? SERVER_PORT : Integer.parseInt(serverIPPort[1]);
+						break getIP;
+					} catch (Exception e) {
+						displayError(1);
+					}
+
+				// Start and Run code for client
+				System.out.println("Launching as Client.");
+				createClient: while (true)
+					try {
+						runClient(serverIP, serverPort);
+						break createClient;
+					} catch (Exception e) {
+						displayError(0);
+					}
+
+				// Create Server
+			} else if (select == 1) {
+
+				// Specify Host listening port
+				int serverPort;
+				createServer: while (true)
+					try {
+						serverPort = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Server Port",
+								"Create Server", JOptionPane.PLAIN_MESSAGE, null, null, SERVER_PORT));
+						break createServer;
+					} catch (Exception e) {
+						displayError(1);
+					}
+
+				// Start and Run code for server
+				System.out.println("Launching as Host.");
+				startServer: while (true)
+					try {
+						runServer(serverPort);
+						break startServer;
+					} catch (Exception e) {
+						displayError(2);
+					}
+
+				// Close Game
+			} else {
+				// Close Launcher
+				System.exit(0);
+			}
 		}
 
+	}
+
+	public static void runClient(String serverIP, int serverPort) throws ConnectException {
+		ClientStarter client = new ClientStarter(serverIP, serverPort);
+	}
+
+	public static void runServer(int serverPort) throws NNCantStartServer {
+		ServerStarter server = new ServerStarter(serverPort);
+	}
+
+	public static void displayError(int id) {
+		String msg;
+		switch (id) {
+		case 0:
+			msg = "Failed to Connect to Server!";
+			break;
+		case 1:
+			msg = "Please follow the proper input guidelines!";
+			break;
+		case 2:
+			msg = "Server Failed to Start. Port already in use!";
+			break;
+		default:
+			msg = "Unknown error occured!";
+		}
+
+		int select = JOptionPane.showOptionDialog(null, msg, "Error!", JOptionPane.YES_NO_OPTION,
+				JOptionPane.ERROR_MESSAGE, null, new Object[] { "Try Again", "Exit Game" }, "Try Again");
+		// Exit unless user selects "Try Again"
+		if (select != 0)
+			System.exit(0);
 	}
 
 }
