@@ -1,13 +1,11 @@
 package Packet;
 
-import java.io.Serializable;
-
-public class Ping implements Serializable {
+public class Ping extends Packet {
 
 	public long time;
-	
+
 	public Ping() {
 		time = System.currentTimeMillis();
 	}
-	
+
 }
