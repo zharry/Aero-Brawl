@@ -230,13 +230,18 @@ public class RenderMain {
 		glColor3d(1, 1, 1);
 		glScaled(0.04 * scale, 0.04 * scale, 0.04 * scale);
 
-		for(RenderObject obj : renderObjects) {
-			glUniform1i(uHasDiffuseMap, obj.diffuseTexture);
-			glBindTexture(GL_TEXTURE_2D, obj.diffuseTexture);
-			if(obj.material != null && obj.material.diffuse != null) {
-				glColor3d(obj.material.diffuse.x, obj.material.diffuse.y, obj.material.diffuse.z);
+		for(GameObject go : gameObjects.values()) {
+			glPushMatrix();
+			glTranslated(go.position.x, go.position.y, go.position.z);
+			for (RenderObject obj : renderObjects) {
+				glUniform1i(uHasDiffuseMap, obj.diffuseTexture);
+				glBindTexture(GL_TEXTURE_2D, obj.diffuseTexture);
+				if (obj.material != null && obj.material.diffuse != null) {
+					glColor3d(obj.material.diffuse.x, obj.material.diffuse.y, obj.material.diffuse.z);
+				}
+				glCallList(obj.displayList);
 			}
-			glCallList(obj.displayList);
+			glPopMatrix();
 		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);

@@ -1,11 +1,15 @@
 package networkserver;
 
-import java.util.ArrayList;
-import java.util.Scanner;
-
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
 import com.jmr.wrapper.server.Server;
+import packet.CreateGameObject;
+import packet.MoveGameObject;
+import packet.Packet;
+
+import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class ServerStarter {
 
@@ -37,6 +41,16 @@ public class ServerStarter {
 							delta--;
 						}
 						// Broadcast Instructions
+						ArrayBlockingQueue<Packet> packets = ConnectionManager.getInstance().getPacketQueue();
+						while(!packets.isEmpty()) {
+							Packet packet = packets.poll();
+							if(packet instanceof MoveGameObject || packet instanceof CreateGameObject) {
+								ArrayList<Connection> cons = ConnectionManager.getInstance().getConnections();
+								for (Connection c : cons) {
+									c.sendTcp(packet);
+								}
+							}
+						}
 
 						// Calculate FPS and TPS
 						if (System.currentTimeMillis() - timer > 1000) {
