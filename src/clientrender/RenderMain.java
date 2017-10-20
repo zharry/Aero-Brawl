@@ -8,11 +8,15 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.util.glu.GLU;
+import packet.CreateGameObject;
+import packet.MoveGameObject;
+import packet.Packet;
 
 import java.io.FileInputStream;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
@@ -26,6 +30,8 @@ import static org.lwjgl.opengl.GL32.glTexImage2DMultisample;
 public class RenderMain {
 
 	public ClientStarter client;
+
+	public Random random = new Random();
 
 	public static int frameCounter = 0;
 	public float fov = 90;
@@ -266,6 +272,36 @@ public class RenderMain {
 		glEnd();
 	}
 
+	public void initNetwork() {
+		player.id = random.nextLong();
+		gameObjects.put(player.id, player);
+		client.client.getServerConnection().sendTcp(new CreateGameObject(player.id));
+	}
+
+	public void runNetwork() {
+		while(!client.packets.isEmpty()) {
+			Packet packet = client.packets.poll();
+			if(packet instanceof packet.MoveGameObject) {
+				MoveGameObject move = (MoveGameObject) packet;
+				GameObject object = gameObjects.get(move.id);
+				if(object != null) {
+					object.position = new Vec3(move.x, move.y, move.z);
+					if (move.updateVelocity) {
+						object.velocity = new Vec3(move.vx, move.vy, move.vz);
+					}
+					object.quat = new Quat4(move.qw, move.qx, move.qy, move.qz);
+				} else {
+					System.out.println("No GameObject with id " + move.id + " not found");
+				}
+			} else if(packet instanceof packet.CreateGameObject) {
+				CreateGameObject create = (CreateGameObject) packet;
+				long id = create.id;
+				GameObject obj = new GameObject(id);
+				gameObjects.put(id, obj);
+			}
+		}
+	}
+
 	public void start() {
 		try {
 			Display.setDisplayMode(new DisplayMode(1280, 720));
@@ -275,10 +311,18 @@ public class RenderMain {
 
 			glInit();
 
+			initNetwork();
+
+			long lastUpdate = System.nanoTime();
+
 			while (!Display.isCloseRequested()) {
 				++frameCounter;
 
-
+				long currentTime = System.nanoTime();
+				if(currentTime - lastUpdate > 50000000) {
+					runNetwork();
+					lastUpdate = currentTime;
+				}
 
 				if (Display.getWidth() != width || Display.getHeight() != height) {
 					width = Display.getWidth();

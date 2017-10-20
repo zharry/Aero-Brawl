@@ -1,30 +1,24 @@
 package networkclient;
 
-import java.net.ConnectException;
-import java.util.Scanner;
-
 import com.jmr.wrapper.client.Client;
+import packet.Packet;
+
+import java.net.ConnectException;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class ClientStarter {
 
-	private Client client;
+	public ArrayBlockingQueue<Packet> packets = new ArrayBlockingQueue<>(4096);
+
+	public Client client;
 
 	public ClientStarter(String IP, int port) throws ConnectException {
 
 		client = new Client(IP, port, port);
-		client.setListener(new ClientListener());
+		client.setListener(new ClientListener(this));
 		client.connect();
 		if (client.isConnected()) {
 			System.out.println("Client connected to " + IP + ":" + port);
-
-			Scanner s = new Scanner(System.in);
-			while (true) {
-				String str = s.nextLine();
-				if (str.equals("Ping")) {
-					client.getServerConnection().sendTcp(new packet.Ping());
-				}
-			}
-
 		} else {
 			throw new ConnectException();
 		}

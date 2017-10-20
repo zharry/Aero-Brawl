@@ -1,12 +1,11 @@
-import java.io.IOException;
-import java.net.ConnectException;
-
-import javax.swing.JOptionPane;
-
+import clientrender.RenderMain;
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
-
 import networkclient.ClientStarter;
 import networkserver.ServerStarter;
+
+import javax.swing.*;
+import java.io.IOException;
+import java.net.ConnectException;
 
 public class AeroBrawlMain {
 
@@ -93,6 +92,8 @@ public class AeroBrawlMain {
 
 	public static void runClient(String serverIP, int serverPort) throws ConnectException {
 		ClientStarter client = new ClientStarter(serverIP, serverPort);
+		RenderMain main = new RenderMain(client);
+		main.startRender();
 	}
 
 	public static void runServer(int serverPort) throws NNCantStartServer, InterruptedException {
