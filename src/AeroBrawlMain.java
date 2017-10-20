@@ -20,7 +20,7 @@ public class AeroBrawlMain {
 			if (args[0].equals("nogui"))
 				try {
 					runServer(SERVER_PORT);
-				} catch (NNCantStartServer e) {
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 
@@ -95,7 +95,7 @@ public class AeroBrawlMain {
 		ClientStarter client = new ClientStarter(serverIP, serverPort);
 	}
 
-	public static void runServer(int serverPort) throws NNCantStartServer {
+	public static void runServer(int serverPort) throws NNCantStartServer, InterruptedException {
 		ServerStarter server = new ServerStarter(serverPort);
 	}
 

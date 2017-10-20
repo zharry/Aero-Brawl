@@ -9,18 +9,22 @@ public class ServerListener implements SocketListener {
 
 	public void received(Connection con, Object object) {
 		if (object instanceof packet.Ping) {
-			con.sendTcp((packet.Ping) object);
-			NetworkUtil.log(con, "Ping recieved!");
+			NetworkUtil.processPing(con, (packet.Ping) object, true);
+		} else if (object.toString().equals("TestAlivePing")) {
+			NetworkUtil.log(con, object.toString());
+		} else {
+			ConnectionManager.getInstance().addPacket((packet.Packet) object);
 		}
 	}
 
 	public void connected(Connection con) {
 		NetworkUtil.log(con, "Client connected!");
+		ConnectionManager.getInstance().addCon(con);
 	}
 
 	public void disconnected(Connection con) {
 		NetworkUtil.log(con, "Client disconnected!");
-
+		ConnectionManager.getInstance().removeCon(con);
 	}
 
 }
