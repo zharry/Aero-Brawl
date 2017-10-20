@@ -18,5 +18,7 @@ void main(void) {
 		clrMult *= texture2D(diffuseMap, tCoord).rgb;
 	clrMult *= gl_LightSource[0].diffuse.a * gl_LightSource[0].diffuse.rgb * dot(dir, normal) / dist;
 
+//	clrMult = vec3(1.0, 1.0, 1.0);
+
 	gl_FragColor = vec4(color.rgb * clrMult, 1);
 }

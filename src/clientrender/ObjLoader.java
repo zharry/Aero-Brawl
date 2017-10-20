@@ -95,6 +95,9 @@ public class ObjLoader {
 					break;
 			}
 		}
+		if(faces.size() > 0) {
+			objects.add(new Obj(objName, faces, usedMaterial));
+		}
 	}
 
 	public HashMap<String, Material> loadMtl(byte[] data) {

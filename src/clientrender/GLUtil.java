@@ -73,14 +73,16 @@ public class GLUtil {
 	public static int loadProgram(String vert, String frag) {
 		int vertShader = loadShader(vert, GL_VERTEX_SHADER);
 		int fragShader = loadShader(frag, GL_FRAGMENT_SHADER);
-		if(vertShader == 0 || fragShader == 0) {
+		if(vertShader == 0 && vert != null || fragShader == 0 && frag != null) {
 			System.out.println("Shaders loading failed");
 			return 0;
 		}
 
 		int prog = glCreateProgram();
-		glAttachShader(prog, vertShader);
-		glAttachShader(prog, fragShader);
+		if(vert != null)
+			glAttachShader(prog, vertShader);
+		if(frag != null)
+			glAttachShader(prog, fragShader);
 
 		glLinkProgram(prog);
 		if(glGetProgrami(prog, GL_LINK_STATUS) == GL_FALSE) {
@@ -102,6 +104,9 @@ public class GLUtil {
 	}
 
 	public static int loadShader(String name, int type) {
+		if(name == null) {
+			return 0;
+		}
 		int shader = glCreateShader(type);
 		if(shader == 0) {
 			return 0;
@@ -129,6 +134,7 @@ public class GLUtil {
 		int texId = 0;
 
 		try {
+			System.out.println(new File("obj", name));
 			BufferedImage image = ImageIO.read(new File("obj", name));
 			DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
 			byte[] data = buffer.getData();

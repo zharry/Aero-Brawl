@@ -4,6 +4,7 @@ varying vec4 color;
 varying vec3 normal;
 varying vec3 vertex;
 varying vec2 tCoord;
+
 attribute vec2 texCoord;
 
 void main(void) {
