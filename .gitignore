@@ -1,6 +1,7 @@
 bin/
 out/
 Builds/
+output/
 .*
 .*/
 output/
