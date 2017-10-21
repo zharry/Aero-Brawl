@@ -1,6 +1,6 @@
 package client;
 
-import org.jcp.xml.dsig.internal.dom.Utils;
+import util.Util;
 import util.math.Vec2;
 import util.math.Vec3;
 
@@ -81,7 +81,7 @@ public class ObjLoader {
 					if(tok.length > 1) {
 						try {
 							FileInputStream input = new FileInputStream(new File("obj", tok[1]));
-							HashMap<String, Material> mats = loadMtl(Utils.readBytesFromStream(input));
+							HashMap<String, Material> mats = loadMtl(Util.readAllBytes(input));
 							input.close();
 							materials.putAll(mats);
 						} catch(IOException e) {
