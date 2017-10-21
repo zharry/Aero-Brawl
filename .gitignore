@@ -3,5 +3,6 @@ out/
 Builds/
 .*
 .*/
+output/
 !.gitignore
 !.gitattributes
