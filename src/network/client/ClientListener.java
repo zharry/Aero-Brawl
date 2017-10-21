@@ -22,9 +22,7 @@ public class ClientListener implements SocketListener {
 	public void received(Connection con, Object object) {
 		if (object instanceof PacketPing) {
 			NetworkUtil.processPing(con, (PacketPing) object, false);
-		} else if (object instanceof String) {
-			NetworkUtil.log(con, object.toString());
-		} else {
+		} else if (object instanceof Packet) {
 			while(true) {
 				try {
 					starter.packets.put((Packet) object);
