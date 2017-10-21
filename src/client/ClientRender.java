@@ -17,11 +17,7 @@ import java.util.Random;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
-import static org.lwjgl.opengl.GL14.GL_DEPTH_COMPONENT24;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL32.GL_TEXTURE_2D_MULTISAMPLE;
-import static org.lwjgl.opengl.GL32.glTexImage2DMultisample;
 
 public class ClientRender {
 
@@ -129,7 +125,7 @@ public class ClientRender {
 			width = Display.getWidth();
 			height = Display.getHeight();
 
-			if(finalRenderTexture != 0) {
+			/*if(finalRenderTexture != 0) {
 				glDeleteTextures(finalRenderTexture);
 			}
 			if(finalRenderBuffer != 0) {
@@ -166,7 +162,7 @@ public class ClientRender {
 				System.out.println("Framebuffer failed: " + status);
 			}
 
-			glViewport(0, 0, width, height);
+			glViewport(0, 0, width, height);*/
 		}
 
 		runInput();
@@ -228,7 +224,7 @@ public class ClientRender {
 
 	public void glRun() {
 
-		glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
+		//glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
 
 		glUseProgram(renderProgram);
 
@@ -268,7 +264,7 @@ public class ClientRender {
 			glPopMatrix();
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glUseProgram(postProgram);
 		glViewport(0, 0, width, height);
 
@@ -298,6 +294,6 @@ public class ClientRender {
 
 		glTexCoord2d(0, 1);
 		glVertex2d(-1, 1);
-		glEnd();
+		glEnd();*/
 	}
 }
