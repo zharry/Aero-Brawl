@@ -6,6 +6,7 @@ cd ..
 cd NitroNet
 dir /s /B *.java >> ../sources.txt
 cd ..
+mkdir output
 javac -cp dependency/lwjgl.jar;dependency/lwjgl_util.jar -d output @sources.txt
 pause
 echo Running...
