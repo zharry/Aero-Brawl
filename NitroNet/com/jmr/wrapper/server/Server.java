@@ -1,14 +1,5 @@
 package com.jmr.wrapper.server;
 
-import java.io.IOException;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import com.jmr.wrapper.common.IProtocol;
 import com.jmr.wrapper.common.complex.ComplexManager;
 import com.jmr.wrapper.common.config.Config;
@@ -17,6 +8,11 @@ import com.jmr.wrapper.common.listener.SocketListener;
 import com.jmr.wrapper.encryption.IEncryptor;
 import com.jmr.wrapper.server.threads.TcpAcceptThread;
 import com.jmr.wrapper.server.threads.UdpReadThread;
+
+import java.io.IOException;
+import java.net.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * NitroNet
@@ -44,7 +40,7 @@ public class Server implements IProtocol {
 	/** The UDP socket. */
 	private DatagramSocket udpSocket;
 	
-	/** The listener object. */
+	/** The listener entity. */
 	private SocketListener listener;
 	
 	/** The server configurations. */
@@ -82,7 +78,7 @@ public class Server implements IProtocol {
 		}
 	}
 	
-	/** Sets the listener object.
+	/** Sets the listener entity.
 	 * @param listener The listener.
 	 */
 	public void setListener(SocketListener listener) {

@@ -11,9 +11,9 @@ import com.jmr.wrapper.common.complex.ReceivedComplexPiece;
 
 public class PacketUtils {
 
-	/** Gets the ID from a complex object. 
+	/** Gets the ID from a complex entity.
 	 * @param data The data sent.
-	 * @return The complex object ID.
+	 * @return The complex entity ID.
 	 */
 	public static int getIdFromComplex(byte[] data) {
 		byte[] idArray = copyArray(data, 4, 1);
@@ -26,9 +26,9 @@ public class PacketUtils {
 		return intfromByteArray(idArray);
 	}
 	
-	/** Gets the size of a complex object. 
+	/** Gets the size of a complex entity.
 	 * @param data The data sent.
-	 * @return The complex object size.
+	 * @return The complex entity size.
 	 */ 
 	public static int getSizeFromComplex(byte[] data) {
 		byte[] sizeArray = copyArray(data, 4, 1 + 4 + 4); //first byte is for the complex ID, next 4 is the ID, next 4 is the piece amount
@@ -37,7 +37,7 @@ public class PacketUtils {
 		return intfromByteArray(sizeArray);
 	}
 	
-	/** Gets the amount of pieces in the complex object.
+	/** Gets the amount of pieces in the complex entity.
 	 * @param data The data sent.
 	 * @return The amount.
 	 */
@@ -48,7 +48,7 @@ public class PacketUtils {
 		return intfromByteArray(amountArray);
 	}
 	
-	/** Gets the object from a complex piece.
+	/** Gets the entity from a complex piece.
 	 * @param data The data sent.
 	 * @return
 	 */
@@ -69,8 +69,8 @@ public class PacketUtils {
 		return ret;
 	}
 	
-	/** Finds the size of the object's byte array by removing any trailing zeroes.
-	 * @param data The object's byte array.
+	/** Finds the size of the entity's byte array by removing any trailing zeroes.
+	 * @param data The entity's byte array.
 	 * @return The shortened byte array.
 	 */
 	public static int findSizeOfObject(byte[] data) {
@@ -82,10 +82,10 @@ public class PacketUtils {
 	    return i + 1;
 	}
 	
-	/** Takes the bytes of an object's byte array, doesn't include the checksum bytes, finds
-	 *  the size of the object, and returns the object in an array of bytes.
-	 * @param data The object array sent from the packet.
-	 * @return The object in a byte array.
+	/** Takes the bytes of an entity's byte array, doesn't include the checksum bytes, finds
+	 *  the size of the entity, and returns the entity in an array of bytes.
+	 * @param data The entity array sent from the packet.
+	 * @return The entity in a byte array.
 	 */
 	public static byte[] getObjectFromPacket(byte[] data) {
 		int index = 0;
@@ -94,10 +94,10 @@ public class PacketUtils {
 			index = findSizeOfObject(data);		
 			
 			//if (index > 10) {
-				/** Create the byte array to store the object. Size is the size of the data array minus the size of the checksum. */
+				/** Create the byte array to store the entity. Size is the size of the data array minus the size of the checksum. */
 				byte[] objectArray = new byte[index - 10];
 				
-				/** Get the object and put the bytes into a separate array. */
+				/** Get the entity and put the bytes into a separate array. */
 				for (int i = 0; i < objectArray.length; i++)
 					objectArray[i] = data[i + 10];
 				
@@ -127,8 +127,8 @@ public class PacketUtils {
 		return new String(checksum);
 	}
 	
-	/** Takes the byte array of an object and gets the checksum from it.
-	 * @param data The object's byte array.
+	/** Takes the byte array of an entity and gets the checksum from it.
+	 * @param data The entity's byte array.
 	 * @return The checksum.
 	 */
 	public static String getChecksumOfObject(byte[] data) {
@@ -141,11 +141,11 @@ public class PacketUtils {
 		return val;
 	}
 	
-	/** Gets the byte array of the object, the checksum of the object, and combines them into
+	/** Gets the byte array of the entity, the checksum of the entity, and combines them into
 	 * an array of bytes. The first 10 bytes are the checksum and the remaining bytes are the
-	 * object.
-	 * @param stream The object's byte stream to get the byte array. 
-	 * @param object The object being sent.
+	 * entity.
+	 * @param stream The entity's byte stream to get the byte array.
+	 * @param object The entity being sent.
 	 * @return The byte array with the size of it being Config.PACKET_BUFFER_SIZE
 	 */
 	public static byte[] getByteArray(IProtocol protocol, ByteArrayOutputStream stream) {
@@ -173,12 +173,12 @@ public class PacketUtils {
 		return concat;
 	}
 	
-	/** Gets the byte array of the object, the checksum of the object, and combines them into
+	/** Gets the byte array of the entity, the checksum of the entity, and combines them into
 	 * an array of bytes. The first 10 bytes are the checksum and the remaining bytes are the
-	 * object.
-	 * @param stream The object's byte stream to get the byte array. 
-	 * @param object The object being sent.
-	 * @return The byte array with the size of it being the byte length of the object and checksum.
+	 * entity.
+	 * @param stream The entity's byte stream to get the byte array.
+	 * @param object The entity being sent.
+	 * @return The byte array with the size of it being the byte length of the entity and checksum.
 	 */
 	public static byte[] getCompressedByteArray(IProtocol protocol, ByteArrayOutputStream stream) {		
 		return getCompressedByteArray(protocol, stream.toByteArray());

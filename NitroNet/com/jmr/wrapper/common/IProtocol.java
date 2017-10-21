@@ -24,7 +24,7 @@ public interface IProtocol {
 	 */
 	void executeThread(Runnable run);
 	
-	/** @return The listener object. */
+	/** @return The listener entity. */
 	SocketListener getListener();
 	
 	/** @return The UDP port. */

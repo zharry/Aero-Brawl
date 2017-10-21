@@ -9,9 +9,9 @@ import com.jmr.wrapper.server.threads.ReceivedThread;
 /**
  * Networking Library
  * ComplexManager.java
- * Purpose: Singleton class that manages all complex objects. When a new complex object is received from a stream it is passed to here
+ * Purpose: Singleton class that manages all complex objects. When a new complex entity is received from a stream it is passed to here
  * and a new ReceivedComplexObject is created. As more pieces come in they are added to the correct objects and once all of the pieces
- * arrive the object is formed and passed to the event listener.
+ * arrive the entity is formed and passed to the event listener.
  * 
  * @author Jon R (Baseball435)
  * @version 1.0 7/25/2014
@@ -40,7 +40,7 @@ public class ComplexManager {
 		this.protocol = protocol;
 	}
 	
-	/** Handles incoming complex pieces and adds them to their correct complex object.
+	/** Handles incoming complex pieces and adds them to their correct complex entity.
 	 * @param piece The new piece.
 	 * @param con The connection it came from.
 	 */
@@ -57,7 +57,7 @@ public class ComplexManager {
 				if (formed != null) {
 					protocol.executeThread(new ReceivedThread(protocol.getListener(), con, formed));
 				} else {
-					System.out.println("Lost complex object.");
+					System.out.println("Lost complex entity.");
 				}
 				complexObjects.remove(obj);
 			}
@@ -67,7 +67,7 @@ public class ComplexManager {
 	/** Goes through the array of objects and finds the one that matches the piece's checksum and connection.
 	 * @param piece The piece.
 	 * @param con The connection it came from.
-	 * @return The correct complex object.
+	 * @return The correct complex entity.
 	 */
 	private ReceivedComplexObject getComplexObject(ReceivedComplexPiece piece, Connection con) {
 		for (int i = 0; i < complexObjects.size(); i++) {

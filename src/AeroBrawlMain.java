@@ -1,7 +1,6 @@
-import clientrender.RenderMain;
+import client.Client;
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
-import networkclient.ClientStarter;
-import networkserver.ServerStarter;
+import network.server.ServerHandler;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -36,50 +35,58 @@ public class AeroBrawlMain {
 				// Specify Connection details
 				String serverIP;
 				int serverPort;
-				getIP: while (true)
+				while (true) {
 					try {
 						String[] serverIPPort = ((String) JOptionPane.showInputDialog(null, "Server IP:Port",
 								"Connect to server", JOptionPane.PLAIN_MESSAGE, null, null, "localhost")).split(":");
 						serverIP = serverIPPort[0];
 						serverPort = serverIPPort.length == 1 ? SERVER_PORT : Integer.parseInt(serverIPPort[1]);
-						break getIP;
+						break;
 					} catch (Exception e) {
+						e.printStackTrace();
 						displayError(1);
 					}
+				}
 
 				// Start and Run code for client
 				System.out.println("Launching as Client.");
-				createClient: while (true)
+				while (true) {
 					try {
 						runClient(serverIP, serverPort);
-						break createClient;
+						break;
 					} catch (Exception e) {
+						e.printStackTrace();
 						displayError(0);
 					}
+				}
 
 				// Create Server
 			} else if (select == 1) {
 
 				// Specify Host listening port
 				int serverPort;
-				createServer: while (true)
+				while (true) {
 					try {
 						serverPort = Integer.parseInt((String) JOptionPane.showInputDialog(null, "Server Port",
 								"Create Server", JOptionPane.PLAIN_MESSAGE, null, null, SERVER_PORT));
-						break createServer;
+						break;
 					} catch (Exception e) {
+						e.printStackTrace();
 						displayError(1);
 					}
+				}
 
 				// Start and Run code for server
 				System.out.println("Launching as Host.");
-				startServer: while (true)
+				while (true) {
 					try {
 						runServer(serverPort);
-						break startServer;
+						break;
 					} catch (Exception e) {
+						e.printStackTrace();
 						displayError(2);
 					}
+				}
 
 				// Close Game
 			} else {
@@ -91,13 +98,13 @@ public class AeroBrawlMain {
 	}
 
 	public static void runClient(String serverIP, int serverPort) throws ConnectException {
-		ClientStarter client = new ClientStarter(serverIP, serverPort);
-		RenderMain main = new RenderMain(client);
-		main.startRender();
+		Client client = new Client("TestUser", serverIP, serverPort);
+		client.run();
 	}
 
 	public static void runServer(int serverPort) throws NNCantStartServer, InterruptedException {
-		ServerStarter server = new ServerStarter(serverPort);
+		ServerHandler server = new ServerHandler(serverPort);
+		server.run();
 	}
 
 	public static void displayError(int id) {

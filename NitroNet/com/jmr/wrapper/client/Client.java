@@ -48,7 +48,7 @@ public class Client implements IProtocol {
 	/** The socket used to send packets over UDP. */
 	private DatagramSocket udpSocket;
 	
-	/** The listener object. */
+	/** The listener entity. */
 	private SocketListener listener;
 	
 	/** The connection to the server. */
@@ -115,7 +115,7 @@ public class Client implements IProtocol {
 		}
 	}
 	
-	/** Sets the listener object.
+	/** Sets the listener entity.
 	 * @param listener The listener.
 	 */
 	public void setListener(SocketListener listener) {

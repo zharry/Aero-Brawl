@@ -13,7 +13,7 @@ import com.jmr.wrapper.common.utils.PacketUtils;
 /**
  * Networking Library
  * ReceivedComplexObject.java
- * Purpose: A complex object that was received over a stream. This contains the pieces of the object and methods to form the object
+ * Purpose: A complex entity that was received over a stream. This contains the pieces of the entity and methods to form the entity
  * back together.
  * 
  * @author Jon R (Baseball435)
@@ -28,22 +28,22 @@ public class ReceivedComplexObject {
 	/** An array of all of the received pieces. */
 	private final ReceivedComplexPiece[] pieces;
 	
-	/** The checksum value of the object. */
+	/** The checksum value of the entity. */
 	private final String checksum;
 	
 	/** Instance of the protocol. */
 	private final IProtocol protocol;
 
-	/** The amount of pieces in the object. */
+	/** The amount of pieces in the entity. */
 	private final int pieceSize;
 	
 	/** The current amount of pieces received. */
 	private int index = 0;
 	
-	/** Creates a new complex object that was received over a stream.
-	 * @param checksum The checksum of the object.
+	/** Creates a new complex entity that was received over a stream.
+	 * @param checksum The checksum of the entity.
 	 * @param con The connection the piece's came from.
-	 * @param pieceSize The amount of pieces in the object.
+	 * @param pieceSize The amount of pieces in the entity.
 	 * @param protocol Instance of the protocol. 
 	 */
 	public ReceivedComplexObject(String checksum, Connection con, int pieceSize, IProtocol protocol) {
@@ -63,8 +63,8 @@ public class ReceivedComplexObject {
 	}
 	
 	
-	/** Forms the object once all of the pieces have been received.
-	 * @return The formed object.
+	/** Forms the entity once all of the pieces have been received.
+	 * @return The formed entity.
 	 */
 	public Object formObject() {
 		Arrays.sort(pieces, pieceComparator);
@@ -87,12 +87,12 @@ public class ReceivedComplexObject {
 			if (protocol.getEncryptionMethod() != null)
 				data = protocol.getEncryptionMethod().decrypt(data);
 
-			/** Get the checksum value of the object array. */
+			/** Get the checksum value of the entity array. */
 			String checksumVal = PacketUtils.getChecksumOfObject(data);
 			
 			System.out.println("Final Data Size: " + data.length);
 			
-			/** Get the object from the bytes. */
+			/** Get the entity from the bytes. */
 			ByteArrayInputStream in = new ByteArrayInputStream(data);
 			ObjectInputStream is = new ObjectInputStream(in);
 			Object object = is.readObject();
@@ -109,17 +109,17 @@ public class ReceivedComplexObject {
 		return null;
 	}
 	
-	/** @return The connection the object came from. */
+	/** @return The connection the entity came from. */
 	public Connection getConnection() {
 		return con;
 	}
 	
-	/** @return The checksum of the object. */
+	/** @return The checksum of the entity. */
 	public String getChecksum() {
 		return checksum;
 	}
 	
-	/** @return Whether the object is ready to be formed. */
+	/** @return Whether the entity is ready to be formed. */
 	public boolean isFormed() {
 		return pieceSize == index;
 	}

@@ -12,8 +12,8 @@ package com.jmr.wrapper.encryption;
 
 public interface IEncryptor {
 
-	/** The method used to encrypt an object's byte array when being sent over different protocols.
-	 * @param data The object's byte array.
+	/** The method used to encrypt an entity's byte array when being sent over different protocols.
+	 * @param data The entity's byte array.
 	 * @return The encrypted byte array.
 	 */
 	byte[] encrypt(byte[] data);

@@ -24,7 +24,7 @@ public class AcceptedSocketThread implements Runnable {
 	/** Instance of the TCP socket. */
 	private final Socket socket;
 	
-	/** Instance of the Server object. */
+	/** Instance of the Server entity. */
 	private final Server server;
 
 	/** Creates a new thread when a new socket arrives.

@@ -14,17 +14,17 @@ import com.jmr.wrapper.common.listener.SocketListener;
 
 public class ReceivedThread implements Runnable {
 	
-	/** Instance of the listener object. */
+	/** Instance of the listener entity. */
 	private final SocketListener listener;
 	
 	/** Instance of the connection. */
 	private final Connection con;
 	
-	/** The object that was sent. */
+	/** The entity that was sent. */
 	private final Object object;
 	
 	/** Creates a new thread to call the received event.
-	 * @param listener Instance of the listener object.
+	 * @param listener Instance of the listener entity.
 	 * @param con Instance of the connection.
 	 */
 	public ReceivedThread(SocketListener listener, Connection con, Object object) {

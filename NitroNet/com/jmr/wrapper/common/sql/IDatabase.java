@@ -71,13 +71,13 @@ public interface IDatabase {
 	public PreparedStatement getPreparedStatement(String query) throws NNDatabaseQueryError;
 	
 	/** Returns the amount of rows of a ResultSet.
-	 * @param rs The ResultSet object to check.
+	 * @param rs The ResultSet entity to check.
 	 * @return The amount of rows.
 	 * @throws NNDatabaseQueryError Thrown when query can't be run.
 	 */
 	public int getRowCount(ResultSet rs) throws NNDatabaseQueryError;
 		
-	/** @return A new Statement object. 
+	/** @return A new Statement entity.
 	 * @throws NNDatabaseQueryError Thrown when the query can't be ran.
 	 */
 	public Statement getNewStatement() throws NNDatabaseQueryError;

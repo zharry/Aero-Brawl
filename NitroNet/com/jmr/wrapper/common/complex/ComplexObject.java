@@ -14,9 +14,9 @@ import com.jmr.wrapper.common.threads.ComplexUdpSendThread;
 /**
  * Networking Library
  * ComplexObject.java
- * Purpose: An object that takes another object's byte array and splits it into pieces. It then sends these pieces to the server
- * and the server receives them and recreates the object. This class adds the checksum to the beginning of each piece as the
- * identifier for which object it corresponds to.
+ * Purpose: An entity that takes another entity's byte array and splits it into pieces. It then sends these pieces to the server
+ * and the server receives them and recreates the entity. This class adds the checksum to the beginning of each piece as the
+ * identifier for which entity it corresponds to.
  * 
  * @author Jon R (Baseball435)
  * @version 1.0 7/25/2014
@@ -24,13 +24,13 @@ import com.jmr.wrapper.common.threads.ComplexUdpSendThread;
 
 public class ComplexObject {
 
-	/** Increments the complex object's id's. */
+	/** Increments the complex entity's id's. */
 	private static int ID_INCREMENT = 0;
 	
 	/** The amount of splits to make. */
 	private int splitAmount;
 	
-	/** The object's id. */
+	/** The entity's id. */
 	private final int id;
 	
 	/** The data and checksum byte arrays. */
@@ -42,18 +42,18 @@ public class ComplexObject {
 	/** Array to hold all of the pieces. */
 	private final ArrayList<ComplexPiece> pieces = new ArrayList<ComplexPiece>();
 	
-	/** Creates a new complex object and loads the pieces by splitting the data. 
-	 * @param data The object's byte array. 
-	 * @param checksum The object's checksum value.
+	/** Creates a new complex entity and loads the pieces by splitting the data.
+	 * @param data The entity's byte array.
+	 * @param checksum The entity's checksum value.
 	 * @param protocol Instance of the protocol.
 	 */
 	public ComplexObject(byte[] data, byte[] checksum, IProtocol protocol) {
 		this(data, checksum, protocol, 3);
 	}
 	
-	/** Creates a new complex object and loads the pieces by splitting the data. 
-	 * @param data The object's byte array. 
-	 * @param checksum The object's checksum value.
+	/** Creates a new complex entity and loads the pieces by splitting the data.
+	 * @param data The entity's byte array.
+	 * @param checksum The entity's checksum value.
 	 * @param protocol Instance of the protocol.
 	 * @param splitAmount The amount of splits to make.
 	 */
@@ -67,7 +67,7 @@ public class ComplexObject {
 		
 	}
 	
-	/** Splits the object's byte array into pieces and gets them ready to be sent to over the stream. */
+	/** Splits the entity's byte array into pieces and gets them ready to be sent to over the stream. */
 	private void loadPieces() {
 		int bytesPerSend = data.length / splitAmount;
 		if (bytesPerSend <= 10) { //Bytes per send needs to be > 10 so that the checksum can be extracted correctly. If not, change the split amount.
@@ -91,7 +91,7 @@ public class ComplexObject {
 		}
 	}
 	
-	/** Sends the object over TCP.
+	/** Sends the entity over TCP.
 	 * @param tcpOut The TCP output stream.
 	 */
 	public void sendTcp(ObjectOutputStream tcpOut) {
@@ -99,7 +99,7 @@ public class ComplexObject {
 			piece.sendTcp(tcpOut);
 	}
 	
-	/** Sends the object over UDP.
+	/** Sends the entity over UDP.
 	 * @param udpOut The UDP output stream.
 	 * @param InetAddress The address to send it to.
 	 * @param port The port to send it over.

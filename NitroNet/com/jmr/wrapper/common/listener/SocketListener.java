@@ -15,8 +15,8 @@ import com.jmr.wrapper.common.Connection;
 public interface SocketListener {
 
 	/** Called when a new packet arrives.
-	 * @param con The connection the object came from.
-	 * @param object The object that was sent.
+	 * @param con The connection the entity came from.
+	 * @param object The entity that was sent.
 	 */
 	void received(Connection con, Object object);
 	

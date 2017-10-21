@@ -103,8 +103,8 @@ public class Connection {
 		return udpSocket != null && socket != null && socket.isConnected() && socket.isBound() && !socket.isClosed();
 	}
 	
-	/** Sends an object over the UDP socket.
-	 * @param object The object to send.
+	/** Sends an entity over the UDP socket.
+	 * @param object The entity to send.
 	 */
 	public void sendUdp(Object object) {
 		try {
@@ -127,8 +127,8 @@ public class Connection {
 		}
 	}
 	
-	/** Sends an object over the TCP socket.
-	 * @param object The object to send.
+	/** Sends an entity over the TCP socket.
+	 * @param object The entity to send.
 	 */	
 	public void sendTcp(Object object) {
 		try {
@@ -150,8 +150,8 @@ public class Connection {
 		}
 	}
 	
-	/** Sends an object over TCP. Will automatically calculate the amount of splits needed.
-	 * @param object The object to send.
+	/** Sends an entity over TCP. Will automatically calculate the amount of splits needed.
+	 * @param object The entity to send.
 	 */
 	public void sendComplexObjectTcp(Object object) {
 		try {
@@ -172,8 +172,8 @@ public class Connection {
 		}
 	}
 	
-	/** Sends an object over TCP by splitting it into separate packets.
-	 * @param object The object to send.
+	/** Sends an entity over TCP by splitting it into separate packets.
+	 * @param object The entity to send.
 	 * @param splitAmount The amount of splits to make
 	 */
 	public void sendComplexObjectTcp(Object object, int splitAmount) {
@@ -195,8 +195,8 @@ public class Connection {
 		}
 	}
 	
-	/** Sends an object over TCP by splitting it into separate packets.
-	 * @param objectData The object's byte data to send.
+	/** Sends an entity over TCP by splitting it into separate packets.
+	 * @param objectData The entity's byte data to send.
 	 * @param splitAmount The amount of splits to make
 	 */
 	public void sendComplexObjectTcp(byte[] objectData, int splitAmount) {
@@ -208,8 +208,8 @@ public class Connection {
 		ConnectionManager.getInstance().close(this);
 	}
 	
-	/** Sends an object over TCP by splitting it into separate packets. Will automatically calculate the amount of splits needed.
-	 * @param objectData The object's byte data to send.
+	/** Sends an entity over TCP by splitting it into separate packets. Will automatically calculate the amount of splits needed.
+	 * @param objectData The entity's byte data to send.
 	 */
 	public void sendComplexObjectTcp(byte[] objectData) {
 		byte[] checksum = PacketUtils.getChecksumOfObject(objectData).getBytes();
@@ -220,8 +220,8 @@ public class Connection {
 		ConnectionManager.getInstance().close(this);
 	}
 	
-	/** Sends an object over UDP. Will automatically calculate the amount of splits needed.
-	 * @param object The object to send.
+	/** Sends an entity over UDP. Will automatically calculate the amount of splits needed.
+	 * @param object The entity to send.
 	 */
 	public void sendComplexObjectUdp(Object object) {
 		try {
@@ -242,8 +242,8 @@ public class Connection {
 		}
 	}
 	
-	/** Sends an object over UDP by splitting it into separate packets.
-	 * @param object The object to send.
+	/** Sends an entity over UDP by splitting it into separate packets.
+	 * @param object The entity to send.
 	 * @param splitAmount The amount of splits to make
 	 */
 	public void sendComplexObjectUdp(Object object, int splitAmount) {
@@ -265,8 +265,8 @@ public class Connection {
 		}
 	}
 	
-	/** Sends an object over UDP by splitting it into separate packets.
-	 * @param objectData The object's byte data to send.
+	/** Sends an entity over UDP by splitting it into separate packets.
+	 * @param objectData The entity's byte data to send.
 	 * @param splitAmount The amount of splits to make
 	 */
 	public void sendComplexObjectUdp(byte[] objectData, int splitAmount) {
@@ -278,8 +278,8 @@ public class Connection {
 		ConnectionManager.getInstance().close(this);
 	}
 	
-	/** Sends an object over UDP by splitting it into separate packets. Will automatically calculate the amount of splits needed.
-	 * @param objectData The object's byte data to send.
+	/** Sends an entity over UDP by splitting it into separate packets. Will automatically calculate the amount of splits needed.
+	 * @param objectData The entity's byte data to send.
 	 * @param splitAmount The amount of splits to make
 	 */
 	public void sendComplexObjectUdp(byte[] objectData) {

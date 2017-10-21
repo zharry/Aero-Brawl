@@ -10,7 +10,7 @@ import com.jmr.wrapper.server.ServerConfig;
  * Networking Library
  * PingThread.java
  * Purpose: There is no way to ensure that a socket is still connected to the server without 
- * sending an object over TCP. If it throws an error it means the socket disconnected and 
+ * sending an entity over TCP. If it throws an error it means the socket disconnected and
  * the connection is removed from the server. The time between sending the ping and whether or
  * not to send the ping can be configured through the ServerConfig class.
  * 

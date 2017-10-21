@@ -15,14 +15,14 @@ import com.jmr.wrapper.common.listener.SocketListener;
 
 public class NewConnectionThread implements Runnable {
 	
-	/** Instance of the listener object. */
+	/** Instance of the listener entity. */
 	private final SocketListener listener;
 	
 	/** Instance of the connection. */
 	private final Connection con;
 	
 	/** Creates a new thread to call the new connection event.
-	 * @param listener Instance of the listener object.
+	 * @param listener Instance of the listener entity.
 	 * @param con Instance of the connection.
 	 */
 	public NewConnectionThread(SocketListener listener, Connection con) {

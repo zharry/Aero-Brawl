@@ -36,16 +36,16 @@ public class UdpHandleThread implements Runnable {
 			/** Get the checksum found before the packet was sent. */
 			String checksumSent = PacketUtils.getChecksumFromPacket(data);
 			
-			/** Return the object in bytes from the sent packet. */
+			/** Return the entity in bytes from the sent packet. */
 			byte[] objectArray = PacketUtils.getObjectFromPacket(data);
 			
-			if (objectArray[0] == 99) { //Complex object
+			if (objectArray[0] == 99) { //Complex entity
 				PacketUtils.handleComplexPiece(checksumSent, objectArray, con);
 			} else {
-				/** Get the checksum value of the object array. */
+				/** Get the checksum value of the entity array. */
 				String checksumVal = PacketUtils.getChecksumOfObject(objectArray);
 				
-				/** Get the object from the bytes. */
+				/** Get the entity from the bytes. */
 				ByteArrayInputStream in = new ByteArrayInputStream(objectArray);
 				ObjectInputStream is = new ObjectInputStream(in);
 				Object object = is.readObject();
