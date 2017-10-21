@@ -1,3 +1,8 @@
+// Jacky Liao and Harry Zhang
+// October 20, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package world;
 
 import entity.Entity;
@@ -13,9 +18,15 @@ public abstract class World {
 		this.isClient = isClient;
 	}
 
-	public void tick() {
+	public void updatePrevPos() {
 		for(Entity entity : entities.values()) {
 			entity.lastPosition = entity.position;
+			entity.lastQuat = entity.quat;
+		}
+	}
+
+	public void tick() {
+		for(Entity entity : entities.values()) {
 			entity.tick(this);
 		}
 	}

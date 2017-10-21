@@ -1,3 +1,8 @@
+// Jacky Liao and Harry Zhang
+// October 20, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 import client.Client;
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
 import network.server.ServerHandler;

@@ -1,3 +1,8 @@
+// Jacky Liao and Harry Zhang
+// October 20, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package network.server;
 
 import com.jmr.wrapper.common.Connection;
@@ -8,6 +13,7 @@ import entity.Entity;
 import entity.EntityPlayer;
 import entity.EntityRegistry;
 import network.packet.*;
+import util.math.Quat4;
 import util.math.Vec3;
 import world.World;
 import world.WorldServer;
@@ -23,7 +29,7 @@ public class ServerHandler {
 
 	private Server server;
 
-	private final int TARGET_TPS = 20;
+	private final int TARGET_TPS = 30;
 	private int CURRENT_TPS = 0;
 
 	private HashMap<Long, Connection> connections = new HashMap<>();
@@ -104,7 +110,6 @@ public class ServerHandler {
 						Event p = (Event) packet;
 						if(p.status == Event.CONNECT) {
 							id = random.nextLong();
-							connections.put(id, incoming.connection);
 							connectionsLookup.put(incoming.connection, id);
 						} else if(p.status == Event.DISCONNECT) {
 							if(id != null) {
@@ -116,6 +121,7 @@ public class ServerHandler {
 						}
 					} else if(packet instanceof PacketPlayerJoin) {
 						PacketPlayerJoin p = (PacketPlayerJoin) packet;
+						connections.put(id, incoming.connection);
 						EntityPlayer player = new EntityPlayer();
 						player.id = id;
 						player.playerName = p.playerName;
@@ -138,7 +144,9 @@ public class ServerHandler {
 
 					} else if(packet instanceof PacketPlayerInput) {
 						PacketPlayerInput p = (PacketPlayerInput) packet;
-						world.entities.get(id).position = new Vec3(p.x, p.y, p.z);
+						Entity player = world.entities.get(id);
+						player.position = new Vec3(p.x, p.y, p.z);
+						player.quat = new Quat4(p.qw, p.qx, p.qy, p.qz);
 					}
 				}
 
@@ -147,19 +155,24 @@ public class ServerHandler {
 				lastTime = curTime;
 				while (delta >= 1) {
 					// Process Game Changes
+					world.updatePrevPos();
 					world.tick();
 					tpsProc++;
 					delta--;
 				}
 
 				for(Entity entity : world.entities.values()) {
-					if(!entity.lastPosition.equals(entity.position)) {
+					if(!entity.lastPosition.equals(entity.position) || !entity.lastQuat.equals(entity.quat)) {
 
 						PacketMoveEntity move = new PacketMoveEntity();
 						move.id = entity.id;
 						move.x = entity.position.x;
 						move.y = entity.position.y;
 						move.z = entity.position.z;
+						move.qw = entity.quat.w;
+						move.qx = entity.quat.x;
+						move.qy = entity.quat.y;
+						move.qz = entity.quat.z;
 
 						if(entity instanceof EntityPlayer) {
 							broadcastPacketExcept(move, entity.id);
