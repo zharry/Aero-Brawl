@@ -1,3 +1,8 @@
+// Jacky Liao and Harry Zhang
+// October 20, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package entity;
 
 import util.math.Quat4;
@@ -14,6 +19,7 @@ public abstract class Entity {
 	public Vec3 velocity = new Vec3();
 
 	public Quat4 quat = new Quat4();
+	public Quat4 lastQuat = new Quat4();
 
 	public Entity() {
 	}

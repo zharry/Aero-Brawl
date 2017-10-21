@@ -1,3 +1,8 @@
+// Jacky Liao and Harry Zhang
+// October 20, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package client;
 
 import entity.Entity;
@@ -29,7 +34,7 @@ public class Client {
 	public long lastUpdate;
 	public double timeDelta;
 
-	public int targetTPS = 20;
+	public int targetTPS = 30;
 
 	private double nsPerTick = 1e9 / targetTPS;
 
@@ -63,11 +68,12 @@ public class Client {
 
 			while(timeDelta >= 1) {
 				timeDelta -= 1;
+				world.updatePrevPos();
 				runNetwork();
 				world.tick();
 			}
 
-			render.render();
+			render.render(timeDelta);
 		}
 
 		System.exit(0);
@@ -120,6 +126,6 @@ public class Client {
 			}
 		}
 
-		network.sendPacket(new PacketPlayerInput(player.position.x, player.position.y, player.position.z));
+		network.sendPacket(new PacketPlayerInput(player.position.x, player.position.y, player.position.z, player.quat.w, player.quat.x, player.quat.y, player.quat.z));
 	}
 }

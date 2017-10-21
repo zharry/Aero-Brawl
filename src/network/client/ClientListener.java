@@ -1,9 +1,15 @@
+// Jacky Liao and Harry Zhang
+// October 20, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package network.client;
 
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.listener.SocketListener;
 import network.packet.Packet;
 import network.packet.PacketPing;
+import util.NetworkUtil;
 
 public class ClientListener implements SocketListener {
 

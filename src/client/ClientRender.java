@@ -1,3 +1,8 @@
+// Jacky Liao and Harry Zhang
+// October 20, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package client;
 
 import entity.Entity;
@@ -18,6 +23,14 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
 import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.glDeleteRenderbuffers;
+
+//import static org.lwjgl.opengl.GL11.*;
+//import static org.lwjgl.opengl.GL13.*;
+//import static org.lwjgl.opengl.GL14.*;
+//import static org.lwjgl.opengl.GL20.*;
+//import static org.lwjgl.opengl.GL30.*;
+//import static org.lwjgl.opengl.GL32.*;
 
 public class ClientRender {
 
@@ -29,9 +42,6 @@ public class ClientRender {
 	public float fov = 90;
 	public int width;
 	public int height;
-
-	public double yaw;
-	public double pitch;
 
 	public int uSamples;
 	public int uTextureFinal;
@@ -117,7 +127,7 @@ public class ClientRender {
 
 	}
 
-	public void render() {
+	public void render(double partialTick) {
 
 		++frameCounter;
 
@@ -125,15 +135,14 @@ public class ClientRender {
 			width = Display.getWidth();
 			height = Display.getHeight();
 
-			/*if(finalRenderTexture != 0) {
+			if(finalRenderTexture != 0) {
 				glDeleteTextures(finalRenderTexture);
 			}
 			if(finalRenderBuffer != 0) {
 				glDeleteRenderbuffers(finalRenderBuffer);
 			}
 
-
-			finalRenderTexture = glGenTextures();
+			/*finalRenderTexture = glGenTextures();
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
 //			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_REPEAT);
 //			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -160,14 +169,14 @@ public class ClientRender {
 
 			if(status != GL_FRAMEBUFFER_COMPLETE) {
 				System.out.println("Framebuffer failed: " + status);
-			}
+			}*/
 
-			glViewport(0, 0, width, height);*/
+			glViewport(0, 0, width, height);
 		}
 
-		runInput();
+		runInput(partialTick);
 
-		glRun();
+		glRun(partialTick);
 
 		Display.update();
 
@@ -176,7 +185,7 @@ public class ClientRender {
 		}
 	}
 
-	public void runInput() {
+	public void runInput(double partialTick) {
 		if(Mouse.isButtonDown(0)) {
 			Mouse.setGrabbed(true);
 			isCaptured = true;
@@ -188,14 +197,9 @@ public class ClientRender {
 
 		if(isCaptured) {
 
-			yaw += Mouse.getDX();
-			pitch += Mouse.getDY();
-			if (pitch > 90) {
-				pitch = 90;
-			}
-			if (pitch < -90) {
-				pitch = -90;
-			}
+			client.player.quat.x += Mouse.getDX();
+			client.player.quat.y += Mouse.getDY();
+			client.player.quat.y = Math.max(-90, Math.min(90, client.player.quat.y));
 
 			double fmove = 0;
 			double smove = 0;
@@ -214,15 +218,15 @@ public class ClientRender {
 			if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 				ymove -= 1;
 
-			double yx = Math.cos(Math.toRadians(yaw));
-			double yy = Math.sin(Math.toRadians(yaw));
+			double yx = Math.cos(Math.toRadians(client.player.quat.x));
+			double yy = Math.sin(Math.toRadians(client.player.quat.x));
 
 			client.player.velocity = client.player.velocity.add(new Vec3(smove * yx - fmove * yy, ymove, smove * yy + fmove * yx).mul(0.001));
 			scale *= Math.pow(1.001, Mouse.getDWheel());
 		}
 	}
 
-	public void glRun() {
+	public void glRun(double partialTick) {
 
 		//glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
 
@@ -244,12 +248,17 @@ public class ClientRender {
 
 		glLoadIdentity();
 
-		glRotated(-pitch, 1, 0, 0);
-		glRotated(yaw, 0, 1, 0);
-		glTranslated(-client.player.position.x, -client.player.position.y, -client.player.position.z);
+		glRotated(-client.player.quat.y, 1, 0, 0);
+		glRotated(client.player.quat.x, 0, 1, 0);
 
+		Vec3 newPos = client.player.position.sub(client.player.lastPosition).mul(partialTick).add(client.player.lastPosition);
+		glTranslated(-newPos.x, -newPos.y, -newPos.z);
+
+		glPushMatrix();
+		glTranslated(0, -2, 0);
 		glUniform1i(uHasDiffuseMap, 0);
 		glCallList(GLUtil.cubeList);
+		glPopMatrix();
 
 		glTranslated(0, -1.15, 0);
 		glColor3d(1, 1, 1);
@@ -259,7 +268,9 @@ public class ClientRender {
 				continue;
 			}
 			glPushMatrix();
-			glTranslated(entity.position.x, entity.position.y, entity.position.z);
+			Vec3 pos = entity.position.sub(entity.lastPosition).mul(partialTick).add(entity.lastPosition);
+			glTranslated(pos.x, pos.y, pos.z);
+			glRotated(-((entity.quat.x - entity.lastQuat.x) * partialTick + entity.lastQuat.x) + 180, 0, 1, 0);
 			GLUtil.renderObj(playerModel, uHasDiffuseMap);
 			glPopMatrix();
 		}
