@@ -36,7 +36,7 @@ public class ClientRender {
 
 	private Random random = new Random();
 
-	public Client client;
+	public ClientHandler client;
 
 	public int frameCounter = 0;
 	public float fov = 90;
@@ -65,7 +65,7 @@ public class ClientRender {
 
 	public static boolean isCaptured;
 
-	public ClientRender(Client client) {
+	public ClientRender(ClientHandler client) {
 		this.client = client;
 	}
 

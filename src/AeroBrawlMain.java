@@ -3,7 +3,7 @@
 // Summative
 // ICS4U Ms.Strelkovska
 
-import client.Client;
+import client.ClientHandler;
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
 import network.server.ServerHandler;
 
@@ -103,7 +103,7 @@ public class AeroBrawlMain {
 	}
 
 	public static void runClient(String serverIP, int serverPort) throws ConnectException {
-		Client client = new Client("TestUser", serverIP, serverPort);
+		ClientHandler client = new ClientHandler("TestUser", serverIP, serverPort);
 		client.run();
 	}
 

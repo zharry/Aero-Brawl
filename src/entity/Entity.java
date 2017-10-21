@@ -3,6 +3,8 @@
 // Summative
 // ICS4U Ms.Strelkovska
 
+// Previously GameObject
+
 package entity;
 
 import util.math.Quat4;

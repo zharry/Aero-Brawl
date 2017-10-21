@@ -3,6 +3,8 @@
 // Summative
 // ICS4U Ms.Strelkovska
 
+// Previously ServerStarter
+
 package network.server;
 
 import com.jmr.wrapper.common.Connection;

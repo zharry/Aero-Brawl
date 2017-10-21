@@ -3,6 +3,8 @@
 // Summative
 // ICS4U Ms.Strelkovska
 
+// Previously ClientStarter
+
 package network.client;
 
 import com.jmr.wrapper.client.Client;
