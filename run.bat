@@ -6,8 +6,8 @@ cd ..
 cd NitroNet
 dir /s /B *.java >> ../sources.txt
 cd ..
-javac -cp dependency/lwjgl.jar -cp dependency/lwjgl_util.jar -d out/production @sources.txt
+javac -cp dependency/lwjgl.jar;dependency/lwjgl_util.jar -d output @sources.txt
 pause
 echo Running...
-java -Djava.library.path=dependency/native/windows -cp dependency/lwjgl.jar -cp dependency/lwjgl_util.jar AeroBrawlMain
+java -Djava.library.path=dependency/native/windows -cp dependency/lwjgl.jar;dependency/lwjgl_util.jar;output AeroBrawlMain
 del sources.txt
