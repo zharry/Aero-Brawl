@@ -7,12 +7,15 @@
 
 package network.client;
 
+import java.net.ConnectException;
+import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import com.jmr.wrapper.client.Client;
 import com.jmr.wrapper.common.Connection;
-import network.packet.Packet;
 
-import java.net.ConnectException;
-import java.util.concurrent.ArrayBlockingQueue;
+import network.packet.Packet;
+import network.packet.PacketPing;
 
 public class ClientNetworkHandler {
 

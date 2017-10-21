@@ -119,7 +119,7 @@ public class ClientRender {
 		GLUtil.init();
 
 		try {
-			playerModel = GLUtil.loadObj("obj/sinon-sword-art-online.obj", aTexCoord);
+			playerModel = GLUtil.loadObj("obj/TestPlane.obj", aTexCoord);
 		} catch(IOException e) {
 			System.out.println("Failed to load texture");
 			e.printStackTrace();
