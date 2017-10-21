@@ -4,3 +4,4 @@ Builds/
 .*
 .*/
 !.gitignore
+!.gitattributes
