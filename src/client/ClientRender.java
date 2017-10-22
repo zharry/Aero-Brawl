@@ -20,17 +20,11 @@ import java.nio.FloatBuffer;
 import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL13.*;
+import static org.lwjgl.opengl.GL14.*;
 import static org.lwjgl.opengl.GL20.*;
-import static org.lwjgl.opengl.GL30.glDeleteRenderbuffers;
-
-//import static org.lwjgl.opengl.GL11.*;
-//import static org.lwjgl.opengl.GL13.*;
-//import static org.lwjgl.opengl.GL14.*;
-//import static org.lwjgl.opengl.GL20.*;
-//import static org.lwjgl.opengl.GL30.*;
-//import static org.lwjgl.opengl.GL32.*;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.opengl.GL32.*;
 
 public class ClientRender {
 
@@ -59,7 +53,7 @@ public class ClientRender {
 
 	public RenderObjectList playerModel;
 
-	public int samples = 16;
+	public int samples = 8;
 
 	public double scale = 1;
 
@@ -142,12 +136,12 @@ public class ClientRender {
 				glDeleteRenderbuffers(finalRenderBuffer);
 			}
 
-			/*finalRenderTexture = glGenTextures();
+			finalRenderTexture = glGenTextures();
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
 //			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_REPEAT);
 //			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA8, width, height, false);
 
@@ -169,7 +163,7 @@ public class ClientRender {
 
 			if(status != GL_FRAMEBUFFER_COMPLETE) {
 				System.out.println("Framebuffer failed: " + status);
-			}*/
+			}
 
 			glViewport(0, 0, width, height);
 		}
@@ -228,7 +222,7 @@ public class ClientRender {
 
 	public void glRun(double partialTick) {
 
-		//glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
+		glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
 
 		glUseProgram(renderProgram);
 
@@ -275,7 +269,7 @@ public class ClientRender {
 			glPopMatrix();
 		}
 
-		/*glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glUseProgram(postProgram);
 		glViewport(0, 0, width, height);
 
@@ -305,6 +299,6 @@ public class ClientRender {
 
 		glTexCoord2d(0, 1);
 		glVertex2d(-1, 1);
-		glEnd();*/
+		glEnd();
 	}
 }
