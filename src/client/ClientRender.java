@@ -20,11 +20,12 @@ import java.nio.FloatBuffer;
 import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.*;
-import static org.lwjgl.opengl.GL14.*;
+import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
+import static org.lwjgl.opengl.GL13.glActiveTexture;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
-import static org.lwjgl.opengl.GL32.*;
+import static org.lwjgl.opengl.GL32.GL_TEXTURE_2D_MULTISAMPLE;
+import static org.lwjgl.opengl.GL32.glTexImage2DMultisample;
 
 public class ClientRender {
 
@@ -96,7 +97,6 @@ public class ClientRender {
 		glActiveTexture(GL_TEXTURE1);
 		glUniform1i(uDiffuseMap, 1);
 
-
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -113,7 +113,7 @@ public class ClientRender {
 		GLUtil.init();
 
 		try {
-			playerModel = GLUtil.loadObj("obj/TestPlane.obj", aTexCoord);
+			playerModel = GLUtil.loadObj("obj/cessna.obj", aTexCoord);
 		} catch(IOException e) {
 			System.out.println("Failed to load texture");
 			e.printStackTrace();
@@ -143,11 +143,11 @@ public class ClientRender {
 //			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 //			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA8, width, height, false);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA32F, width, height, false);
 
 			int finalDepthTexture = glGenTextures();
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalDepthTexture);
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH_COMPONENT24, width, height, false);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH_COMPONENT32F, width, height, false);
 
 			finalRenderBuffer = glGenFramebuffers();
 			glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
@@ -232,6 +232,9 @@ public class ClientRender {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
+
+		glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
+		glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
