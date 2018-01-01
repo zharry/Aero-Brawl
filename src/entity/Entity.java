@@ -14,23 +14,29 @@ import world.World;
 public abstract class Entity {
 
 	public long id;
-	public int type;
+	public boolean dead;
+	public transient World world;
 
+	@Synchronize
 	public Vec3 position = new Vec3();
-	public Vec3 lastPosition = new Vec3();
+
+	@Synchronize
 	public Vec3 velocity = new Vec3();
 
+	@Synchronize
 	public Quat4 quat = new Quat4();
-	public Quat4 lastQuat = new Quat4();
+
+	@Synchronize
+	public double mass = 1;
+
+	@Synchronize
+	public Vec3 angVelocity = new Vec3();
 
 	public Entity() {
-	}
-
-	public Entity(long id) {
-		this.id = id;
 	}
 
 	public void tick(World world) {
 	}
 
+	public final FieldMonitor monitor = new FieldMonitor(this);
 }

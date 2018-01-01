@@ -10,9 +10,12 @@ import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.ContextCapabilities;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
+import util.math.Quat4;
 import util.math.Vec3;
 
 import java.io.IOException;
@@ -60,6 +63,8 @@ public class ClientRender {
 
 	public static boolean isCaptured;
 
+	public ContextCapabilities capabilities;
+
 	public ClientRender(ClientHandler client) {
 		this.client = client;
 	}
@@ -69,6 +74,24 @@ public class ClientRender {
 		Display.setResizable(true);
 		Display.create();
 		Display.setVSyncEnabled(true);
+
+		System.out.println(glGetString(GL_VERSION));
+
+		capabilities = GLContext.getCapabilities();
+
+		if(!capabilities.OpenGL20) {
+			throw new LWJGLException("OpenGL 2.0 is not supported.");
+		}
+
+//		try {
+//			Field field = Field.class.getDeclaredField("modifiers");
+//			field.setAccessible(true);
+//			Field cap = capabilities.getClass().getDeclaredField("OpenGL32");
+//			field.set(cap, Modifier.PUBLIC);
+//			cap.set(capabilities, false);
+//		} catch(Exception e) {
+//			e.printStackTrace();
+//		}
 
 		glInit();
 	}
@@ -97,7 +120,7 @@ public class ClientRender {
 		glActiveTexture(GL_TEXTURE1);
 		glUniform1i(uDiffuseMap, 1);
 
-		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_CULL_FACE);
@@ -108,7 +131,7 @@ public class ClientRender {
 		glEnable(GL_COLOR_MATERIAL);
 
 		glLight(GL_LIGHT0, GL_DIFFUSE, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(3).flip());
-		glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(0).put(0).put(1).flip());
+		glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(0).put(0).put(0).put(1).flip());
 
 		GLUtil.init();
 
@@ -129,40 +152,34 @@ public class ClientRender {
 			width = Display.getWidth();
 			height = Display.getHeight();
 
-			if(finalRenderTexture != 0) {
-				glDeleteTextures(finalRenderTexture);
-			}
-			if(finalRenderBuffer != 0) {
-				glDeleteRenderbuffers(finalRenderBuffer);
-			}
+			if(capabilities.OpenGL32) {
 
-			finalRenderTexture = glGenTextures();
-			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
-//			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//			glTexParameteri(GL_TEXTURE_2D_MULTISAMPLE, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+				if (finalRenderTexture != 0) {
+					glDeleteTextures(finalRenderTexture);
+				}
+				if (finalRenderBuffer != 0) {
+					glDeleteRenderbuffers(finalRenderBuffer);
+				}
 
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA32F, width, height, false);
+				finalRenderTexture = glGenTextures();
+				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
 
-			int finalDepthTexture = glGenTextures();
-			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalDepthTexture);
-			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH_COMPONENT32F, width, height, false);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA32F, width, height, false);
 
-			finalRenderBuffer = glGenFramebuffers();
-			glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture, 0);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, finalDepthTexture, 0);
+				int finalDepthTexture = glGenTextures();
+				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalDepthTexture);
+				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH_COMPONENT32F, width, height, false);
 
-//			int depthBuffer = glGenRenderbuffers();
-//			glBindRenderbuffer(GL_RENDERBUFFER, depthBuffer);
-//			glRenderbufferStorageMultisample(GL_RENDERBUFFER, samples, GL_DEPTH_COMPONENT32F, width, height);
-//			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuffer);
+				finalRenderBuffer = glGenFramebuffers();
+				glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture, 0);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE, finalDepthTexture, 0);
 
-			int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+				int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 
-			if(status != GL_FRAMEBUFFER_COMPLETE) {
-				System.out.println("Framebuffer failed: " + status);
+				if (status != GL_FRAMEBUFFER_COMPLETE) {
+					System.out.println("Framebuffer failed: " + status);
+				}
 			}
 
 			glViewport(0, 0, width, height);
@@ -191,9 +208,10 @@ public class ClientRender {
 
 		if(isCaptured) {
 
-			client.player.quat.x += Mouse.getDX();
-			client.player.quat.y += Mouse.getDY();
-			client.player.quat.y = Math.max(-90, Math.min(90, client.player.quat.y));
+			double nx = client.player.quat.x + Mouse.getDX();
+			double ny = client.player.quat.y + Mouse.getDY();
+			ny = Math.max(-90, Math.min(90, ny));
+			client.player.quat = new Quat4(0, nx, ny, 0);
 
 			double fmove = 0;
 			double smove = 0;
@@ -222,9 +240,13 @@ public class ClientRender {
 
 	public void glRun(double partialTick) {
 
-		glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
+		if(capabilities.OpenGL32) {
+			glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
+			glUseProgram(renderProgram);
 
-		glUseProgram(renderProgram);
+			glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
+			glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
+		}
 
 		glViewport(0, 0, width, height);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -232,9 +254,6 @@ public class ClientRender {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
-
-		glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
-		glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -248,7 +267,7 @@ public class ClientRender {
 		glRotated(-client.player.quat.y, 1, 0, 0);
 		glRotated(client.player.quat.x, 0, 1, 0);
 
-		Vec3 newPos = client.player.position.sub(client.player.lastPosition).mul(partialTick).add(client.player.lastPosition);
+		Vec3 newPos = client.player.position;
 		glTranslated(-newPos.x, -newPos.y, -newPos.z);
 
 		glPushMatrix();
@@ -265,43 +284,45 @@ public class ClientRender {
 				continue;
 			}
 			glPushMatrix();
-			Vec3 pos = entity.position.sub(entity.lastPosition).mul(partialTick).add(entity.lastPosition);
+			Vec3 pos = entity.position;
 			glTranslated(pos.x, pos.y, pos.z);
-			glRotated(-((entity.quat.x - entity.lastQuat.x) * partialTick + entity.lastQuat.x) + 180, 0, 1, 0);
+			glRotated(-(entity.quat.x) + 180, 0, 1, 0);
 			GLUtil.renderObj(playerModel, uHasDiffuseMap);
 			glPopMatrix();
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		glUseProgram(postProgram);
-		glViewport(0, 0, width, height);
+		if(capabilities.OpenGL32) {
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glUseProgram(postProgram);
+			glViewport(0, 0, width, height);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_LIGHTING);
-		glDisable(GL_LIGHT0);
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_LIGHTING);
+			glDisable(GL_LIGHT0);
 
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
 
-		glActiveTexture(GL_TEXTURE1);
-		glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
+			glActiveTexture(GL_TEXTURE1);
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
 
-		glBegin(GL_QUADS);
-		glTexCoord2d(0, 0);
-		glVertex2d(-1, -1);
+			glBegin(GL_QUADS);
+			glTexCoord2d(0, 0);
+			glVertex2d(-1, -1);
 
-		glTexCoord2d(1, 0);
-		glVertex2d(1, -1);
+			glTexCoord2d(1, 0);
+			glVertex2d(1, -1);
 
-		glTexCoord2d(1, 1);
-		glVertex2d(1, 1);
+			glTexCoord2d(1, 1);
+			glVertex2d(1, 1);
 
-		glTexCoord2d(0, 1);
-		glVertex2d(-1, 1);
-		glEnd();
+			glTexCoord2d(0, 1);
+			glVertex2d(-1, 1);
+			glEnd();
+		}
 	}
 }

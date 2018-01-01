@@ -12,7 +12,6 @@ public class EntityPlayer extends Entity {
 	public String playerName;
 
 	public EntityPlayer() {
-		type = EntityRegistry.REGISTRY_EntityPlayer;
 	}
 
 	@Override

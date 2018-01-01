@@ -17,7 +17,6 @@ void main() {
 	}
 
 	clrInput /= float(samples);
-	clrInput = sqrt(clrInput);
 
 	gl_FragColor = vec4(clrInput, 1.0);
 }

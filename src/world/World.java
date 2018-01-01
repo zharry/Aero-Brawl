@@ -8,6 +8,7 @@ package world;
 import entity.Entity;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 public abstract class World {
 	public HashMap<Long, Entity> entities = new HashMap<>();
@@ -18,16 +19,28 @@ public abstract class World {
 		this.isClient = isClient;
 	}
 
-	public void updatePrevPos() {
-		for(Entity entity : entities.values()) {
-			entity.lastPosition = entity.position;
-			entity.lastQuat = entity.quat;
+	public void tick() {
+		Iterator<Entity> iterator = entities.values().iterator();
+		while(iterator.hasNext()) {
+			Entity ent = iterator.next();
+			if(ent.dead) {
+				onEntityDelete(ent);
+				iterator.remove();
+				continue;
+			}
+			ent.tick(this);
 		}
 	}
 
-	public void tick() {
-		for(Entity entity : entities.values()) {
-			entity.tick(this);
-		}
+	protected void onEntityDelete(Entity entity) {
+	}
+
+	protected void onEntitySpawn(Entity entity) {
+	}
+
+	public void spawnEntity(Entity entity) {
+		entity.world = this;
+		entities.put(entity.id, entity);
+		onEntitySpawn(entity);
 	}
 }

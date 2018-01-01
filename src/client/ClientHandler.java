@@ -11,12 +11,12 @@ import entity.EntityRegistry;
 import network.client.ClientNetworkHandler;
 import network.packet.*;
 import org.lwjgl.LWJGLException;
-import util.math.Quat4;
-import util.math.Vec3;
 import world.World;
 import world.WorldClient;
 
+import javax.swing.*;
 import java.net.ConnectException;
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 public class ClientHandler {
@@ -27,6 +27,7 @@ public class ClientHandler {
 	public ClientRender render;
 	public ClientNetworkHandler network;
 
+	public boolean spectator = true;
 	public EntityPlayer player = new EntityPlayer();
 
 	public boolean running;
@@ -53,7 +54,9 @@ public class ClientHandler {
 		try {
 			render.initRendering(1280, 720);
 		} catch(LWJGLException e) {
+			JOptionPane.showMessageDialog(null, "OpenGL cannot be initialized on your computer\n" + e.toString() + "\nMake sure you install the latest graphics drivers", "OpenGL error", JOptionPane.ERROR_MESSAGE);
 			e.printStackTrace();
+			System.exit(-1);
 		}
 
 		initNetwork();
@@ -68,7 +71,6 @@ public class ClientHandler {
 
 			while(timeDelta >= 1) {
 				timeDelta -= 1;
-				world.updatePrevPos();
 				runNetwork();
 				world.tick();
 			}
@@ -86,43 +88,32 @@ public class ClientHandler {
 	public void runNetwork() {
 		while(!network.packets.isEmpty()) {
 			Packet packet = network.packets.poll();
-			if(packet instanceof PacketMoveEntity) {
-				PacketMoveEntity move = (PacketMoveEntity) packet;
-				Entity object = world.entities.get(move.id);
-				if(object != null) {
-					object.position = new Vec3(move.x, move.y, move.z);
-					if (move.updateVelocity) {
-						object.velocity = new Vec3(move.vx, move.vy, move.vz);
+			System.out.println("Received packet: " + packet);
+			try {
+				if (packet instanceof PacketEntityUpdate) {
+					PacketEntityUpdate update = (PacketEntityUpdate) packet;
+					ByteBuffer buffer = ByteBuffer.wrap(update.entityUpdateData);
+					Entity entity = world.entities.get(update.id);
+					if(entity != player || update.force) {
+						entity.monitor.deserialize(buffer);
 					}
-					object.quat = new Quat4(move.qw, move.qx, move.qy, move.qz);
-				} else {
-					System.out.println("No Entity with id " + move.id);
+				} else if (packet instanceof PacketEntitySpawn) {
+					PacketEntitySpawn spawn = (PacketEntitySpawn) packet;
+					Entity entity = EntityRegistry.idToClass.get(spawn.entityClassId).newInstance();
+					entity.id = spawn.id;
+					world.spawnEntity(entity);
+				} else if(packet instanceof PacketEntityDelete) {
+					PacketEntityDelete delete = (PacketEntityDelete) packet;
+					world.entities.get(delete.id).dead = true;
+				} else if(packet instanceof PacketEntitySetPlayer) {
+					PacketEntitySetPlayer setPlayer = (PacketEntitySetPlayer) packet;
+					System.out.println(setPlayer.id);
+					player = (EntityPlayer) world.entities.get(setPlayer.id);
+					spectator = setPlayer.spectator;
 				}
-			} else if(packet instanceof PacketCreateEntity) {
-				PacketCreateEntity create = (PacketCreateEntity) packet;
-
-				Entity obj = null;
-
-				System.out.println("Creating: " + create.id + ", " + create.objType + ", " + create.isPlayer);
-
-				switch(create.objType) {
-					case EntityRegistry.REGISTRY_EntityPlayer:
-						obj = new EntityPlayer();
-						if(create.isPlayer) {
-							player = (EntityPlayer) obj;
-						}
-						break;
-				}
-
-				if(obj != null) {
-					long id = create.id;
-					obj.id = id;
-					world.entities.put(id, obj);
-				} else {
-					System.out.println("No Entity registered with type " + create.objType);
-				}
-			} else if(packet instanceof PacketDeleteEntity) {
-				world.entities.remove(((PacketDeleteEntity) packet).id);
+			} catch(Exception e) {
+				System.err.println("Exception occurred while processing packet: " + packet);
+				e.printStackTrace();
 			}
 		}
 

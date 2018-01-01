@@ -20,6 +20,7 @@ import util.math.Vec3;
 import world.World;
 import world.WorldServer;
 
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -34,20 +35,25 @@ public class ServerHandler {
 	private final int TARGET_TPS = 30;
 	private int CURRENT_TPS = 0;
 
+	private boolean sendImmediately = false;
+
 	private HashMap<Long, Connection> connections = new HashMap<>();
 	private HashMap<Connection, Long> connectionsLookup = new HashMap<>();
 
-	public ArrayBlockingQueue<IncomingPacket> packetQueue = new ArrayBlockingQueue<>(4096);
+	public ArrayBlockingQueue<IncomingPacket> receiveQueue = new ArrayBlockingQueue<>(4096);
+	public ArrayBlockingQueue<Packet> outgoingQueue = new ArrayBlockingQueue<>(4096);
+
+	private ByteBuffer buffer = ByteBuffer.allocate(65536);
 
 	public ServerHandler(int port) throws NNCantStartServer {
-
-		world = new WorldServer();
 
 		server = new Server(port, port);
 		server.setListener(new ServerListener(this));
 		if (server.isConnected()) {
 			System.out.println("Server is now listening on 0.0.0.0:" + port);
 		}
+
+		world = new WorldServer(this);
 
 	}
 
@@ -65,6 +71,17 @@ public class ServerHandler {
 		}
 	}
 
+	public void queueBroadcast(Packet packet) {
+		if(sendImmediately) {
+			broadcastPacket(packet);
+		} else {
+			try {
+				outgoingQueue.put(packet);
+			} catch (InterruptedException e) {
+			}
+		}
+	}
+
 	public void sendPacket(Packet packet, long to) {
 		Connection connection = connections.get(to);
 		if(connection != null) {
@@ -75,53 +92,37 @@ public class ServerHandler {
 	}
 
 	public void run() {
-		// Server Loop
-		new ServerLoop().start();
+		// Console scanner Loop
+		new ScannerLoop().start();
 
-		// Server Console
-		Scanner s = new Scanner(System.in);
+		long lastTime = System.nanoTime(), timer = System.currentTimeMillis();
+		double ns = 1000000000 / (double) TARGET_TPS, delta = 0;
+		int tpsProc = 0;
 		while (true) {
-			String cmd = s.nextLine();
-			if (cmd.equals("/tps")) {
-				System.out.println("[Info]: Target TPS: " + TARGET_TPS + "\n[Info]: Current TPS: " + CURRENT_TPS);
-			} else if (cmd.equals("/pingall")) {
-				ArrayList<Connection> cons = ConnectionManager.getInstance().getConnections();
-				for (Connection c : cons) {
-					c.sendTcp(new PacketPing(true));
-				}
-			}
-		}
-	}
 
-	public class ServerLoop extends Thread {
+			// Receive Input
+			while(!receiveQueue.isEmpty()) {
+				IncomingPacket incoming = receiveQueue.poll();
 
-		public void run() {
-			long lastTime = System.nanoTime(), timer = System.currentTimeMillis();
-			double ns = 1000000000 / (double) TARGET_TPS, delta = 0;
-			int tpsProc = 0;
-			while (true) {
+				Long id = connectionsLookup.get(incoming.connection);
 
-				// Receive Input
-				while(!packetQueue.isEmpty()) {
-					IncomingPacket incoming = packetQueue.poll();
+				Packet packet = incoming.packet;
 
-					Long id = connectionsLookup.get(incoming.connection);
+				try {
 
-					Packet packet = incoming.packet;
-					if(packet instanceof Event) {
+					if (packet instanceof Event) {
 						Event p = (Event) packet;
-						if(p.status == Event.CONNECT) {
+						if (p.status == Event.CONNECT) {
 							id = random.nextLong();
 							connectionsLookup.put(incoming.connection, id);
-						} else if(p.status == Event.DISCONNECT) {
-							if(id != null) {
-								broadcastPacket(new PacketDeleteEntity(id));
-							}
-							world.entities.remove(id);
+						} else if (p.status == Event.DISCONNECT) {
+
+							world.entities.get(id).dead = true;
+
 							connections.remove(id);
 							connectionsLookup.remove(incoming.connection);
 						}
-					} else if(packet instanceof PacketPlayerJoin) {
+					} else if (packet instanceof PacketPlayerJoin) {
 						PacketPlayerJoin p = (PacketPlayerJoin) packet;
 						connections.put(id, incoming.connection);
 						EntityPlayer player = new EntityPlayer();
@@ -129,71 +130,75 @@ public class ServerHandler {
 						player.playerName = p.playerName;
 
 						for(Entity entity : world.entities.values()) {
-							sendPacket(new PacketCreateEntity(entity.id, entity.type), id);
-							PacketMoveEntity move = new PacketMoveEntity();
-							move.id = entity.id;
-							move.x = entity.position.x;
-							move.y = entity.position.y;
-							move.z = entity.position.z;
-							sendPacket(move, id);
+							sendPacket(new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())), id);
+							buffer.clear();
+							entity.monitor.serialize(buffer, true);
+							byte[] arr = new byte[buffer.position()];
+							buffer.flip();
+							buffer.get(arr);
+							sendPacket(new PacketEntityUpdate(entity.id, true, arr), id);
 						}
 
-						// TODO move this into world
-						world.entities.put(id, player);
+						sendImmediately = true;
+						world.spawnEntity(player);
+						sendImmediately = false;
 
-						broadcastPacketExcept(new PacketCreateEntity(id, EntityRegistry.REGISTRY_EntityPlayer), id);
-						sendPacket(new PacketCreateEntity(id, EntityRegistry.REGISTRY_EntityPlayer, true), id);
+						sendPacket(new PacketEntitySetPlayer(player.id, false), id);
 
-					} else if(packet instanceof PacketPlayerInput) {
+					} else if (packet instanceof PacketPlayerInput) {
 						PacketPlayerInput p = (PacketPlayerInput) packet;
 						Entity player = world.entities.get(id);
 						player.position = new Vec3(p.x, p.y, p.z);
 						player.quat = new Quat4(p.qw, p.qx, p.qy, p.qz);
 					}
+				} catch(Exception e) {
+					System.err.println("Exception occurred while processing packet: " + packet + " from " + incoming.connection);
 				}
+			}
 
-				long curTime = System.nanoTime();
-				delta += (curTime - lastTime) / ns;
-				lastTime = curTime;
-				while (delta >= 1) {
-					// Process Game Changes
-					world.updatePrevPos();
-					world.tick();
-					tpsProc++;
-					delta--;
-				}
+			long curTime = System.nanoTime();
+			delta += (curTime - lastTime) / ns;
+			lastTime = curTime;
+			while (delta >= 1) {
+				// Process Game Changes
+				world.tick();
+				tpsProc++;
+				delta--;
+			}
 
-				for(Entity entity : world.entities.values()) {
-					if(!entity.lastPosition.equals(entity.position) || !entity.lastQuat.equals(entity.quat)) {
+			while(!outgoingQueue.isEmpty()) {
+				broadcastPacket(outgoingQueue.poll());
+			}
 
-						PacketMoveEntity move = new PacketMoveEntity();
-						move.id = entity.id;
-						move.x = entity.position.x;
-						move.y = entity.position.y;
-						move.z = entity.position.z;
-						move.qw = entity.quat.w;
-						move.qx = entity.quat.x;
-						move.qy = entity.quat.y;
-						move.qz = entity.quat.z;
+			// Calculate FPS and TPS
+			if (System.currentTimeMillis() - timer > 1000) {
+				timer += 1000;
+				CURRENT_TPS = tpsProc;
+				tpsProc = 0;
+			}
+			try {
+				Thread.sleep(1);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
 
-						if(entity instanceof EntityPlayer) {
-							broadcastPacketExcept(move, entity.id);
-						} else {
-							broadcastPacket(move);
-						}
+	}
+
+	public class ScannerLoop extends Thread {
+
+		public void run() {
+			// Server Console
+			Scanner s = new Scanner(System.in);
+			while (true) {
+				String cmd = s.nextLine();
+				if (cmd.equals("/tps")) {
+					System.out.println("[Info]: Target TPS: " + TARGET_TPS + "\n[Info]: Current TPS: " + CURRENT_TPS);
+				} else if (cmd.equals("/pingall")) {
+					ArrayList<Connection> cons = ConnectionManager.getInstance().getConnections();
+					for (Connection c : cons) {
+						c.sendTcp(new PacketPing(true));
 					}
-				}
-
-				// Calculate FPS and TPS
-				if (System.currentTimeMillis() - timer > 1000) {
-					timer += 1000;
-					CURRENT_TPS = tpsProc;
-					tpsProc = 0;
-				}
-				try {
-					Thread.sleep(1);
-				} catch (Exception e) {
-					e.printStackTrace();
 				}
 			}
 		}

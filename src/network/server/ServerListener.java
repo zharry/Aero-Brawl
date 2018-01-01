@@ -27,7 +27,7 @@ public class ServerListener implements SocketListener {
 		} else if (object instanceof Packet) {
 			while (true) {
 				try {
-					server.packetQueue.put(new IncomingPacket(con, (Packet) object));
+					server.receiveQueue.put(new IncomingPacket(con, (Packet) object));
 					break;
 				} catch (InterruptedException e) {
 				}
@@ -39,7 +39,7 @@ public class ServerListener implements SocketListener {
 		NetworkUtil.log(con, "Client connected!");
 		while (true) {
 			try {
-				server.packetQueue.put(new IncomingPacket(con, new Event(Event.CONNECT)));
+				server.receiveQueue.put(new IncomingPacket(con, new Event(Event.CONNECT)));
 				break;
 			} catch (InterruptedException e) {
 			}
@@ -50,7 +50,7 @@ public class ServerListener implements SocketListener {
 		NetworkUtil.log(con, "Client disconnected!");
 		while (true) {
 			try {
-				server.packetQueue.put(new IncomingPacket(con, new Event(Event.DISCONNECT)));
+				server.receiveQueue.put(new IncomingPacket(con, new Event(Event.DISCONNECT)));
 				break;
 			} catch (InterruptedException e) {
 			}
