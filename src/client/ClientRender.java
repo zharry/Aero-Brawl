@@ -328,7 +328,7 @@ public class ClientRender {
 		glPushMatrix();
 		Vec3 newPosT = Util.mix(client.player.lastPosition, client.player.position, partialTick);
 		glRotated(90, 1, 0, 0);
-		glTranslated(0, -5, 0);
+		glTranslated(0, -4, 0);
 		glGetFloat(GL_MODELVIEW_MATRIX, shadowView);
 		glUniformMatrix4(uViewShadow, false, shadowView);
 		glPopMatrix();
@@ -381,7 +381,7 @@ public class ClientRender {
 		glPopMatrix();
 
 		glLight(GL_LIGHT0, GL_DIFFUSE, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(3).flip());
-		glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(0).put(5).put(0).put(1).flip());
+		glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(0).put(4).put(0).put(1).flip());
 
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
