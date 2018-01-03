@@ -7,10 +7,12 @@ varying vec2 tCoord;
 
 attribute vec2 texCoord;
 
+uniform mat4 currView;
+
 void main(void) {
 	tCoord = texCoord;
 	color = gl_Color;
 	normal = normalize(gl_NormalMatrix * gl_Normal);
 	vertex = (gl_ModelViewMatrix * gl_Vertex).xyz;
-    gl_Position = gl_ProjectionMatrix * gl_ModelViewMatrix * gl_Vertex;
+    gl_Position = gl_ProjectionMatrix * currView * gl_ModelViewMatrix * gl_Vertex;
 }

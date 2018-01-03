@@ -5,6 +5,9 @@
 
 package util;
 
+import util.math.Quat4;
+import util.math.Vec3;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +27,19 @@ public class Util {
 		return output.toByteArray();
 	}
 
+	public static byte[] getBytes(String s) {
+		return s.getBytes(charset);
+	}
+
 	public static String getString(byte[] b) {
 		return new String(b, charset);
+	}
+
+	public static Vec3 mix(Vec3 a, Vec3 b, double factor) {
+		return b.sub(a).mul(factor).add(a);
+	}
+
+	public static Quat4 mixLinear(Quat4 a, Quat4 b, double factor) {
+		return b.sub(a).mul(factor).add(a);
 	}
 }

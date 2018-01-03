@@ -32,10 +32,18 @@ public abstract class Entity {
 	@Synchronize
 	public Vec3 angVelocity = new Vec3();
 
+	public Vec3 lastPosition = new Vec3();
+	public Quat4 lastQuat = new Quat4();
+
 	public Entity() {
 	}
 
-	public void tick(World world) {
+	public void tick() {
+	}
+
+	public void preNetwork() {
+		lastPosition = position;
+		lastQuat = quat;
 	}
 
 	public final FieldMonitor monitor = new FieldMonitor(this);

@@ -28,7 +28,13 @@ public abstract class World {
 				iterator.remove();
 				continue;
 			}
-			ent.tick(this);
+			ent.tick();
+		}
+	}
+
+	public void preNetwork() {
+		for(Entity entity : entities.values()) {
+			entity.preNetwork();
 		}
 	}
 

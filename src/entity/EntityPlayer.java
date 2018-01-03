@@ -5,7 +5,7 @@
 
 package entity;
 
-import world.World;
+import util.math.Vec3;
 
 public class EntityPlayer extends Entity {
 
@@ -15,8 +15,15 @@ public class EntityPlayer extends Entity {
 	}
 
 	@Override
-	public void tick(World world) {
-		position = position.add(velocity);
-		velocity = velocity.mul(0.91);
+	public void tick() {
+		super.tick();
+		if(world.isClient) {
+			position = position.add(velocity);
+			if(position.y < 1) {
+				position = new Vec3(position.x, 1, position.z);
+			}
+			velocity = velocity.add(new Vec3(0, -0.005, 0));
+			velocity = velocity.sub(velocity.normalize().mul(velocity.lenSq()));
+		}
 	}
 }

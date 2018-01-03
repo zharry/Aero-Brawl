@@ -71,6 +71,7 @@ public class ClientHandler {
 
 			while(timeDelta >= 1) {
 				timeDelta -= 1;
+				world.preNetwork();
 				runNetwork();
 				world.tick();
 			}
@@ -88,7 +89,6 @@ public class ClientHandler {
 	public void runNetwork() {
 		while(!network.packets.isEmpty()) {
 			Packet packet = network.packets.poll();
-			System.out.println("Received packet: " + packet);
 			try {
 				if (packet instanceof PacketEntityUpdate) {
 					PacketEntityUpdate update = (PacketEntityUpdate) packet;
@@ -107,7 +107,7 @@ public class ClientHandler {
 					world.entities.get(delete.id).dead = true;
 				} else if(packet instanceof PacketEntitySetPlayer) {
 					PacketEntitySetPlayer setPlayer = (PacketEntitySetPlayer) packet;
-					System.out.println(setPlayer.id);
+					System.out.println("Change player: " + setPlayer.id);
 					player = (EntityPlayer) world.entities.get(setPlayer.id);
 					spectator = setPlayer.spectator;
 				}

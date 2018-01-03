@@ -1,3 +1,5 @@
+package teststuff;
+
 import java.lang.reflect.Field;
 
 public class ReflectionTest {

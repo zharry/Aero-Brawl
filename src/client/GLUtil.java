@@ -14,11 +14,12 @@ import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.GL_BGR;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL20.*;
 
 public class GLUtil {
@@ -195,27 +196,44 @@ public class GLUtil {
 	}
 
 	public static int loadTexture(String name) {
-		int texId = 0;
+		System.out.println(new File("obj", name));
+		try (FileInputStream input = new FileInputStream(new File("obj", name))) {
+			return loadTexture(input);
+		} catch (IOException e) {
+			System.err.println("Error occurred opening file");
+			e.printStackTrace();
+		}
+		return 0;
+	}
 
+	public static int loadTexture(InputStream stream) {
 		try {
-			System.out.println(new File("obj", name));
-			BufferedImage image = ImageIO.read(new File("obj", name));
+			System.out.println("Loading texture");
+			BufferedImage image = ImageIO.read(stream);
+			stream.close();
 			DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
 			byte[] data = buffer.getData();
 			ByteBuffer buf = BufferUtils.createByteBuffer(data.length);
-			buf.put(data).flip();
-			texId = glGenTextures();
+			for(int i = 0; i < data.length / 4; ++i) {
+				buf.put(data[i * 4 + 1]).put(data[i * 4 + 2]).put(data[i * 4 + 3]).put(data[i * 4]);
+			}
+			buf.flip();
+			int texId = glGenTextures();
 			glBindTexture(GL_TEXTURE_2D, texId);
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image.getWidth(), image.getHeight(), 0, GL_BGR, GL_UNSIGNED_BYTE, buf);
 
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
+
+			return texId;
 
 		} catch(Exception e){
 			System.out.println("Failed to load texture");
 			e.printStackTrace();
 		}
-
-		return texId;
+		return 0;
 	}
 }

@@ -1,19 +1,16 @@
 package entity;
 
+import util.Util;
 import util.math.Quat4;
 import util.math.Vec3;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 public class FieldMonitor {
-
-	public static final Charset charset = Charset.forName("UTF-8");
 
 	private static class Serializer {
 		private interface Serialize {
@@ -46,13 +43,13 @@ public class FieldMonitor {
 		putSerializer(boolean.class, (b, v) -> b.put((boolean) v ? (byte) 1 : 0), b -> b.get() != 0);
 		putSerializer(String.class, (b, v) -> {
 			String s = (String) v;
-			byte[] bs = s.getBytes(charset);
+			byte[] bs = Util.getBytes(s);
 			b.putInt(bs.length).put(bs);
 		}, b -> {
 			int len = b.getInt();
 			byte[] bs = new byte[len];
 			b.get(bs);
-			return new String(bs, charset);
+			return Util.getString(bs);
 		});
 		putSerializer(Vec3.class, (b, v) -> {
 			Vec3 vv = (Vec3) v;
@@ -135,8 +132,6 @@ public class FieldMonitor {
 		while(b.hasRemaining()) {
 			int field = b.getInt();
 			boolean nullify = false;
-			System.err.println(Arrays.toString(b.array()));
-			System.err.println("Initial deserialize: " + field);
 			if(field < 0) {
 				nullify = true;
 				field = -field;
