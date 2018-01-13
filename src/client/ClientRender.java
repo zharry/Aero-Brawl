@@ -88,7 +88,7 @@ public class ClientRender {
 
 	public int shadowMapSize = 1024;
 
-	public RenderObjectList playerModel;
+	public RenderObjectList playerModel, map;
 
 	public double rotX;
 	public double rotY;
@@ -221,6 +221,7 @@ public class ClientRender {
 
 		try {
 			playerModel = GLUtil.loadObj("obj/cessna.obj", aTexCoord);
+			map = GLUtil.loadObj("obj/map1/map1.obj", aTexCoord);
 		} catch(IOException e) {
 			System.out.println("Failed to load texture");
 			e.printStackTrace();
@@ -353,7 +354,7 @@ public class ClientRender {
 
 		double ang = System.nanoTime() / 10000000000.0 % 1 * 2 * Math.PI;
 
-		lightPosition = new Vec3(Math.cos(ang) * 10, 3, Math.sin(ang) * 10);//newPosT.add(new Vec3(0, 2, 0));
+		lightPosition = new Vec3(Math.cos(ang) * 10, 12, Math.sin(ang) * 10);//newPosT.add(new Vec3(0, 2, 0));
 
 		glLight(GL_LIGHT0, GL_DIFFUSE, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(1).flip());
 		glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put((float) lightPosition.x).put((float) lightPosition.y).put((float) lightPosition.z).put(1).flip());
@@ -501,18 +502,9 @@ public class ClientRender {
 		glVertex3d(16, -1, 16);
 		glVertex3d(16, -1, -16);
 		glEnd();
-		Random random = new Random(102);
-		for(int i = -10; i <= 10; ++i) {
-			for(int j = -10; j <= 10; ++j) {
-					if (random.nextInt(5) == 0) {
-						glPushMatrix();
-						glTranslated(i * 2, 0 * 2, j * 2);
-						glCallList(GLUtil.cubeList);
-						glPopMatrix();
-					}
-			}
-		}
-		glPopMatrix();
+		
+		// Render Map
+		GLUtil.renderObj(map, uHasDiffuseMap);
 
 		glTranslated(0, 0, 0);
 		glColor3d(1, 1, 1);
