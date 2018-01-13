@@ -1,21 +1,16 @@
 // Jacky Liao and Harry Zhang
-// October 20, 2017
+// Jan 12, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
-// Previously ClientStarter
-
 package network.client;
-
-import java.net.ConnectException;
-import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
 
 import com.jmr.wrapper.client.Client;
 import com.jmr.wrapper.common.Connection;
-
 import network.packet.Packet;
-import network.packet.PacketPing;
+
+import java.net.ConnectException;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class ClientNetworkHandler {
 
