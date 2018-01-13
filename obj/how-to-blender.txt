@@ -1,0 +1,26 @@
+Red: X
+Green: Y
+Blue: Z
+
+Modifiers
+x - lock x
+y lock y
+z - lock z
+shift x - lock y, z
+shift y - lock x, z
+shift z - lock x, y
+
+Commands
+left click - move cursor
+right click - select obj
+middle click - rotate
+shift middle click - pan
+shift f - minecraft mode (esc to leave)
+
+shift - select multipule
+ctrl g - group
+
+s - scale
+g - move
+tab - switch mode
+shift d - duplicate
