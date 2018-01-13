@@ -26,12 +26,6 @@ public abstract class Entity {
 	@Synchronize
 	public Quat4 quat = new Quat4();
 
-	@Synchronize
-	public double mass = 1;
-
-	@Synchronize
-	public Vec3 angVelocity = new Vec3();
-
 	public Vec3 lastPosition = new Vec3();
 	public Quat4 lastQuat = new Quat4();
 

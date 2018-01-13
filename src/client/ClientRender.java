@@ -15,6 +15,7 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
+import org.lwjgl.util.glu.Sphere;
 import util.Util;
 import util.math.Quat4;
 import util.math.Vec3;
@@ -27,8 +28,9 @@ import java.nio.FloatBuffer;
 import java.util.Random;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE1;
-import static org.lwjgl.opengl.GL13.glActiveTexture;
+import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
+import static org.lwjgl.opengl.GL12.GL_TEXTURE_WRAP_R;
+import static org.lwjgl.opengl.GL13.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL32.GL_TEXTURE_2D_MULTISAMPLE;
@@ -52,9 +54,7 @@ public class ClientRender {
 	public int uShadowMap;
 	public int uDiffuseMap;
 	public int uHasDiffuseMap;
-
-	public int uShadowProjection;
-	public int uShadowView;
+	public int uShadowMapSize;
 	public int uView;
 
 	public int uViewShadow;
@@ -62,6 +62,17 @@ public class ClientRender {
 	public FloatBuffer shadowProjection = BufferUtils.createFloatBuffer(16);
 	public FloatBuffer shadowView = BufferUtils.createFloatBuffer(16);
 	public FloatBuffer view = BufferUtils.createFloatBuffer(16);
+
+	public Vec3[] cubemapDirs = {
+		new Vec3(1.0, 0.0, 0.0), new Vec3(0.0, -1.0, 0.0),
+		new Vec3(-1.0, 0.0, 0.0), new Vec3(0.0, -1.0, 0.0),
+		new Vec3(0.0, 1.0, 0.0), new Vec3(0.0, 0.0, 1.0),
+		new Vec3(0.0, -1.0, 0.0), new Vec3(0.0, 0.0, -1.0),
+		new Vec3(0.0, 0.0, 1.0), new Vec3(0.0, -1.0, 0.0),
+		new Vec3(0.0, 0.0, -1.0), new Vec3(0.0, -1.0, 0.0),
+    };
+
+	public Vec3 lightPosition = new Vec3();
 
 	public int aTexCoord;
 
@@ -75,9 +86,12 @@ public class ClientRender {
 	public int shadowRenderBuffer;
 	public int shadowRenderTexture;
 
-	public int shadowMapSize = 2048;
+	public int shadowMapSize = 1024;
 
 	public RenderObjectList playerModel;
+
+	public double rotX;
+	public double rotY;
 
 	public int samples = 4;
 
@@ -110,7 +124,7 @@ public class ClientRender {
 			field.setAccessible(true);
 			Field cap = capabilities.getClass().getDeclaredField("OpenGL32");
 			field.set(cap, Modifier.PUBLIC);
-			cap.set(capabilities, false);
+			cap.set(capabilities, true);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -157,9 +171,10 @@ public class ClientRender {
 
 		glUniform1i(uShadowMap, 1);
 
-		uShadowProjection = glGetUniformLocation(renderProgram, "projection");
-		uShadowView = glGetUniformLocation(renderProgram, "view");
+		uShadowMapSize = glGetUniformLocation(renderProgram, "shadowMapSize");
 		uView = glGetUniformLocation(renderProgram, "currView");
+
+		glUniform1f(uShadowMapSize, shadowMapSize);
 
 		glActiveTexture(GL_TEXTURE1);
 		glUniform1i(uDiffuseMap, 1);
@@ -178,17 +193,18 @@ public class ClientRender {
 		glBindFramebuffer(GL_FRAMEBUFFER, shadowRenderBuffer);
 
 		shadowRenderTexture = glGenTextures();
-		glBindTexture(GL_TEXTURE_2D, shadowRenderTexture);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, shadowRenderTexture);
 
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowMapSize, shadowMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (ByteBuffer) null);
+		glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowRenderTexture, 0);
+		for(int i = 0; i < 6; ++i) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowMapSize, shadowMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (ByteBuffer) null);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, shadowRenderTexture, 0);
+		}
 
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
@@ -275,14 +291,19 @@ public class ClientRender {
 		}
 
 		if(isCaptured) {
-			double nx = -Mouse.getDX();
-			double ny = Mouse.getDY();
-			double mag = Math.sqrt(nx * nx + ny * ny);
-			if(mag > 1e-6) {
-				nx /= mag;
-				ny /= mag;
-				client.player.quat = client.player.quat.prod(new Quat4(mag, new Vec3(ny, nx, 0)));
+			rotX += -Mouse.getDX();
+			rotY += Mouse.getDY();
+			if(rotY > 90) {
+				rotY = 90;
 			}
+			if(rotY < -90) {
+				rotY = -90;
+			}
+
+			double rrotX = Math.toRadians(rotX) / 2;
+			double rrotY = Math.toRadians(rotY) / 2;
+
+			client.player.quat = new Quat4(Math.cos(rrotX), 0, Math.sin(rrotX), 0).prod(new Quat4(Math.cos(rrotY), Math.sin(rrotY), 0, 0));
 
 			double fmove = 0;
 			double smove = 0;
@@ -301,7 +322,10 @@ public class ClientRender {
 			if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
 				ymove -= 1;
 
-			client.player.velocity = client.player.velocity.add(client.player.quat.apply(new Vec3(smove, ymove, fmove)).mul(0.01));
+			double sx = Math.sin(Math.toRadians(rotX));
+			double cx = Math.cos(Math.toRadians(rotX));
+
+			client.player.velocity = client.player.velocity.add(new Vec3(cx * smove + sx * fmove, ymove * 3, -sx * smove + cx * fmove).mul(0.01));
 
 			scale *= Math.pow(1.001, Mouse.getDWheel());
 		}
@@ -312,28 +336,44 @@ public class ClientRender {
 		glViewport(0, 0, shadowMapSize, shadowMapSize);
 
 		glUseProgram(shadowProgram);
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		glEnable(GL_DEPTH_TEST);
 
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
-		GLU.gluPerspective(140, 1, 0.01f, 1000);
+		double sfov = 2.0 * Math.toDegrees(Math.atan(shadowMapSize / (shadowMapSize - 0.5)));
+		GLU.gluPerspective((float) sfov, 1, 0.01f, 1000);
 		glGetFloat(GL_PROJECTION_MATRIX, shadowProjection);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
 		glDisable(GL_CULL_FACE);
 
-		glPushMatrix();
 		Vec3 newPosT = Util.mix(client.player.lastPosition, client.player.position, partialTick);
-		glRotated(90, 1, 0, 0);
-		glTranslated(0, -4, 0);
-		glGetFloat(GL_MODELVIEW_MATRIX, shadowView);
-		glUniformMatrix4(uViewShadow, false, shadowView);
-		glPopMatrix();
 
-		renderWorld(partialTick);
+		double ang = System.nanoTime() / 10000000000.0 % 1 * 2 * Math.PI;
+
+		lightPosition = new Vec3(Math.cos(ang) * 10, 3, Math.sin(ang) * 10);//newPosT.add(new Vec3(0, 2, 0));
+
+		glLight(GL_LIGHT0, GL_DIFFUSE, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(1).flip());
+		glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put((float) lightPosition.x).put((float) lightPosition.y).put((float) lightPosition.z).put(1).flip());
+
+		for(int i = 0; i < 6; ++i) {
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, shadowRenderTexture, 0);
+			glClear(GL_DEPTH_BUFFER_BIT);
+
+			glPushMatrix();
+
+//			glTranslated(-newPosT.x, -newPosT.y, -newPosT.z);
+			Vec3 center = cubemapDirs[i * 2].add(lightPosition);
+			Vec3 up = cubemapDirs[i * 2 + 1];
+			GLU.gluLookAt((float) lightPosition.x, (float) lightPosition.y, (float) lightPosition.z, (float) center.x, (float) center.y, (float) center.z, (float) up.x, (float) up.y, (float) up.z);
+			glGetFloat(GL_MODELVIEW_MATRIX, shadowView);
+			glUniformMatrix4(uViewShadow, false, shadowView);
+			glPopMatrix();
+
+			renderWorld(partialTick);
+		}
 
 		glUseProgram(renderProgram);
 
@@ -349,7 +389,7 @@ public class ClientRender {
 		glViewport(0, 0, width, height);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindTexture(GL_TEXTURE_2D, shadowRenderTexture);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, shadowRenderTexture);
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHTING);
@@ -367,11 +407,9 @@ public class ClientRender {
 		glRotated(Math.toDegrees(Math.acos(newRot.w) * 2), -newRot.x, -newRot.y, -newRot.z);
 
 		Vec3 newPos = Util.mix(client.player.lastPosition, client.player.position, partialTick);
-		glTranslated(-newPos.x, -newPos.y, -newPos.z);
+		glTranslated(-newPos.x, -newPos.y - 1, -newPos.z);
 
 		glGetFloat(GL_MODELVIEW_MATRIX, view);
-		glUniformMatrix4(uShadowProjection, false, shadowProjection);
-		glUniformMatrix4(uShadowView, false, shadowView);
 
 		float[] array = new float[16];
 		shadowProjection.get(array);
@@ -380,11 +418,14 @@ public class ClientRender {
 		glUniformMatrix4(uView, false, view);
 		glPopMatrix();
 
-		glLight(GL_LIGHT0, GL_DIFFUSE, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(3).flip());
-		glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put(0).put(4).put(0).put(1).flip());
-
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
+		Sphere sphere = new Sphere();
+		glPushMatrix();
+		glTranslated(lightPosition.x, lightPosition.y, lightPosition.z);
+		glColor3d(0, 0, 0);
+		sphere.draw(0.1f, 8, 8);
+		glPopMatrix();
 		renderWorld(partialTick);
 		glPopAttrib();
 		glPopClientAttrib();
@@ -448,28 +489,29 @@ public class ClientRender {
 	}
 
 	public void renderWorld(double partialTick) {
+		glDisable(GL_CULL_FACE);
 		glUniform1i(uHasDiffuseMap, 0);
 		glPushMatrix();
 		glTranslated(0, -2, 0);
 		glBegin(GL_QUADS);
+		glColor3d(1, 1, 1);
 		glNormal3d(0, 1, 0);
-		glVertex3d(-10, 1, -10);
-		glVertex3d(-10, 1, 10);
-		glVertex3d(10, 1, 10);
-		glVertex3d(10, 1, -10);
-		glNormal3d(0, 1, 0);
+		glVertex3d(-16, -1, -16);
+		glVertex3d(-16, -1, 16);
+		glVertex3d(16, -1, 16);
+		glVertex3d(16, -1, -16);
+		glEnd();
 		Random random = new Random(102);
 		for(int i = -10; i <= 10; ++i) {
 			for(int j = -10; j <= 10; ++j) {
-				if(random.nextBoolean()) {
-					glPushMatrix();
-					glTranslated(i * 2, 0, j * 2);
-					glCallList(GLUtil.cubeList);
-					glPopMatrix();
-				}
+					if (random.nextInt(5) == 0) {
+						glPushMatrix();
+						glTranslated(i * 2, 0 * 2, j * 2);
+						glCallList(GLUtil.cubeList);
+						glPopMatrix();
+					}
 			}
 		}
-		glEnd();
 		glPopMatrix();
 
 		glTranslated(0, 0, 0);

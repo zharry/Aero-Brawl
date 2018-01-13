@@ -21,9 +21,10 @@ public class EntityPlayer extends Entity {
 			position = position.add(velocity);
 			if(position.y < 1) {
 				position = new Vec3(position.x, 1, position.z);
+				velocity = new Vec3(velocity.x, 0, velocity.z);
 			}
-			velocity = velocity.add(new Vec3(0, -0.005, 0));
-			velocity = velocity.sub(velocity.normalize().mul(velocity.lenSq()));
+			velocity = velocity.add(new Vec3(0, -0.05, 0));
+			velocity = velocity.mul(0.98);
 		}
 	}
 }
