@@ -353,6 +353,7 @@ public class ClientRender {
 		Vec3 newPosT = Util.mix(client.player.lastPosition, client.player.position, partialTick);
 
 		double ang = System.nanoTime() / 10000000000.0 % 1 * 2 * Math.PI;
+//		double ang = 0;
 
 		lightPosition = new Vec3(Math.cos(ang) * 10, 12, Math.sin(ang) * 10);//newPosT.add(new Vec3(0, 2, 0));
 
@@ -502,9 +503,19 @@ public class ClientRender {
 		glVertex3d(16, -1, 16);
 		glVertex3d(16, -1, -16);
 		glEnd();
-		
-		// Render Map
+//		Random random = new Random(102);
+//		for(int i = -10; i <= 10; ++i) {
+//			for(int j = -10; j <= 10; ++j) {
+//					if (random.nextInt(5) == 0) {
+//						glPushMatrix();
+//						glTranslated(i * 2, 0 * 2, j * 2);
+//						glCallList(GLUtil.cubeList);
+//						glPopMatrix();
+//					}
+//			}
+//		}
 		GLUtil.renderObj(map, uHasDiffuseMap);
+		glPopMatrix();
 
 		glTranslated(0, 0, 0);
 		glColor3d(1, 1, 1);

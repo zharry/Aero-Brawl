@@ -23,7 +23,7 @@ public class EntityPlayer extends Entity {
 				position = new Vec3(position.x, 1, position.z);
 				velocity = new Vec3(velocity.x, 0, velocity.z);
 			}
-			velocity = velocity.add(new Vec3(0, -0.05, 0));
+//			velocity = velocity.add(new Vec3(0, -0.05, 0));
 			velocity = velocity.mul(0.98);
 		}
 	}
