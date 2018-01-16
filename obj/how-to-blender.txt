@@ -11,6 +11,8 @@ shift y - lock x, z
 shift z - lock x, y
 
 Commands
+numpad. - Orbit Selected
+shift c - reset cursor to origin
 left click - move cursor
 right click - select obj
 middle click - rotate
@@ -19,6 +21,8 @@ shift f - minecraft mode (esc to leave)
 
 shift - select multipule
 ctrl g - group
+
+n - open inspector
 
 s - scale
 g - move
