@@ -7,6 +7,7 @@ package client;
 
 import org.lwjgl.BufferUtils;
 import util.Util;
+import world.Level;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -79,16 +80,11 @@ public class GLUtil {
 		glEndList();
 	}
 
-	public static RenderObjectList loadObj(String file, int aTexCoord) throws IOException {
+	public static RenderObjectList loadObjToList(Level level, int aTexCoord) {
 
 		ArrayList<RenderObject> renderObjects = new ArrayList<>();
 
-		ObjLoader loader = new ObjLoader();
-		FileInputStream input = new FileInputStream(file);
-		loader.load(Util.readAllBytes(input));
-		input.close();
-
-		for(ObjLoader.Obj obj : loader.objects) {
+		for(ObjLoader.Obj obj : level.loader.objects) {
 			int objList = glGenLists(1);
 			int diffuseMap = 0;
 			glNewList(objList, GL_COMPILE);
@@ -125,6 +121,9 @@ public class GLUtil {
 	}
 
 	public static void renderObj(RenderObjectList list, int uHasDiffuseMap) {
+		if(list == null) {
+			return;
+		}
 		for (RenderObject obj : list.renderObjects) {
 			glUniform1i(uHasDiffuseMap, obj.diffuseTexture);
 			glBindTexture(GL_TEXTURE_2D, obj.diffuseTexture);

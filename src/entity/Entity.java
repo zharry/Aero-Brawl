@@ -13,7 +13,9 @@ public abstract class Entity {
 
 	public long id;
 	public boolean dead;
-	public transient World world;
+	public World world;
+
+	public String level;
 
 	@Synchronize
 	public Vec3 position = new Vec3();

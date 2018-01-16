@@ -5,7 +5,6 @@
 
 package client;
 
-import entity.Entity;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -20,7 +19,6 @@ import util.Util;
 import util.math.Quat4;
 import util.math.Vec3;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
@@ -88,7 +86,7 @@ public class ClientRender {
 
 	public int shadowMapSize = 1024;
 
-	public RenderObjectList playerModel, map;
+	public RenderObjectList worldModel;
 
 	public double rotX;
 	public double rotY;
@@ -218,18 +216,21 @@ public class ClientRender {
 
 		GLUtil.init();
 		FontUtil.init();
-
-		try {
-			playerModel = GLUtil.loadObj("obj/cessna.obj", aTexCoord);
-			map = GLUtil.loadObj("obj/map1/map1.obj", aTexCoord);
-		} catch(IOException e) {
-			System.out.println("Failed to load texture");
-			e.printStackTrace();
-		}
+//
+//		try {
+//			playerModel = GLUtil.loadObj("obj/cessna.obj", aTexCoord);
+//		} catch(IOException e) {
+//			System.out.println("Failed to load texture");
+//			e.printStackTrace();
+//		}
 
 	}
 
 	public void render(double partialTick) {
+
+		if(client.levelDirty) {
+			worldModel = GLUtil.loadObjToList(client.world.level, aTexCoord);
+		}
 
 		++frameCounter;
 
@@ -270,18 +271,18 @@ public class ClientRender {
 			glViewport(0, 0, width, height);
 		}
 
-		runInput(partialTick);
-
 		glRun(partialTick);
 
 		Display.update();
+
+		runInputMouse();
 
 		if(Display.isCloseRequested()) {
 			client.running = false;
 		}
 	}
 
-	public void runInput(double partialTick) {
+	public void runInputMouse() {
 		if(Mouse.isButtonDown(0)) {
 			Mouse.setGrabbed(true);
 			isCaptured = true;
@@ -305,10 +306,17 @@ public class ClientRender {
 			double rrotY = Math.toRadians(rotY) / 2;
 
 			client.player.quat = new Quat4(Math.cos(rrotX), 0, Math.sin(rrotX), 0).prod(new Quat4(Math.cos(rrotY), Math.sin(rrotY), 0, 0));
+		}
+
+	}
+
+	public void runInput() {
+
+		if(isCaptured) {
 
 			double fmove = 0;
 			double smove = 0;
-			double ymove = 0;
+//			double ymove = 0;
 
 			if (Keyboard.isKeyDown(Keyboard.KEY_W))
 				fmove -= 1;
@@ -318,17 +326,28 @@ public class ClientRender {
 				smove -= 1;
 			if (Keyboard.isKeyDown(Keyboard.KEY_D))
 				smove += 1;
-			if (Keyboard.isKeyDown(Keyboard.KEY_SPACE))
-				ymove += 1;
-			if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT))
-				ymove -= 1;
+			if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+				if(client.player.onGround) {
+					client.player.velocity = client.player.velocity.add(new Vec3(0, 0.35, 0));
+				}
+			}
 
 			double sx = Math.sin(Math.toRadians(rotX));
 			double cx = Math.cos(Math.toRadians(rotX));
 
-			client.player.velocity = client.player.velocity.add(new Vec3(cx * smove + sx * fmove, ymove * 3, -sx * smove + cx * fmove).mul(0.01));
+			double mulFactor = 0.01;
+
+			if(client.player.onGround) {
+				mulFactor = 0.07;
+			}
+
+			client.player.velocity = client.player.velocity.add(new Vec3(cx * smove + sx * fmove, 0, -sx * smove + cx * fmove).mul(mulFactor));
 
 			scale *= Math.pow(1.001, Mouse.getDWheel());
+			if(Keyboard.isKeyDown(Keyboard.KEY_N)) {
+				client.player.position = client.player.position.add(new Vec3(0, 0.4, 0));
+				client.player.velocity = new Vec3(0, 0, 0);
+			}
 		}
 	}
 
@@ -347,8 +366,6 @@ public class ClientRender {
 		glGetFloat(GL_PROJECTION_MATRIX, shadowProjection);
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
-
-		glDisable(GL_CULL_FACE);
 
 		Vec3 newPosT = Util.mix(client.player.lastPosition, client.player.position, partialTick);
 
@@ -408,8 +425,8 @@ public class ClientRender {
 		Quat4 newRot = client.player.quat;
 		glRotated(Math.toDegrees(Math.acos(newRot.w) * 2), -newRot.x, -newRot.y, -newRot.z);
 
-		Vec3 newPos = Util.mix(client.player.lastPosition, client.player.position, partialTick);
-		glTranslated(-newPos.x, -newPos.y - 1, -newPos.z);
+		Vec3 newPos = Util.mix(client.player.lastPosition, client.player.position, partialTick).add(client.player.eyeOffset);
+		glTranslated(-newPos.x, -newPos.y, -newPos.z);
 
 		glGetFloat(GL_MODELVIEW_MATRIX, view);
 
@@ -491,18 +508,9 @@ public class ClientRender {
 	}
 
 	public void renderWorld(double partialTick) {
-		glDisable(GL_CULL_FACE);
 		glUniform1i(uHasDiffuseMap, 0);
+
 		glPushMatrix();
-		glTranslated(0, -2, 0);
-		glBegin(GL_QUADS);
-		glColor3d(1, 1, 1);
-		glNormal3d(0, 1, 0);
-		glVertex3d(-16, -1, -16);
-		glVertex3d(-16, -1, 16);
-		glVertex3d(16, -1, 16);
-		glVertex3d(16, -1, -16);
-		glEnd();
 //		Random random = new Random(102);
 //		for(int i = -10; i <= 10; ++i) {
 //			for(int j = -10; j <= 10; ++j) {
@@ -514,23 +522,23 @@ public class ClientRender {
 //					}
 //			}
 //		}
-		GLUtil.renderObj(map, uHasDiffuseMap);
+		GLUtil.renderObj(worldModel, uHasDiffuseMap);
 		glPopMatrix();
 
 		glTranslated(0, 0, 0);
 		glColor3d(1, 1, 1);
 
-		for(Entity entity : client.world.entities.values()) {
-			if(entity == client.player) {
-				continue;
-			}
-			glPushMatrix();
-			Vec3 pos = Util.mix(entity.lastPosition, entity.position, partialTick);
-			glTranslated(pos.x, pos.y, pos.z);
-			Quat4 rot = Util.mixLinear(entity.lastQuat, entity.quat, partialTick);
-			glRotated(Math.toDegrees(Math.acos(rot.w)), rot.x, rot.y, rot.z);
-			GLUtil.renderObj(playerModel, uHasDiffuseMap);
-			glPopMatrix();
-		}
+//		for(Entity entity : client.world.entities.values()) {
+//			if(entity == client.player) {
+//				continue;
+//			}
+//			glPushMatrix();
+//			Vec3 pos = Util.mix(entity.lastPosition, entity.position, partialTick);
+//			glTranslated(pos.x, pos.y, pos.z);
+//			Quat4 rot = Util.mixLinear(entity.lastQuat, entity.quat, partialTick);
+//			glRotated(Math.toDegrees(Math.acos(rot.w)), rot.x, rot.y, rot.z);
+//			GLUtil.renderObj(playerModel, uHasDiffuseMap);
+//			glPopMatrix();
+//		}
 	}
 }

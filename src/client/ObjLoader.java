@@ -5,13 +5,9 @@
 
 package client;
 
-import util.Util;
 import util.math.Vec2;
 import util.math.Vec3;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -82,19 +78,19 @@ public class ObjLoader {
 					}
 					faces = new ArrayList<>();
 					break;
-				case "mtllib":
-					if(tok.length > 1) {
-						try {
-							FileInputStream input = new FileInputStream(new File("obj", tok[1]));
-							HashMap<String, Material> mats = loadMtl(Util.readAllBytes(input));
-							input.close();
-							materials.putAll(mats);
-						} catch(IOException e) {
-							System.err.println("Unable to load mtl file: " + tok[1]);
-							e.printStackTrace();
-						}
-					}
-					break;
+//				case "mtllib":
+//					if(tok.length > 1) {
+//						try {
+//							FileInputStream input = new FileInputStream(new File("obj", tok[1]));
+//							HashMap<String, Material> mats = loadMtl(Util.readAllBytes(input));
+//							input.close();
+//							materials.putAll(mats);
+//						} catch(IOException e) {
+//							System.err.println("Unable to load mtl file: " + tok[1]);
+//							e.printStackTrace();
+//						}
+//					}
+//					break;
 				case "usemtl":
 					if(tok.length > 1) {
 						usedMaterial = materials.get(tok[1]);

@@ -5,7 +5,18 @@
 varying vec2 tCoord;
 
 uniform int samples;
+
 uniform sampler2DMS texture;
+
+//uniform sampler2DMS diffuse;
+//uniform sampler2DMS normal;
+//uniform sampler2DMS depth;
+//uniform sampler2DMS position;
+//
+//uniform int lights;
+//
+//uniform vec3 shadowPosition;
+//uniform samplerCube shadowTexture;
 
 void main() {
 	vec2 size = vec2(textureSize(texture));

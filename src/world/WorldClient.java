@@ -6,6 +6,9 @@
 package world;
 
 public class WorldClient extends World {
+
+	public Level level = new Level("");
+
 	public WorldClient() {
 		super(true);
 	}

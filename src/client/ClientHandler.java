@@ -11,19 +11,16 @@ import entity.EntityRegistry;
 import network.client.ClientNetworkHandler;
 import network.packet.*;
 import org.lwjgl.LWJGLException;
-import world.World;
+import world.Level;
 import world.WorldClient;
 
 import javax.swing.*;
 import java.net.ConnectException;
 import java.nio.ByteBuffer;
-import java.util.Random;
 
 public class ClientHandler {
 
-	private Random random = new Random();
-
-	public World world;
+	public WorldClient world;
 	public ClientRender render;
 	public ClientNetworkHandler network;
 
@@ -40,6 +37,8 @@ public class ClientHandler {
 	private double nsPerTick = 1e9 / targetTPS;
 
 	public String playerName;
+
+	public boolean levelDirty;
 
 	public ClientHandler(String playerName, String ip, int port) throws ConnectException {
 
@@ -74,6 +73,7 @@ public class ClientHandler {
 				world.preNetwork();
 				runNetwork();
 				world.tick();
+				render.runInput();
 			}
 
 			render.render(timeDelta);
@@ -110,6 +110,21 @@ public class ClientHandler {
 					System.out.println("Change player: " + setPlayer.id);
 					player = (EntityPlayer) world.entities.get(setPlayer.id);
 					spectator = setPlayer.spectator;
+				} else if(packet instanceof PacketColliderChange) {
+					PacketColliderChange change = (PacketColliderChange) packet;
+					world.level.collidables.get(change.colliderName).active = change.state;
+				} else if(packet instanceof PacketNewWorld) {
+					PacketNewWorld newWorld = (PacketNewWorld) packet;
+					System.out.println("Loading level: " + newWorld.level);
+					world.level = new Level(newWorld.level);
+					world.level.mtl = newWorld.mtl;
+					world.level.obj = newWorld.obj;
+					world.level.loadLevel();
+					for(String bl : newWorld.disabledBlocks) {
+						world.level.aabbs.get(bl).active = false;
+					}
+					world.entities.clear();
+					levelDirty = true;
 				}
 			} catch(Exception e) {
 				System.err.println("Exception occurred while processing packet: " + packet);

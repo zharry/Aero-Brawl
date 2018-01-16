@@ -37,7 +37,7 @@ void main(void) {
 	vec3 clrMult = vec3(1.0, 1.0, 1.0);
 //	if(hasDiffuseMap)
 //		clrMult *= texture2D(diffuseMap, tCoord).rgb;
-	clrMult *= (gl_LightSource[0].diffuse.rgb * clamp(dot(dir, normal), 0, 1) / dist * 10.0);
+	clrMult *= (gl_LightSource[0].diffuse.rgb * clamp(dot(dir, normal), 0.0, 1.0) / dist * 10.0);
 
 	float tot = 0.0;
 	float sum = 0.0;
