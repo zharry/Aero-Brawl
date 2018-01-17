@@ -9,7 +9,16 @@ public abstract class LevelHandler {
 	public WorldServer world;
 	public Level level;
 
-	public abstract void activate(String activator, EntityPlayer player, ArrayList<EntityPlayer> playerList);
+	public void activator(String activator, ArrayList<EntityPlayer> playerList) {
+		
+	}
 
+	public void finishLevel(String activator, ArrayList<EntityPlayer> playerList) {
+		
+	}
 
+	public void collideOther(String object, EntityPlayer player) {
+		
+	}
+	
 }

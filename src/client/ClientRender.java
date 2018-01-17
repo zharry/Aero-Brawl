@@ -86,7 +86,7 @@ public class ClientRender {
 
 	public int shadowMapSize = 1024;
 
-	public RenderObjectList worldModel;
+	public RenderObjectList worldModel, playerModel;
 
 	public double rotX;
 	public double rotY;
@@ -218,13 +218,6 @@ public class ClientRender {
 
 		GLUtil.init();
 		FontUtil.init();
-//
-//		try {
-//			playerModel = GLUtil.loadObj("obj/cessna.obj", aTexCoord);
-//		} catch(IOException e) {
-//			System.out.println("Failed to load texture");
-//			e.printStackTrace();
-//		}
 
 	}
 
