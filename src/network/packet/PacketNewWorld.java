@@ -5,19 +5,21 @@
 
 package network.packet;
 
-import java.util.ArrayList;
+import util.AABB;
+
+import java.util.HashMap;
 
 public class PacketNewWorld extends Packet {
 
 	public String level;
 	public byte[] obj;
 	public byte[] mtl;
-	public ArrayList<String> disabledBlocks;
+	public HashMap<String, AABB> aabbs;
 
-	public PacketNewWorld(String level, byte[] obj, byte[] mtl, ArrayList<String> disabledBlocks) {
+	public PacketNewWorld(String level, byte[] obj, byte[] mtl, HashMap<String, AABB> aabbs) {
 		this.level = level;
 		this.obj = obj;
 		this.mtl = mtl;
-		this.disabledBlocks = disabledBlocks;
+		this.aabbs = aabbs;
 	}
 }

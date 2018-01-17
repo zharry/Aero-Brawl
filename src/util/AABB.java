@@ -3,9 +3,13 @@ package util;
 import util.math.CollisionFace;
 import util.math.Vec3;
 
-public class AABB {
+import java.io.Serializable;
 
-	public boolean active = true;
+public class AABB implements Serializable {
+
+	public boolean collidable = true;
+	public boolean renderable = true;
+	public String material;
 
 	public Vec3 min = new Vec3();
 	public Vec3 max = new Vec3();

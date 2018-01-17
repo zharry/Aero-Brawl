@@ -43,11 +43,14 @@ public class EntityPlayer extends Entity {
 				velocity = velocity.mul(0.98);
 			}
 		} else {
+			WorldServer server = (WorldServer) world;
+			Level level = server.levels.get(this.level);
 			AABB newAABB = playerAABB.offset(position);
-			for (Map.Entry<String, AABB> aabb : ((WorldServer) world).levels.get(level).aabbs.entrySet()) {
-				if (aabb.getValue().intersect(newAABB)) {
-					String key = aabb.getKey();
-				}
+			for (Map.Entry<String, AABB> aabb : level.activators.entrySet()) {
+				level.processActivators(aabb.getKey(), id, aabb.getValue().intersect(newAABB));
+			}
+			for (Map.Entry<String, AABB> aabb : level.colliders.entrySet()) {
+				level.processColliders(aabb.getKey(), id, aabb.getValue().intersect(newAABB) && aabb.getValue().collidable);
 			}
 		}
 	}
@@ -100,10 +103,10 @@ public class EntityPlayer extends Entity {
 
 		WorldClient client = (WorldClient) world;
 		PriorityQueue<CollisionFace> pq = new PriorityQueue<>();
-		System.out.println(client.level.collidables.size());
+		System.out.println(client.level.colliders.size());
 		boolean[] coll = new boolean[3];
-		for (AABB aabb : client.level.collidables.values()) {
-			if (aabb.active && aabb.intersect(expanded)) {
+		for (AABB aabb : client.level.colliders.values()) {
+			if (aabb.collidable && aabb.intersect(expanded)) {
 				for (CollisionFace face : aabb.generateCollisionFaces()) {
 					double vv = 0;
 					switch (face.type % 3) {

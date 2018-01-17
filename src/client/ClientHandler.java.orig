@@ -5,20 +5,36 @@
 
 package client;
 
+import java.net.ConnectException;
+import java.nio.ByteBuffer;
+import java.util.TreeMap;
+
+import javax.swing.JOptionPane;
+
+import org.lwjgl.LWJGLException;
+
 import entity.Entity;
 import entity.EntityPlayer;
 import entity.EntityRegistry;
 import network.client.ClientNetworkHandler;
+<<<<<<< Updated upstream
+import network.packet.Packet;
+import network.packet.PacketColliderChange;
+import network.packet.PacketEntityDelete;
+import network.packet.PacketEntitySetPlayer;
+import network.packet.PacketEntitySpawn;
+import network.packet.PacketEntityUpdate;
+import network.packet.PacketMessage;
+import network.packet.PacketNewWorld;
+import network.packet.PacketPlayerInput;
+import network.packet.PacketPlayerJoin;
+=======
 import network.packet.*;
 import org.lwjgl.LWJGLException;
 import util.AABB;
+>>>>>>> Stashed changes
 import world.Level;
 import world.WorldClient;
-
-import javax.swing.*;
-import java.net.ConnectException;
-import java.nio.ByteBuffer;
-import java.util.TreeMap;
 
 public class ClientHandler {
 
@@ -128,11 +144,16 @@ public class ClientHandler {
 					spectator = setPlayer.spectator;
 				} else if (packet instanceof PacketColliderChange) {
 					PacketColliderChange change = (PacketColliderChange) packet;
+<<<<<<< Updated upstream
+					world.level.collidables.get(change.colliderName).active = change.state;
+				} else if (packet instanceof PacketNewWorld) {
+=======
 					AABB aabb = world.level.colliders.get(change.colliderName);
 					aabb.collidable = change.collidable;
 					aabb.renderable = change.renderable;
 					aabb.material = change.material;
-				} else if (packet instanceof PacketNewWorld) {
+				} else if(packet instanceof PacketNewWorld) {
+>>>>>>> Stashed changes
 					PacketNewWorld newWorld = (PacketNewWorld) packet;
 					System.out.println("Loading level: " + newWorld.level);
 
@@ -140,8 +161,14 @@ public class ClientHandler {
 					world.level.mtl = newWorld.mtl;
 					world.level.obj = newWorld.obj;
 					world.level.loadLevel();
+<<<<<<< Updated upstream
+					for (String bl : newWorld.disabledBlocks) {
+						world.level.aabbs.get(bl).active = false;
+					}
+=======
 					world.level.aabbs = newWorld.aabbs;
 
+>>>>>>> Stashed changes
 					world.entities.clear();
 					levelDirty = true;
 				} else if (packet instanceof PacketMessage) {

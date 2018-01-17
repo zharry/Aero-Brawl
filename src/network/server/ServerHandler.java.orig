@@ -22,6 +22,7 @@ import com.jmr.wrapper.server.Server;
 import entity.Entity;
 import entity.EntityPlayer;
 import entity.EntityRegistry;
+<<<<<<< Updated upstream
 import network.packet.Event;
 import network.packet.Packet;
 import network.packet.PacketEntitySetPlayer;
@@ -31,6 +32,10 @@ import network.packet.PacketNewWorld;
 import network.packet.PacketPing;
 import network.packet.PacketPlayerInput;
 import network.packet.PacketPlayerJoin;
+import util.AABB;
+=======
+import network.packet.*;
+>>>>>>> Stashed changes
 import util.math.Quat4;
 import util.math.Vec3;
 import world.Level;
@@ -132,10 +137,21 @@ public class ServerHandler {
 
 		player.position = level.spawnLocation;
 
-		sendPacket(new PacketNewWorld(player.level, level.obj, level.mtl, level.aabbs), player.id);
+<<<<<<< Updated upstream
+		ArrayList<String> deactivated = new ArrayList<>();
+		for (Map.Entry<String, AABB> aabbe : level.aabbs.entrySet()) {
+			if (!aabbe.getValue().active) {
+				deactivated.add(aabbe.getKey());
+			}
+		}
 
-		for(Entity entity : world.entities.values()) {
-			if(entity.level.equals(player.level)) {
+		sendPacket(new PacketNewWorld(player.level, level.obj, level.mtl, deactivated), player.id);
+=======
+		sendPacket(new PacketNewWorld(player.level, level.obj, level.mtl, level.aabbs), player.id);
+>>>>>>> Stashed changes
+
+		for (Entity entity : world.entities.values()) {
+			if (entity.level.equals(player.level)) {
 				sendPacket(new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())), id);
 				buffer.clear();
 				entity.monitor.serialize(buffer, true);

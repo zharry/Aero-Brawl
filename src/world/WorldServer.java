@@ -6,8 +6,12 @@
 package world;
 
 import entity.Entity;
+import entity.EntityPlayer;
 import entity.EntityRegistry;
-import network.packet.*;
+import network.packet.PacketEntityDelete;
+import network.packet.PacketEntitySpawn;
+import network.packet.PacketEntityUpdate;
+import network.packet.PacketMessage;
 import network.server.ServerHandler;
 
 import java.nio.ByteBuffer;
@@ -28,6 +32,9 @@ public class WorldServer extends World {
 
 	public void tick() {
 		super.tick();
+		for(Level level : levels.values()) {
+			level.clearIteration();
+		}
 		for(Entity entity : entities.values()) {
 			buffer.clear();
 			entity.monitor.serialize(buffer, false);
@@ -36,6 +43,9 @@ public class WorldServer extends World {
 			buffer.flip();
 			buffer.get(bytes);
 			handler.queueBroadcast(entity.level, new PacketEntityUpdate(entity.id, false, bytes));
+		}
+		for(Level level : levels.values()) {
+			level.runAll();
 		}
 	}
 
@@ -59,16 +69,14 @@ public class WorldServer extends World {
 		handler.queueBroadcast(entity.level, new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())));
 	}
 
-	public void setColliderEnable(String collider, String level, boolean state) {
-		levels.get(level).aabbs.get(collider).active = state;
-		handler.queueBroadcast(level, new PacketColliderChange(collider, state));
-	}
-
 	protected void onEntityDelete(Entity entity) {
 		handler.queueBroadcast(entity.level, new PacketEntityDelete(entity.id));
 	}
 
 	protected void onEntitySpawn(Entity entity) {
+		if(entity instanceof EntityPlayer) {
+			levels.get(entity.level).handler.onPlayerJoin((EntityPlayer) entity);
+		}
 		handler.queueBroadcast(entity.level, new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())));
 	}
 
