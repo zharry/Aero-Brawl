@@ -5,9 +5,12 @@
 
 package entity;
 
+import network.packet.Packet;
+import network.packet.PacketMessage;
 import util.AABB;
 import util.math.CollisionFace;
 import util.math.Vec3;
+import world.Level;
 import world.WorldClient;
 import world.WorldServer;
 
@@ -53,23 +56,38 @@ public class EntityPlayer extends Entity {
 	}
 
 	public void teleportTo(String marker) {
-		// TODO IMPLEMENT
-		throw new RuntimeException("Not implemented");
+		if(!world.isClient) {
+			WorldServer server = (WorldServer) world;
+			Level currLevel = server.levels.get(level);
+			teleportTo(currLevel.locations.get(marker));
+		}
 	}
 
 	public void teleportTo(Vec3 position) {
-		// TODO IMPLEMENT
-		throw new RuntimeException("Not implemented");
+		this.position = position;
+		forceUpdate();
 	}
 
 	public void setVelocity(Vec3 velocity) {
-		// TODO IMPLEMENT
-		throw new RuntimeException("Not implemented");
+		this.velocity = velocity;
+	}
+
+	private void forceUpdate() {
+		if(!world.isClient) {
+			WorldServer server = (WorldServer) world;
+			server.forceUpdate(this);
+		}
 	}
 
 	public void sendMessage(String message) {
-		// TODO IMPLEMENT
-		throw new RuntimeException("Not implemented");
+		sendPacket(new PacketMessage(message));
+	}
+
+	private void sendPacket(Packet packet) {
+		if(!world.isClient) {
+			WorldServer server = (WorldServer) world;
+			server.handler.queuePacket(id, packet);
+		}
 	}
 
 	public void runCollision() {

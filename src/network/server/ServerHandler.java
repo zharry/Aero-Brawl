@@ -86,6 +86,17 @@ public class ServerHandler {
 		}
 	}
 
+	public void queuePacket(long id, Packet packet) {
+		if(sendImmediately) {
+			sendPacket(packet, id);
+		} else {
+			try {
+				outgoingQueue.put(new OutgoingPacket(id, packet));
+			} catch (InterruptedException e) {
+			}
+		}
+	}
+
 	public void sendPacket(Packet packet, long to) {
 		Connection connection = connections.get(to);
 		if(connection != null) {

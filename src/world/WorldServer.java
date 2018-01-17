@@ -7,10 +7,7 @@ package world;
 
 import entity.Entity;
 import entity.EntityRegistry;
-import network.packet.PacketColliderChange;
-import network.packet.PacketEntityDelete;
-import network.packet.PacketEntitySpawn;
-import network.packet.PacketEntityUpdate;
+import network.packet.*;
 import network.server.ServerHandler;
 
 import java.nio.ByteBuffer;
@@ -20,7 +17,7 @@ public class WorldServer extends World {
 
 	private ByteBuffer buffer = ByteBuffer.allocate(65536);
 
-	private ServerHandler handler;
+	public ServerHandler handler;
 
 	public HashMap<String, Level> levels = new HashMap<>();
 
@@ -53,8 +50,7 @@ public class WorldServer extends World {
 	}
 
 	public void broadcastMessage(String message, String level) {
-		// TODO IMPLEMENT
-		throw new RuntimeException("Not implemented");
+		handler.queueBroadcast(level, new PacketMessage(message));
 	}
 
 	public void setEntityLevel(Entity entity, String level) {

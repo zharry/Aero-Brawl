@@ -22,6 +22,8 @@ public class Level {
 
 	public HashMap<String, AABB> collidables = new HashMap<>();
 
+	public HashMap<String, Vec3> locations = new HashMap<>();
+
 	public ObjLoader loader = new ObjLoader();
 
 	public Level(String level) {
@@ -90,10 +92,15 @@ public class Level {
 			aabbs.put(obj.name, aabb);
 			String[] splits = obj.name.split("\\.");
 			String check = splits[0].toLowerCase();
+
+			Vec3 location = aabb.max.add(aabb.min).mul(0.5);
+			location = new Vec3(location.x, aabb.max.y + 1e-6, location.z);
+
+			locations.put(obj.name, location);
+
 			if(check.equals("marker")) {
 				if(splits[1].toLowerCase().startsWith("spawn")) {
-					spawnLocation = aabb.max.add(aabb.min).mul(0.5);
-					spawnLocation = new Vec3(spawnLocation.x, aabb.max.y + 1e-6, spawnLocation.z);
+					spawnLocation = location;
 				}
 			}
 //			if(check.equals("collider") || check.equals("floor") || check.equals("wall") || check.equals("cube")) {
