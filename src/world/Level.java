@@ -65,8 +65,12 @@ public class Level {
 
 		loadLevel();
 
-		// TODO load level handler class
-		handler = new DefaultLevel() {};
+		try {
+			handler = (LevelHandler) Class.forName(level).newInstance();
+		} catch(Exception e) {
+			System.err.println("Cannot load level class!");
+			throw new IOException(e);
+		}
 
 		if(!world.isClient) {
 			handler.world = (WorldServer) world;

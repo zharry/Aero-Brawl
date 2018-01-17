@@ -36,7 +36,7 @@ public class ServerHandler {
 
 	private boolean sendImmediately = false;
 
-	public String defaultLevel = "level1_Welcome";
+	public String defaultLevel = "level3_Collaboration";
 
 	private HashMap<Long, Connection> connections = new HashMap<>();
 	private HashMap<Connection, Long> connectionsLookup = new HashMap<>();
@@ -57,7 +57,9 @@ public class ServerHandler {
 		world = new WorldServer(this);
 
 		try {
-			addLevel(defaultLevel);
+			addLevel("level1_Welcome");
+			addLevel("level2_Maze");
+			addLevel("level3_Collaboration");
 		} catch (IOException e) {
 			System.err.println("Cannot load level file");
 			e.printStackTrace();
@@ -100,7 +102,8 @@ public class ServerHandler {
 		Connection connection = connections.get(to);
 		if (connection != null) {
 			if (packet instanceof PacketNewWorld) {
-				connection.sendComplexObjectTcp(packet);
+				System.out.println("Sending: " + packet);
+				connection.sendComplexObjectTcp(packet, 1000);
 			} else {
 				connection.sendTcp(packet);
 			}
@@ -119,23 +122,23 @@ public class ServerHandler {
 
 		player.position = level.spawnLocation;
 
-		sendPacket(new PacketNewWorld(player.level, level.obj, level.mtl, level.aabbs), player.id);
+		queuePacket(player.id, new PacketNewWorld(player.level, level.obj, level.mtl, level.aabbs));
 
 		for(Entity entity : world.entities.values()) {
 			if(entity.level.equals(player.level)) {
-				sendPacket(new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())), id);
+				queuePacket(id, new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())));
 				buffer.clear();
 				entity.monitor.serialize(buffer, true);
 				byte[] arr = new byte[buffer.position()];
 				buffer.flip();
 				buffer.get(arr);
-				sendPacket(new PacketEntityUpdate(entity.id, true, arr), id);
+				queuePacket(id, new PacketEntityUpdate(entity.id, true, arr));
 			}
 		}
 
 		world.spawnEntity(player);
 
-		sendPacket(new PacketEntitySetPlayer(player.id, false), id);
+		queuePacket(id, new PacketEntitySetPlayer(player.id, false));
 
 		world.forceUpdate(player);
 	}

@@ -31,10 +31,10 @@ public class WorldServer extends World {
 	}
 
 	public void tick() {
-		super.tick();
 		for(Level level : levels.values()) {
 			level.clearIteration();
 		}
+		super.tick();
 		for(Entity entity : entities.values()) {
 			buffer.clear();
 			entity.monitor.serialize(buffer, false);
@@ -66,7 +66,8 @@ public class WorldServer extends World {
 	public void setEntityLevel(Entity entity, String level) {
 		handler.queueBroadcast(entity.level, new PacketEntityDelete(entity.id));
 		entity.level = level;
-		handler.queueBroadcast(entity.level, new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())));
+		handler.setPlayerLevel(level, ((EntityPlayer) entity).level, entity.id);
+//		handler.queueBroadcast(entity.level, new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())));
 	}
 
 	protected void onEntityDelete(Entity entity) {
