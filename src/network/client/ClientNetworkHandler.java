@@ -5,12 +5,13 @@
 
 package network.client;
 
-import com.jmr.wrapper.client.Client;
-import com.jmr.wrapper.common.Connection;
-import network.packet.Packet;
-
 import java.net.ConnectException;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import com.jmr.wrapper.client.Client;
+import com.jmr.wrapper.common.Connection;
+
+import network.packet.Packet;
 
 public class ClientNetworkHandler {
 
