@@ -41,6 +41,12 @@ public abstract class DefaultLevel extends LevelHandler {
 		String levelID = levelData[0].substring(5);
 		String levelDesc = levelData[1];
 		player.sendMessage("Level " + levelID + ": " + levelDesc);
+		
+		// Unrender the Bounding Boxes for the World
+		level.setRenderable("Wall.005.Boundary", false);
+		level.setRenderable("Wall.006.Boundary", false);
+		level.setRenderable("Wall.007.Boundary", false);
+		level.setRenderable("Wall.008.Boundary", false);
 	}
 
 	public void collideOther(String object, ArrayList<EntityPlayer> playerList) {

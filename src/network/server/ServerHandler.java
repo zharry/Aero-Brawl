@@ -5,24 +5,37 @@
 
 package network.server;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
 import com.jmr.wrapper.server.ConnectionManager;
 import com.jmr.wrapper.server.Server;
+
 import entity.Entity;
 import entity.EntityPlayer;
 import entity.EntityRegistry;
-import network.packet.*;
+import network.packet.Event;
+import network.packet.Packet;
+import network.packet.PacketEntitySetPlayer;
+import network.packet.PacketEntitySpawn;
+import network.packet.PacketEntityUpdate;
+import network.packet.PacketNewWorld;
+import network.packet.PacketPing;
+import network.packet.PacketPlayerInput;
+import network.packet.PacketPlayerJoin;
 import util.AABB;
 import util.math.Quat4;
 import util.math.Vec3;
 import world.Level;
 import world.WorldServer;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 
 public class ServerHandler {
 
@@ -59,7 +72,7 @@ public class ServerHandler {
 
 		try {
 			addLevel(defaultLevel);
-		} catch(IOException e) {
+		} catch (IOException e) {
 			System.err.println("Cannot load level file");
 			e.printStackTrace();
 		}
@@ -72,9 +85,9 @@ public class ServerHandler {
 	}
 
 	public void queueBroadcast(String level, Packet packet) {
-		for(Map.Entry<Long, Connection> conn : connections.entrySet()) {
+		for (Map.Entry<Long, Connection> conn : connections.entrySet()) {
 			if (world.entities.get(conn.getKey()).level.equals(level)) {
-				if(sendImmediately) {
+				if (sendImmediately) {
 					sendPacket(packet, conn.getKey());
 				} else {
 					try {
@@ -87,7 +100,7 @@ public class ServerHandler {
 	}
 
 	public void queuePacket(long id, Packet packet) {
-		if(sendImmediately) {
+		if (sendImmediately) {
 			sendPacket(packet, id);
 		} else {
 			try {
@@ -99,8 +112,8 @@ public class ServerHandler {
 
 	public void sendPacket(Packet packet, long to) {
 		Connection connection = connections.get(to);
-		if(connection != null) {
-			if(packet instanceof PacketNewWorld) {
+		if (connection != null) {
+			if (packet instanceof PacketNewWorld) {
 				connection.sendComplexObjectTcp(packet);
 			} else {
 				connection.sendTcp(packet);
@@ -121,16 +134,16 @@ public class ServerHandler {
 		player.position = level.spawnLocation;
 
 		ArrayList<String> deactivated = new ArrayList<>();
-		for(Map.Entry<String, AABB> aabbe : level.aabbs.entrySet()) {
-			if(!aabbe.getValue().active) {
+		for (Map.Entry<String, AABB> aabbe : level.aabbs.entrySet()) {
+			if (!aabbe.getValue().active) {
 				deactivated.add(aabbe.getKey());
 			}
 		}
 
 		sendPacket(new PacketNewWorld(player.level, level.obj, level.mtl, deactivated), player.id);
 
-		for(Entity entity : world.entities.values()) {
-			if(entity.level.equals(player.level)) {
+		for (Entity entity : world.entities.values()) {
+			if (entity.level.equals(player.level)) {
 				sendPacket(new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())), id);
 				buffer.clear();
 				entity.monitor.serialize(buffer, true);
@@ -159,7 +172,7 @@ public class ServerHandler {
 
 			sendImmediately = true;
 			// Receive Input
-			while(!receiveQueue.isEmpty()) {
+			while (!receiveQueue.isEmpty()) {
 				IncomingPacket incoming = receiveQueue.poll();
 
 				Long id = connectionsLookup.get(incoming.connection);
@@ -192,8 +205,9 @@ public class ServerHandler {
 						player.position = new Vec3(p.x, p.y, p.z);
 						player.quat = new Quat4(p.qw, p.qx, p.qy, p.qz);
 					}
-				} catch(Exception e) {
-					System.err.println("Exception occurred while processing packet: " + packet + " from " + incoming.connection);
+				} catch (Exception e) {
+					System.err.println(
+							"Exception occurred while processing packet: " + packet + " from " + incoming.connection);
 					e.printStackTrace();
 				}
 			}
@@ -210,7 +224,7 @@ public class ServerHandler {
 				delta--;
 			}
 
-			while(!outgoingQueue.isEmpty()) {
+			while (!outgoingQueue.isEmpty()) {
 				OutgoingPacket packet = outgoingQueue.poll();
 				sendPacket(packet.packet, packet.id);
 			}
@@ -237,13 +251,20 @@ public class ServerHandler {
 			Scanner s = new Scanner(System.in);
 			while (true) {
 				String cmd = s.nextLine();
-				if (cmd.equals("/tps")) {
+				switch (cmd) {
+				case "tps":
 					System.out.println("[Info]: Target TPS: " + TARGET_TPS + "\n[Info]: Current TPS: " + CURRENT_TPS);
-				} else if (cmd.equals("/pingall")) {
+					break;
+				case "pingall":
 					ArrayList<Connection> cons = ConnectionManager.getInstance().getConnections();
-					for (Connection c : cons) {
+					for (Connection c : cons)
 						c.sendTcp(new PacketPing(true));
-					}
+					break;
+				case "stop":
+				    System.exit(0);
+					break;
+				default:
+					break;
 				}
 			}
 		}

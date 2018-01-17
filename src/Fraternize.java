@@ -11,10 +11,10 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.ConnectException;
 
-public class AeroBrawlMain {
+public class Fraternize {
 
 	public static final String VERSION = "0.0.0.1";
-	public static final String TITLE = "Aero Brawl";
+	public static final String TITLE = "Fraternize";
 	public static final int SERVER_PORT = 9001;
 
 	public static void main(String[] args) throws IOException {
