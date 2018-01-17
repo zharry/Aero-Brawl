@@ -6,6 +6,7 @@
 package client;
 
 public class RenderObject {
+	public String name;
 	public int displayList;
 	public ObjLoader.Material material;
 	public int diffuseTexture = -1;

@@ -112,6 +112,7 @@ public class GLUtil {
 			glEndList();
 
 			RenderObject robj = new RenderObject();
+			robj.name = obj.name;
 			robj.diffuseTexture = diffuseMap;
 			robj.material = mat;
 			robj.displayList = objList;
