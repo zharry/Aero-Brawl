@@ -125,6 +125,8 @@ public class ClientHandler {
 					}
 					world.entities.clear();
 					levelDirty = true;
+				} else if (packet instanceof PacketMessage) {
+					PacketMessage message = (PacketMessage) packet;
 				}
 			} catch(Exception e) {
 				System.err.println("Exception occurred while processing packet: " + packet);
