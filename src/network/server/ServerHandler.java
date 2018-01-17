@@ -36,7 +36,7 @@ public class ServerHandler {
 
 	private boolean sendImmediately = false;
 
-	public String defaultLevel = "level2_Maze";
+	public String defaultLevel = "level3_Collaboration";
 
 	private HashMap<Long, Connection> connections = new HashMap<>();
 	private HashMap<Connection, Long> connectionsLookup = new HashMap<>();
@@ -57,8 +57,8 @@ public class ServerHandler {
 		world = new WorldServer(this);
 
 		try {
-			addLevel("level1_Welcome");
 			addLevel("level2_Maze");
+			addLevel("level1_Welcome");
 			addLevel("level3_Collaboration");
 		} catch (IOException e) {
 			System.err.println("Cannot load level file");

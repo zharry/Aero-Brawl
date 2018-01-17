@@ -8,13 +8,11 @@ public abstract class DefaultLevel extends LevelHandler {
 
 	// Activators are named: Activator.ID[.RequiredPlayers] or Activator.Exit
 	public void activator(String name, ArrayList<EntityPlayer> playerList) {
-
-		System.out.println("Stepped on activator!");
-
 		String[] args = name.split("\\.");
 
 		// Move Player to the next level
 		if (name.startsWith("Activator.Exit")) {
+			System.out.println("Stepped on Exit!");
 			String nextLevel = args[2];
 			for (EntityPlayer player : playerList)
 				world.setEntityLevel(player, nextLevel);
@@ -23,16 +21,20 @@ public abstract class DefaultLevel extends LevelHandler {
 		} else {
 			int id = Integer.parseInt(args[1]), colPlayers = args.length <= 2 ? 1 : Integer.parseInt(args[2]);
 			if (playerList.size() > 0) {
+				System.out.println("Stepped on activator!");
 				// Disable corresponding collider
 				if (playerList.size() >= colPlayers) {
+					System.out.println("Activated!");
 					level.setCollidable("Collider." + id, false);
 					level.setRenderable("Collider." + id, false);
 					// Notify players remaining required players
-				} else
+				} else {
+					System.out.println("Stepped on activator!");
 					for (EntityPlayer player : playerList)
-						player.sendMessage(colPlayers - playerList.size() + " more player(s) required!");
+						player.sendMessage(colPlayers - playerList.size() + " more player(s) required!");}
 				// Enable corresponding collider
 			} else {
+				System.out.println("Stepped off activator!");
 				level.setCollidable("Collider." + id, true);
 				level.setRenderable("Collider." + id, true);
 			}
