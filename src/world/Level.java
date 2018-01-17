@@ -118,6 +118,15 @@ public class Level {
 		dirtyColliders.clear();
 	}
 
+	public void flushPlayer(long id) {
+		for(String key : playerActivators.keySet()) {
+			processActivators(key, id, false);
+		}
+		for(String key : playerColliders.keySet()) {
+			processActivators(key, id, false);
+		}
+	}
+
 	public void processActivators(String key, long id, boolean intersecting) {
 		HashSet<Long> activators = playerActivators.computeIfAbsent(key, k -> new HashSet<>());
 		if(activators.contains(id) != intersecting) {
@@ -144,18 +153,24 @@ public class Level {
 
 	public void setCollidable(String object, boolean collidable) {
 		AABB aabb = aabbs.get(object);
+		if(aabb == null)
+			return;
 		aabb.collidable = collidable;
 		forceUpdate(object, aabb);
 	}
 
 	public void setRenderable(String object, boolean renderable) {
 		AABB aabb = aabbs.get(object);
+		if(aabb == null)
+			return;
 		aabb.renderable = renderable;
 		forceUpdate(object, aabb);
 	}
 
 	public void setMaterial(String object, String material) {
 		AABB aabb = aabbs.get(object);
+		if(aabb == null)
+			return;
 		aabb.material = material;
 		forceUpdate(object, aabb);
 	}
@@ -207,13 +222,16 @@ public class Level {
 			String check = splits[0].toLowerCase();
 
 			if (check.equals("marker")) {
+				aabb.renderable = false;
 				if (splits[1].toLowerCase().startsWith("spawn")) {
 					spawnLocation = locations.get(name);
 				}
-			} else if (check.equals("collider") || check.equals("floor") || check.equals("wall")) {
+			} else if (check.equals("collider") || check.equals("floor") || check.equals("wall") || check.equals("boundery")) {
 				colliders.put(name, aabb);
 			} else if (check.equals("activator")) {
 				activators.put(name, aabb);
+			} else if(check.equals("light") || check.equals("boundary")) {
+				aabb.renderable = false;
 			}
 		}
 	}

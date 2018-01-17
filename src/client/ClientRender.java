@@ -329,7 +329,7 @@ public class ClientRender {
 				smove += 1;
 			if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
 				if (client.player.onGround) {
-					client.player.velocity = client.player.velocity.add(new Vec3(0, 0.35, 0));
+					client.player.velocity = client.player.velocity.add(new Vec3(0, 0.32, 0));
 				}
 			}
 
@@ -374,10 +374,11 @@ public class ClientRender {
 		double ang = System.nanoTime() / 10000000000.0 % 1 * 2 * Math.PI;
 		// double ang = 0;
 
-		lightPosition = new Vec3(Math.cos(ang) * 10, 12, Math.sin(ang) * 10);// newPosT.add(new
-																				// Vec3(0,
-																				// 2,
-																				// 0));
+		AABB aabb = client.world.level.aabbs.get("Light.0.000");
+
+		if(aabb != null) {
+			lightPosition = aabb.max.add(aabb.min).mul(0.5);
+		}
 
 		glLight(GL_LIGHT0, GL_DIFFUSE,
 				(FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(1).flip());

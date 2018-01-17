@@ -66,11 +66,13 @@ public class WorldServer extends World {
 	public void setEntityLevel(Entity entity, String level) {
 		handler.queueBroadcast(entity.level, new PacketEntityDelete(entity.id));
 		entity.level = level;
+		levels.get(level).flushPlayer(entity.id);
 		handler.setPlayerLevel(level, ((EntityPlayer) entity).level, entity.id);
 //		handler.queueBroadcast(entity.level, new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())));
 	}
 
 	protected void onEntityDelete(Entity entity) {
+		levels.get(entity.level).flushPlayer(entity.id);
 		handler.queueBroadcast(entity.level, new PacketEntityDelete(entity.id));
 	}
 

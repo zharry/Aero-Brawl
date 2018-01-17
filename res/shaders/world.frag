@@ -52,5 +52,5 @@ void main(void) {
 		}
 	}
 
-	gl_FragColor = vec4(color.rgb * (clrMult * sum / tot / 2.0 + 0.5), 1);
+	gl_FragColor = vec4(color.rgb * (clrMult * sum / tot / 2.0 + 0.5) * 1.2, 1);
 }

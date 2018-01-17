@@ -103,7 +103,7 @@ public class ServerHandler {
 		Connection connection = connections.get(to);
 		if (connection != null) {
 			if (packet instanceof PacketNewWorld) {
-//				System.out.println("Sending: " + packet);
+				System.out.println("Sending " + packet + " to " + to);
 				connection.sendComplexObjectTcp(packet);
 			} else {
 				connection.sendTcp(packet);

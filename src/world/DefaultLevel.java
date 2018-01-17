@@ -10,6 +10,8 @@ public abstract class DefaultLevel extends LevelHandler {
 	public void activator(String name, ArrayList<EntityPlayer> playerList) {
 		String[] args = name.split("\\.");
 
+		System.out.println("Activator!: " + playerList);
+
 		// Move Player to the next level
 		if (name.startsWith("Activator.Exit")) {
 			System.out.println("Stepped on Exit!");
@@ -20,23 +22,19 @@ public abstract class DefaultLevel extends LevelHandler {
 			// Trigger a activator
 		} else {
 			int id = Integer.parseInt(args[1]), colPlayers = args.length <= 2 ? 1 : Integer.parseInt(args[2]);
-			if (playerList.size() > 0) {
-				System.out.println("Stepped on activator!");
-				// Disable corresponding collider
-				if (playerList.size() >= colPlayers) {
-					System.out.println("Activated!");
-					level.setCollidable("Collider." + id, false);
-					level.setRenderable("Collider." + id, false);
-					// Notify players remaining required players
-				} else {
-					System.out.println("Stepped on activator!");
-					for (EntityPlayer player : playerList)
-						player.sendMessage(colPlayers - playerList.size() + " more player(s) required!");}
-				// Enable corresponding collider
+
+			// Disable corresponding collider
+			if (playerList.size() >= colPlayers) {
+				level.setCollidable("Collider." + id, false);
+				level.setRenderable("Collider." + id, false);
+				// Notify players remaining required players
 			} else {
-				System.out.println("Stepped off activator!");
+				if (playerList.size() != 0)
+					for (EntityPlayer player : playerList)
+						player.sendMessage(colPlayers - playerList.size() + " more player(s) required!");
 				level.setCollidable("Collider." + id, true);
 				level.setRenderable("Collider." + id, true);
+			// Enable corresponding collider
 			}
 		}
 	}
@@ -46,12 +44,6 @@ public abstract class DefaultLevel extends LevelHandler {
 		String levelID = levelData[0].substring(5);
 		String levelDesc = levelData[1];
 		player.sendMessage("Level " + levelID + ": " + levelDesc);
-		
-		// Unrender the Bounding Boxes for the World
-		level.setRenderable("Wall.005.Boundary", false);
-		level.setRenderable("Wall.006.Boundary", false);
-		level.setRenderable("Wall.007.Boundary", false);
-		level.setRenderable("Wall.008.Boundary", false);
 	}
 
 	public void collideOther(String object, ArrayList<EntityPlayer> playerList) {
