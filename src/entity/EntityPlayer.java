@@ -70,6 +70,7 @@ public class EntityPlayer extends Entity {
 
 	public void setVelocity(Vec3 velocity) {
 		this.velocity = velocity;
+		forceUpdate();
 	}
 
 	private void forceUpdate() {
