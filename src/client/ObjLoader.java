@@ -141,6 +141,8 @@ public class ObjLoader {
 			}
 		}
 
+		materials.put(matName, material);
+
 		return materials;
 	}
 
