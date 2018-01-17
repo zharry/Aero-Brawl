@@ -97,6 +97,8 @@ public class ClientRender {
 
 	public static boolean isCaptured;
 
+	public static boolean isDebugOpen;
+
 	public ContextCapabilities capabilities;
 
 	public ClientRender(ClientHandler client) {
@@ -313,6 +315,8 @@ public class ClientRender {
 	public void runInput() {
 
 		if(isCaptured) {
+
+
 
 			double fmove = 0;
 			double smove = 0;

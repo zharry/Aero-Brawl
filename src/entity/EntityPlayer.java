@@ -20,7 +20,6 @@ public class EntityPlayer extends Entity {
 
 	public final AABB playerAABB = new AABB(new Vec3(-0.25, 0, -0.25), new Vec3(0.25, 1.8, 0.25));
 	public final Vec3 eyeOffset = new Vec3(0, 1.6, 0);
-	public double stepHeight = 20;
 
 	public boolean onGround;
 	public boolean prevOnGround;
@@ -51,6 +50,18 @@ public class EntityPlayer extends Entity {
 				}
 			}
 		}
+	}
+
+	public void teleportTo(String marker) {
+
+	}
+
+	public void teleportTo(Vec3 position) {
+
+	}
+
+	public void setVelocity(Vec3 velocity) {
+
 	}
 
 	public void runCollision() {

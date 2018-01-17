@@ -52,6 +52,18 @@ public class Level {
 		return false;
 	}
 
+	public void setRenderable(String object, boolean enabled) {
+
+	}
+
+	public void setCollidable(String object, boolean collidable) {
+
+	}
+
+	public void setMaterial(String object, String material) {
+
+	}
+
 	public void loadLevel() {
 		loader.materials = loader.loadMtl(mtl);
 		loader.load(obj);
