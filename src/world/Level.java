@@ -24,6 +24,10 @@ public class Level {
 
 	public HashMap<String, Vec3> locations = new HashMap<>();
 
+	public HashMap<String, Boolean> renderable = new HashMap<>();
+	public HashMap<String, Boolean> collidable = new HashMap<>();
+	public HashMap<String, String> material = new HashMap<>();
+
 	public ObjLoader loader = new ObjLoader();
 
 	public Level(String level) {
@@ -31,6 +35,14 @@ public class Level {
 	}
 
 	public Vec3 spawnLocation = new Vec3();
+
+	public LevelHandler handler;
+
+	public World world;
+
+	public Level(World world) {
+		this.world = world;
+	}
 
 	public void loadLevelFromFile() throws IOException {
 		FileInputStream input = new FileInputStream(new File(new File(baseDir, level), "world.mtl"));
@@ -42,6 +54,8 @@ public class Level {
 		input.close();
 
 		loadLevel();
+
+		// TODO load level handler class
 
 	}
 

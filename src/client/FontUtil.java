@@ -62,7 +62,7 @@ public class FontUtil {
 			mx = Math.max(mx, ++x);
 		}
 
-		return new Dimension(mx, y + 1);
+		return new Dimension(mx * fontMetric[fontInd].width, (y + 1) * fontMetric[fontInd].height);
 	}
 
 	public static void drawText(String s, int fontInd) {
