@@ -67,6 +67,11 @@ public class EntityPlayer extends Entity {
 		throw new RuntimeException("Not implemented");
 	}
 
+	public void sendMessage(String message) {
+		// TODO IMPLEMENT
+		throw new RuntimeException("Not implemented");
+	}
+
 	public void runCollision() {
 
 		prevOnGround = onGround;
