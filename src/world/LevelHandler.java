@@ -19,6 +19,7 @@ public abstract class LevelHandler {
 				level.setRenderable("Collider." + id, false);
 			} else {
 				for (EntityPlayer player: playerList) {
+					player.sendMessage(colPlayers - playerList.size() + " more player(s) required!");
 				}
 			}
 		} else {
