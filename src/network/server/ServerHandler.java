@@ -36,7 +36,7 @@ public class ServerHandler {
 
 	private boolean sendImmediately = false;
 
-	public String defaultLevel = "level3_Collaboration";
+	public String defaultLevel = "level2_Maze";
 
 	private HashMap<Long, Connection> connections = new HashMap<>();
 	private HashMap<Connection, Long> connectionsLookup = new HashMap<>();
