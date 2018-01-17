@@ -53,15 +53,18 @@ public class Level {
 	}
 
 	public void setRenderable(String object, boolean enabled) {
-
+		// TODO IMPLEMENT
+		throw new RuntimeException("Not implemented");
 	}
 
 	public void setCollidable(String object, boolean collidable) {
-
+		// TODO IMPLEMENT
+		throw new RuntimeException("Not implemented");
 	}
 
 	public void setMaterial(String object, String material) {
-
+		// TODO IMPLEMENT
+		throw new RuntimeException("Not implemented");
 	}
 
 	public void loadLevel() {

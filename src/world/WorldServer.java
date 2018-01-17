@@ -52,6 +52,11 @@ public class WorldServer extends World {
 		handler.queueBroadcast(entity.level, new PacketEntityUpdate(entity.id, true, bytes));
 	}
 
+	public void broadcastMessage(String message, String level) {
+		// TODO IMPLEMENT
+		throw new RuntimeException("Not implemented");
+	}
+
 	public void setEntityLevel(Entity entity, String level) {
 		handler.queueBroadcast(entity.level, new PacketEntityDelete(entity.id));
 		entity.level = level;

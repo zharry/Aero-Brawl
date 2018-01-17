@@ -53,15 +53,18 @@ public class EntityPlayer extends Entity {
 	}
 
 	public void teleportTo(String marker) {
-
+		// TODO IMPLEMENT
+		throw new RuntimeException("Not implemented");
 	}
 
 	public void teleportTo(Vec3 position) {
-
+		// TODO IMPLEMENT
+		throw new RuntimeException("Not implemented");
 	}
 
 	public void setVelocity(Vec3 velocity) {
-
+		// TODO IMPLEMENT
+		throw new RuntimeException("Not implemented");
 	}
 
 	public void runCollision() {
