@@ -23,6 +23,7 @@ public class ClientNetworkHandler {
 
 		client = new Client(IP, port, port);
 		client.setListener(new ClientListener(this));
+		client.getConfig().PACKET_BUFFER_SIZE = 64000;
 		client.connect();
 		if (client.isConnected()) {
 			System.out.println("Client connected to " + IP + ":" + port);

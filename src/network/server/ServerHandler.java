@@ -36,7 +36,7 @@ public class ServerHandler {
 
 	private boolean sendImmediately = false;
 
-	public String defaultLevel = "level3_Collaboration";
+	public String defaultLevel = "level1_Welcome";
 
 	private HashMap<Long, Connection> connections = new HashMap<>();
 	private HashMap<Connection, Long> connectionsLookup = new HashMap<>();
@@ -50,6 +50,7 @@ public class ServerHandler {
 
 		server = new Server(port, port);
 		server.setListener(new ServerListener(this));
+		server.getConfig().PACKET_BUFFER_SIZE = 64000;
 		if (server.isConnected()) {
 			System.out.println("Server is now listening on 0.0.0.0:" + port);
 		}
@@ -102,8 +103,8 @@ public class ServerHandler {
 		Connection connection = connections.get(to);
 		if (connection != null) {
 			if (packet instanceof PacketNewWorld) {
-				System.out.println("Sending: " + packet);
-				connection.sendComplexObjectTcp(packet, 1000);
+//				System.out.println("Sending: " + packet);
+				connection.sendComplexObjectTcp(packet);
 			} else {
 				connection.sendTcp(packet);
 			}
