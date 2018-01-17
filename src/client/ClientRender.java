@@ -369,7 +369,7 @@ public class ClientRender {
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		Vec3 newPosT = Util.mix(client.player.lastPosition, client.player.position, partialTick);
+		Vec3 newPos = Util.mix(client.player.lastPosition, client.player.position, partialTick).add(client.player.eyeOffset);
 
 		double ang = System.nanoTime() / 10000000000.0 % 1 * 2 * Math.PI;
 		// double ang = 0;
@@ -435,8 +435,6 @@ public class ClientRender {
 		Quat4 newRot = client.player.quat;
 		glRotated(Math.toDegrees(Math.acos(newRot.w) * 2), -newRot.x, -newRot.y, -newRot.z);
 
-		Vec3 newPos = Util.mix(client.player.lastPosition, client.player.position, partialTick)
-				.add(client.player.eyeOffset);
 		glTranslated(-newPos.x, -newPos.y, -newPos.z);
 
 		glGetFloat(GL_MODELVIEW_MATRIX, view);
