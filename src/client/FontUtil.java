@@ -17,14 +17,52 @@ public class FontUtil {
 
 	public static int font16 = 0;
 	public static int font24 = 1;
+	public static int font36 = 2;
+	public static int font48 = 3;
 
-	public static int[] font = new int[2];
+	public static int[] font = new int[4];
 
-	public static final Dimension[] fontMetric = {new Dimension(10, 19), new Dimension(14, 28)};
+	public static final Dimension[] fontMetric = {
+			new Dimension(10, 19),
+			new Dimension(14, 28),
+			new Dimension(22, 43),
+			new Dimension(29, 57),
+	};
 
 	public static void init() {
 		font[font16] = GLUtil.loadTexture(FontUtil.class.getResourceAsStream("/fonts/font16.png"));
 		font[font24] = GLUtil.loadTexture(FontUtil.class.getResourceAsStream("/fonts/font24.png"));
+		font[font36] = GLUtil.loadTexture(FontUtil.class.getResourceAsStream("/fonts/font36.png"));
+		font[font48] = GLUtil.loadTexture(FontUtil.class.getResourceAsStream("/fonts/font48.png"));
+	}
+
+	public static Dimension getTextDimension(String s, int fontInd) {
+		int cp;
+
+		int x = 0, y = 0;
+
+		int mx = 0;
+
+		for(int i = 0; i < s.length(); i += Character.charCount(cp)) {
+			cp = s.codePointAt(i);
+
+			if (cp == '\n') {
+				y++;
+				x = 0;
+			}
+
+			if (cp == '\t') {
+				x = x / 4 * 4 + 4;
+			}
+
+			if (cp < 0x20 || cp > 0x7F) {
+				continue;
+			}
+
+			mx = Math.max(mx, ++x);
+		}
+
+		return new Dimension(mx, y + 1);
 	}
 
 	public static void drawText(String s, int fontInd) {

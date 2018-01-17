@@ -47,9 +47,6 @@ public class EntityPlayer extends Entity {
 			for (Map.Entry<String, AABB> aabb : ((WorldServer) world).levels.get(level).aabbs.entrySet()) {
 				if (aabb.getValue().intersect(newAABB)) {
 					String key = aabb.getKey();
-//					if (key.startsWith()) {
-//						 Do Shit
-//					}
 				}
 			}
 		}
