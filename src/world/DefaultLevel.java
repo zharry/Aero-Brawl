@@ -1,13 +1,14 @@
 package world;
 
-import java.util.ArrayList;
-
 import entity.EntityPlayer;
+
+import java.util.ArrayList;
 
 public abstract class DefaultLevel extends LevelHandler {
 
 	// Activators are named: Activator.ID[.RequiredPlayers] or Activator.Exit
 	public void activator(String name, ArrayList<EntityPlayer> playerList) {
+
 		String[] args = name.split("\\.");
 
 		// Move Player to the next level

@@ -557,22 +557,24 @@ public class ClientRender {
 		// }
 		// }
 		Level level = client.world.level;
-		for (RenderObject obj : worldModel.renderObjects) {
-			AABB aabb = level.aabbs.get(obj.name);
-			if(!aabb.renderable)
-				continue;
+		if(worldModel != null) {
+			for (RenderObject obj : worldModel.renderObjects) {
+				AABB aabb = level.aabbs.get(obj.name);
+				if (!aabb.renderable)
+					continue;
 //			glUniform1i(uHasDiffuseMap, obj.diffuseTexture);
 //			glBindTexture(GL_TEXTURE_2D, obj.diffuseTexture);
 
-			ObjLoader.Material mat = obj.material;
-			if(aabb.material != null) {
-				mat = level.loader.materials.get(aabb.material);
-			}
+				ObjLoader.Material mat = obj.material;
+				if (aabb.material != null) {
+					mat = level.loader.materials.get(aabb.material);
+				}
 
-			if (mat != null && mat.diffuse != null) {
-				glColor3d(mat.diffuse.x, mat.diffuse.y, mat.diffuse.z);
+				if (mat != null && mat.diffuse != null) {
+					glColor3d(mat.diffuse.x, mat.diffuse.y, mat.diffuse.z);
+				}
+				glCallList(obj.displayList);
 			}
-			glCallList(obj.displayList);
 		}
 		glPopMatrix();
 

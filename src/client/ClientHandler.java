@@ -96,10 +96,9 @@ public class ClientHandler {
 	}
 
 	public void checkMessageQueue() {
-		if (!messageQueue.isEmpty())
-			while (System.currentTimeMillis() - MESSAGEALIVE > messageQueue.firstKey()) {
-				messageQueue.remove(messageQueue.firstKey());
-			}
+		while (!messageQueue.isEmpty() && System.currentTimeMillis() - MESSAGEALIVE > messageQueue.firstKey()) {
+			messageQueue.remove(messageQueue.firstKey());
+		}
 	}
 
 	public void runNetwork() {

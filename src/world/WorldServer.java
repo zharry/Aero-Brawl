@@ -75,7 +75,12 @@ public class WorldServer extends World {
 
 	protected void onEntitySpawn(Entity entity) {
 		if(entity instanceof EntityPlayer) {
-			levels.get(entity.level).handler.onPlayerJoin((EntityPlayer) entity);
+			try {
+				levels.get(entity.level).handler.onPlayerJoin((EntityPlayer) entity);
+			} catch(Exception e) {
+				System.err.println("Custom level code errored: " + entity.level);
+				e.printStackTrace();
+			}
 		}
 		handler.queueBroadcast(entity.level, new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())));
 	}

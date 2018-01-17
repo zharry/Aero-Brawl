@@ -174,6 +174,10 @@ public class ObjLoader {
 		public ArrayList<Face> face;
 		public Material material;
 		public Obj(String name, ArrayList<Face> face, Material material) {
+			int ind = name.lastIndexOf('_');
+			if(ind != -1) {
+				name = name.substring(0, ind);
+			}
 			this.name = name;
 			this.face = face;
 			this.material = material;

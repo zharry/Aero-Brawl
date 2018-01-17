@@ -68,6 +68,11 @@ public class Level {
 		// TODO load level handler class
 		handler = new DefaultLevel() {};
 
+		if(!world.isClient) {
+			handler.world = (WorldServer) world;
+			handler.level = this;
+		}
+
 	}
 
 	public void runAll() {
@@ -79,7 +84,12 @@ public class Level {
 						continue;
 					listPlayers.add((EntityPlayer) world.entities.get(id));
 				}
-				handler.activator(k, listPlayers);
+				try {
+					handler.activator(k, listPlayers);
+				} catch(Exception e) {
+					System.err.println("Custom level code errored: " + level);
+					e.printStackTrace();
+				}
 			}
 			for(String k : dirtyColliders) {
 				ArrayList<EntityPlayer> listPlayers = new ArrayList<>();
@@ -88,7 +98,12 @@ public class Level {
 						continue;
 					listPlayers.add((EntityPlayer) world.entities.get(id));
 				}
-				handler.collideOther(k, listPlayers);
+				try {
+					handler.collideOther(k, listPlayers);
+				} catch(Exception e) {
+					System.err.println("Custom level code errored: " + level);
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -130,6 +145,7 @@ public class Level {
 	}
 
 	public void setRenderable(String object, boolean renderable) {
+		System.out.println(aabbs);
 		AABB aabb = aabbs.get(object);
 		aabb.renderable = renderable;
 		forceUpdate(object, aabb);

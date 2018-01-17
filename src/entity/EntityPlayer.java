@@ -103,7 +103,6 @@ public class EntityPlayer extends Entity {
 
 		WorldClient client = (WorldClient) world;
 		PriorityQueue<CollisionFace> pq = new PriorityQueue<>();
-		System.out.println(client.level.colliders.size());
 		boolean[] coll = new boolean[3];
 		for (AABB aabb : client.level.colliders.values()) {
 			if (aabb.collidable && aabb.intersect(expanded)) {
