@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 
 public class Level {
 
@@ -145,11 +146,9 @@ public class Level {
 		AABB aabb = aabbs.get(object);
 		aabb.collidable = collidable;
 		forceUpdate(object, aabb);
-		aabbs.get(object).collidable = collidable;
 	}
 
 	public void setRenderable(String object, boolean renderable) {
-		System.out.println(aabbs);
 		AABB aabb = aabbs.get(object);
 		aabb.renderable = renderable;
 		forceUpdate(object, aabb);
@@ -189,22 +188,32 @@ public class Level {
 
 			AABB aabb = new AABB(min, max);
 			aabbs.put(obj.name, aabb);
-			String[] splits = obj.name.split("\\.");
-			String check = splits[0].toLowerCase();
 
 			Vec3 location = aabb.max.add(aabb.min).mul(0.5);
 			location = new Vec3(location.x, aabb.max.y + 1e-6, location.z);
 
 			locations.put(obj.name, location);
 
-			if(check.equals("marker")) {
-				if(splits[1].toLowerCase().startsWith("spawn")) {
-					spawnLocation = location;
+			split();
+
+		}
+	}
+
+	public void split() {
+		for(Map.Entry<String, AABB> entry : aabbs.entrySet()) {
+			String name = entry.getKey();
+			AABB aabb = entry.getValue();
+			String[] splits = name.split("\\.");
+			String check = splits[0].toLowerCase();
+
+			if (check.equals("marker")) {
+				if (splits[1].toLowerCase().startsWith("spawn")) {
+					spawnLocation = locations.get(name);
 				}
-			} else if(check.equals("collider") || check.equals("floor") || check.equals("wall")) {
-				colliders.put(obj.name, aabb);
-			} else if(check.equals("activator")) {
-				activators.put(obj.name, aabb);
+			} else if (check.equals("collider") || check.equals("floor") || check.equals("wall")) {
+				colliders.put(name, aabb);
+			} else if (check.equals("activator")) {
+				activators.put(name, aabb);
 			}
 		}
 	}

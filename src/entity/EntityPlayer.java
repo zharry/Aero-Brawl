@@ -50,6 +50,7 @@ public class EntityPlayer extends Entity {
 				level.processActivators(aabb.getKey(), id, aabb.getValue().intersect(newAABB));
 			}
 			for (Map.Entry<String, AABB> aabb : level.colliders.entrySet()) {
+				System.out.println(aabb.getValue());
 				level.processColliders(aabb.getKey(), id, aabb.getValue().intersect(newAABB) && aabb.getValue().collidable);
 			}
 		}

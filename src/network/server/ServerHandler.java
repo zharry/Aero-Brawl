@@ -58,8 +58,8 @@ public class ServerHandler {
 		world = new WorldServer(this);
 
 		try {
-			addLevel("level2_Maze");
 			addLevel("level1_Welcome");
+			addLevel("level2_Maze");
 			addLevel("level3_Collaboration");
 		} catch (IOException e) {
 			System.err.println("Cannot load level file");

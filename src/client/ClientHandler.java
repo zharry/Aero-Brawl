@@ -127,7 +127,7 @@ public class ClientHandler {
 					spectator = setPlayer.spectator;
 				} else if (packet instanceof PacketColliderChange) {
 					PacketColliderChange change = (PacketColliderChange) packet;
-					AABB aabb = world.level.colliders.get(change.colliderName);
+					AABB aabb = world.level.aabbs.get(change.colliderName);
 					aabb.collidable = change.collidable;
 					aabb.renderable = change.renderable;
 					aabb.material = change.material;
@@ -140,6 +140,7 @@ public class ClientHandler {
 					world.level.obj = newWorld.obj;
 					world.level.loadLevel();
 					world.level.aabbs = newWorld.aabbs;
+					world.level.split();
 
 					world.entities.clear();
 					levelDirty = true;
