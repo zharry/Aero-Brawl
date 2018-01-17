@@ -1,15 +1,18 @@
+
 // Jacky Liao and Harry Zhang
 // Jan 12, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
-import client.ClientHandler;
-import com.jmr.wrapper.common.exceptions.NNCantStartServer;
-import network.server.ServerHandler;
-
-import javax.swing.*;
 import java.io.IOException;
 import java.net.ConnectException;
+
+import javax.swing.JOptionPane;
+
+import com.jmr.wrapper.common.exceptions.NNCantStartServer;
+
+import client.ClientHandler;
+import network.server.ServerHandler;
 
 public class Fraternize {
 
@@ -19,14 +22,22 @@ public class Fraternize {
 
 	public static void main(String[] args) throws IOException {
 
-		if (args.length != 0) {
+		// Runable Headless Server
+		if (args.length == 1) {
 			if (args[0].equals("nogui"))
 				try {
 					runServer(SERVER_PORT);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
+		} else if (args.length == 2) {
+			if (args[0].equals("nogui"))
+				try {
+					runServer(Integer.parseInt(args[1]));
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			
 		} else {
 
 			// Selector for creating a lobby room or joining an existing one
