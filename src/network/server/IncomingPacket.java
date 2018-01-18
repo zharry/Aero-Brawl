@@ -5,7 +5,7 @@
 
 package network.server;
 
-import com.jmr.wrapper.common.Connection;
+import network.Connection;
 import network.packet.Packet;
 
 public class IncomingPacket {

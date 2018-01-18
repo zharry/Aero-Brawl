@@ -4,15 +4,11 @@
 // Summative
 // ICS4U Ms.Strelkovska
 
-import java.io.IOException;
-import java.net.ConnectException;
-
-import javax.swing.JOptionPane;
-
-import com.jmr.wrapper.common.exceptions.NNCantStartServer;
-
 import client.ClientHandler;
 import network.server.ServerHandler;
+
+import javax.swing.*;
+import java.io.IOException;
 
 public class Fraternize {
 
@@ -113,12 +109,12 @@ public class Fraternize {
 
 	}
 
-	public static void runClient(String serverIP, int serverPort) throws ConnectException {
+	public static void runClient(String serverIP, int serverPort) throws IOException {
 		ClientHandler client = new ClientHandler("TestUser", serverIP, serverPort);
 		client.run();
 	}
 
-	public static void runServer(int serverPort) throws NNCantStartServer, InterruptedException {
+	public static void runServer(int serverPort) throws IOException {
 		ServerHandler server = new ServerHandler(serverPort);
 		server.run();
 	}

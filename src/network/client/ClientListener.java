@@ -5,13 +5,13 @@
 
 package network.client;
 
-import com.jmr.wrapper.common.Connection;
-import com.jmr.wrapper.common.listener.SocketListener;
+import network.Connection;
+import network.ConnectionListener;
 import network.packet.Packet;
 import network.packet.PacketPing;
 import util.NetworkUtil;
 
-public class ClientListener implements SocketListener {
+public class ClientListener implements ConnectionListener {
 
 	public ClientNetworkHandler starter;
 

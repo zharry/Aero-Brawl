@@ -16,7 +16,7 @@ import world.Level;
 import world.WorldClient;
 
 import javax.swing.*;
-import java.net.ConnectException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.TreeMap;
 
@@ -45,7 +45,7 @@ public class ClientHandler {
 	public TreeMap<Long, String> messageQueue = new TreeMap<Long, String>();
 	private final int MESSAGEALIVE = 5000;
 
-	public ClientHandler(String playerName, String ip, int port) throws ConnectException {
+	public ClientHandler(String playerName, String ip, int port) throws IOException {
 
 		this.playerName = playerName;
 

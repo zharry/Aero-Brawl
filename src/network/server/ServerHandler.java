@@ -5,36 +5,21 @@
 
 package network.server;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
-
-import com.jmr.wrapper.common.Connection;
-import com.jmr.wrapper.common.exceptions.NNCantStartServer;
-import com.jmr.wrapper.server.ConnectionManager;
-import com.jmr.wrapper.server.Server;
-
 import entity.Entity;
 import entity.EntityPlayer;
 import entity.EntityRegistry;
-import network.packet.Event;
-import network.packet.Packet;
-import network.packet.PacketEntitySetPlayer;
-import network.packet.PacketEntitySpawn;
-import network.packet.PacketEntityUpdate;
-import network.packet.PacketNewWorld;
-import network.packet.PacketPing;
-import network.packet.PacketPlayerInput;
-import network.packet.PacketPlayerJoin;
+import network.Connection;
+import network.packet.*;
 import util.math.Quat4;
 import util.math.Vec3;
 import world.Level;
 import world.WorldServer;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class ServerHandler {
 
@@ -42,7 +27,7 @@ public class ServerHandler {
 
 	public WorldServer world;
 
-	private Server server;
+	private ServerSocket serverSocket;
 
 	private final int TARGET_TPS = 30;
 	private int CURRENT_TPS = 0;
@@ -59,14 +44,10 @@ public class ServerHandler {
 
 	private ByteBuffer buffer = ByteBuffer.allocate(65536);
 
-	public ServerHandler(int port) throws NNCantStartServer {
+	public ServerHandler(int port) throws IOException {
 
-		server = new Server(port, port);
-		server.setListener(new ServerListener(this));
-		server.getConfig().PACKET_BUFFER_SIZE = 64000;
-		if (server.isConnected()) {
-			System.out.println("Server is now listening on 0.0.0.0:" + port);
-		}
+		serverSocket = new ServerSocket(port);
+		ServerListener listener = new ServerListener(this, serverSocket);
 
 		world = new WorldServer(this);
 
@@ -75,7 +56,7 @@ public class ServerHandler {
 			addLevel("level2_Maze");
 			addLevel("level3_Guess");
 			addLevel("level4_Climb");
-			 addLevel("level5_Collaboration");
+			addLevel("level5_Collaboration");
 			// addLevel("level6_Betrayal");
 		} catch (IOException e) {
 			System.err.println("Cannot load level file");
@@ -118,12 +99,7 @@ public class ServerHandler {
 	public void sendPacket(Packet packet, long to) {
 		Connection connection = connections.get(to);
 		if (connection != null) {
-			if (packet instanceof PacketNewWorld) {
-				System.out.println("Sending " + packet + " to " + to);
-				connection.sendComplexObjectTcp(packet);
-			} else {
-				connection.sendTcp(packet);
-			}
+			connection.sendPacket(packet);
 		} else {
 			System.out.println("Attempt to send to non-existent client: " + to);
 		}
@@ -186,7 +162,7 @@ public class ServerHandler {
 							id = random.nextLong();
 							connectionsLookup.put(incoming.connection, id);
 						} else if (p.status == Event.DISCONNECT) {
-							if (id != null) {
+							if (id != null && world.entities.containsKey(id)) {
 								world.entities.get(id).dead = true;
 
 								connections.remove(id);
@@ -257,9 +233,9 @@ public class ServerHandler {
 					System.out.println("[Info]: Target TPS: " + TARGET_TPS + "\n[Info]: Current TPS: " + CURRENT_TPS);
 					break;
 				case "pingall":
-					ArrayList<Connection> cons = ConnectionManager.getInstance().getConnections();
-					for (Connection c : cons)
-						c.sendTcp(new PacketPing(true));
+					for (Connection c : connections.values()) {
+						c.sendPacket(new PacketPing(true));
+					}
 					break;
 				case "stop":
 					System.exit(0);

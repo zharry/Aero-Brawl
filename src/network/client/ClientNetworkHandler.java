@@ -5,37 +5,28 @@
 
 package network.client;
 
-import com.jmr.wrapper.client.Client;
-import com.jmr.wrapper.common.Connection;
+import network.Connection;
 import network.packet.Packet;
 
-import java.net.ConnectException;
+import java.io.IOException;
+import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class ClientNetworkHandler {
 
 	public ArrayBlockingQueue<Packet> packets = new ArrayBlockingQueue<>(4096);
 
-	private Client client;
+	private Socket socket;
 	private Connection connection;
 
-	public ClientNetworkHandler(String IP, int port) throws ConnectException {
+	public ClientNetworkHandler(String ip, int port) throws IOException {
 
-		client = new Client(IP, port, port);
-		client.setListener(new ClientListener(this));
-		client.getConfig().PACKET_BUFFER_SIZE = 64000;
-		client.connect();
-		if (client.isConnected()) {
-			System.out.println("Client connected to " + IP + ":" + port);
-		} else {
-			throw new ConnectException();
-		}
-
-		connection = client.getServerConnection();
+		socket = new Socket(ip, port);
+		connection = new Connection(new ClientListener(this), socket);
 	}
 
 	public void sendPacket(Packet packet) {
-		connection.sendTcp(packet);
+		connection.sendPacket(packet);
 	}
 
 }

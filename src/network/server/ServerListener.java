@@ -5,20 +5,38 @@
 
 package network.server;
 
-import com.jmr.wrapper.common.Connection;
-import com.jmr.wrapper.common.listener.SocketListener;
-
+import network.Connection;
+import network.ConnectionListener;
 import network.packet.Event;
 import network.packet.Packet;
 import network.packet.PacketPing;
 import util.NetworkUtil;
 
-public class ServerListener implements SocketListener {
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class ServerListener extends Thread implements ConnectionListener {
 
 	public ServerHandler server;
+	public ServerSocket serverSocket;
 
-	public ServerListener(ServerHandler server) {
+	public ServerListener(ServerHandler server, ServerSocket serverSocket) {
 		this.server = server;
+		this.serverSocket = serverSocket;
+		start();
+	}
+
+	public void run() {
+		try {
+			while (true) {
+				Socket socket = serverSocket.accept();
+				new Connection(this, socket);
+			}
+		} catch(IOException e) {
+			System.err.println("Error occurred when accepting connection");
+			e.printStackTrace();
+		}
 	}
 
 	public void received(Connection con, Object object) {
