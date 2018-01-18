@@ -433,7 +433,7 @@ public class ClientRender {
 		}
 
 		// Process mouse events
-		if(isGUIOpen) {
+		while(Mouse.next()) {
 			if(Mouse.getEventButton() == 0 && Mouse.getEventButtonState()) {
 				if(isGUIOpen) {
 					// Process mouse events on the buttons
