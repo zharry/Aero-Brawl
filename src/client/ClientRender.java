@@ -24,8 +24,6 @@ import world.Level;
 
 import javax.swing.*;
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -129,22 +127,8 @@ public class ClientRender {
 			throw new LWJGLException("OpenGL 1.1 is not supported.");
 		}
 
-		try {
-			Field field = Field.class.getDeclaredField("modifiers");
-			field.setAccessible(true);
-			Field cap = capabilities.getClass().getDeclaredField("OpenGL32");
-			field.set(cap, Modifier.PUBLIC);
-			cap.set(capabilities, false);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
 		int res = JOptionPane.showConfirmDialog(null, "Use OpenGL 3.2?" + (capabilities.OpenGL32 ? "" : "\nYour computer doesn't seem to support it. Try it anyway?"), "OpenGL 3.2", JOptionPane.YES_NO_OPTION);
-		if(res == JOptionPane.YES_OPTION) {
-			advancedOpenGL = true;
-		} else {
-			advancedOpenGL = false;
-		}
+		advancedOpenGL = res == JOptionPane.YES_OPTION;
 
 		glInit();
 
