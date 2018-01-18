@@ -191,10 +191,13 @@ public class ServerHandler {
 							break;
 						case "spectate":
 							EntityPlayer player = ((EntityPlayer) world.entities.get(Long.parseLong(splitted[1])));
-							player.spectate = Boolean.parseBoolean(splitted[2]);
+							if(splitted.length > 2) {
+								player.spectate = Boolean.parseBoolean(splitted[2]);
+							} else {
+								player.spectate = !player.spectate;
+							}
 							world.forceUpdate(player);
-							System.out.println(player.spectate);
-
+							System.out.println("Spectating: " + player.spectate);
 							break;
 						case "stop":
 							System.exit(0);
@@ -220,7 +223,7 @@ public class ServerHandler {
 					if (packet instanceof Event) {
 						Event p = (Event) packet;
 						if (p.status == Event.CONNECT) {
-							id = random.nextLong();
+							id = random.nextLong() & 0x7FFFFFFFFFFFFFFFL;
 							connectionsLookup.put(incoming.connection, id);
 						} else if (p.status == Event.DISCONNECT) {
 							if (id != null && world.entities.containsKey(id)) {
@@ -232,6 +235,7 @@ public class ServerHandler {
 						}
 					} else if (packet instanceof PacketPlayerJoin) {
 						PacketPlayerJoin p = (PacketPlayerJoin) packet;
+						System.out.println("Player " + id + " joined");
 						connections.put(id, incoming.connection);
 
 						setPlayerLevel(defaultLevel, p.playerName, id);

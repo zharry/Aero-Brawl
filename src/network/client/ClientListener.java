@@ -11,6 +11,8 @@ import network.packet.Packet;
 import network.packet.PacketPing;
 import util.NetworkUtil;
 
+import javax.swing.*;
+
 public class ClientListener implements ConnectionListener {
 
 	public ClientNetworkHandler starter;
@@ -39,6 +41,8 @@ public class ClientListener implements ConnectionListener {
 
 	public void disconnected(Connection con) {
 		NetworkUtil.log(con, "Disconnected!");
+		JOptionPane.showMessageDialog(null, "Disconnected from server", "Disconnected", JOptionPane.ERROR_MESSAGE);
+		System.exit(0);
 	}
 
 }
