@@ -79,17 +79,26 @@ public class GLUtil {
 		glEndList();
 	}
 
-		public static RenderObjectList loadObjToList(ArrayList<ObjLoader.Obj> allList, int aTexCoord) {
+	public static void cleanUp(RenderObjectList list) {
+		if(list == null) {
+			return;
+		}
+		for(RenderObject obj : list.renderObjects) {
+			glDeleteLists(obj.displayList, 1);
+		}
+	}
+
+	public static RenderObjectList loadObjToList(ArrayList<ObjLoader.Obj> allList, int aTexCoord) {
 
 		ArrayList<RenderObject> renderObjects = new ArrayList<>();
 
-		for(ObjLoader.Obj obj : allList) {
+		for (ObjLoader.Obj obj : allList) {
 			int objList = glGenLists(1);
 			int diffuseMap = 0;
 			glNewList(objList, GL_COMPILE);
 
 			ObjLoader.Material mat = obj.material;
-			if(mat != null) {
+			if (mat != null) {
 				if (mat.diffuse != null) {
 					glColor3d(mat.diffuse.x, mat.diffuse.y, mat.diffuse.z);
 				}
@@ -100,7 +109,7 @@ public class GLUtil {
 			for (ObjLoader.Face f : obj.face) {
 				glBegin(GL_POLYGON);
 				for (int i = 0; i < f.vertices.length; ++i) {
-					if(f.textures[i] != null) {
+					if (f.textures[i] != null) {
 						glVertexAttrib2d(aTexCoord, f.textures[i].x, 1 - f.textures[i].y);
 					}
 					glNormal3d(f.normals[i].x, f.normals[i].y, f.normals[i].z);
@@ -121,7 +130,7 @@ public class GLUtil {
 	}
 
 	public static void renderObj(RenderObjectList list, int uHasDiffuseMap) {
-		if(list == null) {
+		if (list == null) {
 			return;
 		}
 		for (RenderObject obj : list.renderObjects) {
@@ -137,19 +146,19 @@ public class GLUtil {
 	public static int loadProgram(String vert, String frag) {
 		int vertShader = loadShader(vert, GL_VERTEX_SHADER);
 		int fragShader = loadShader(frag, GL_FRAGMENT_SHADER);
-		if(vertShader == 0 && vert != null || fragShader == 0 && frag != null) {
+		if (vertShader == 0 && vert != null || fragShader == 0 && frag != null) {
 			System.out.println("Shaders loading failed");
 			return 0;
 		}
 
 		int prog = glCreateProgram();
-		if(vert != null)
+		if (vert != null)
 			glAttachShader(prog, vertShader);
-		if(frag != null)
+		if (frag != null)
 			glAttachShader(prog, fragShader);
 
 		glLinkProgram(prog);
-		if(glGetProgrami(prog, GL_LINK_STATUS) == GL_FALSE) {
+		if (glGetProgrami(prog, GL_LINK_STATUS) == GL_FALSE) {
 			System.err.println("Cannot link program");
 			System.err.println(glGetProgramInfoLog(prog, glGetProgrami(prog, GL_INFO_LOG_LENGTH)));
 			glDeleteProgram(prog);
@@ -157,7 +166,7 @@ public class GLUtil {
 		}
 
 		glValidateProgram(prog);
-		if(glGetProgrami(prog, GL_VALIDATE_STATUS) == GL_FALSE) {
+		if (glGetProgrami(prog, GL_VALIDATE_STATUS) == GL_FALSE) {
 			System.err.println("Cannot validate program");
 			System.err.println(glGetProgramInfoLog(prog, glGetProgrami(prog, GL_INFO_LOG_LENGTH)));
 			glDeleteProgram(prog);
@@ -168,11 +177,11 @@ public class GLUtil {
 	}
 
 	public static int loadShader(String name, int type) {
-		if(name == null) {
+		if (name == null) {
 			return 0;
 		}
 		int shader = glCreateShader(type);
-		if(shader == 0) {
+		if (shader == 0) {
 			return 0;
 		}
 
@@ -180,14 +189,14 @@ public class GLUtil {
 			byte[] bytes = Util.readAllBytes(GLUtil.class.getResourceAsStream(name));
 			glShaderSource(shader, (ByteBuffer) BufferUtils.createByteBuffer(bytes.length).put(bytes).flip());
 			glCompileShader(shader);
-			if(glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
+			if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
 				System.err.println("Shader loading failed: " + name);
 				System.err.println(glGetShaderInfoLog(shader, glGetShaderi(shader, GL_INFO_LOG_LENGTH)));
 				glDeleteShader(shader);
 				return 0;
 			}
 			return shader;
-		} catch(Exception e) {
+		} catch (Exception e) {
 			System.err.println("Shader reading failed");
 			e.printStackTrace();
 		}
@@ -213,7 +222,7 @@ public class GLUtil {
 			DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
 			byte[] data = buffer.getData();
 			ByteBuffer buf = BufferUtils.createByteBuffer(data.length);
-			for(int i = 0; i < data.length / 4; ++i) {
+			for (int i = 0; i < data.length / 4; ++i) {
 				buf.put(data[i * 4 + 1]).put(data[i * 4 + 2]).put(data[i * 4 + 3]).put(data[i * 4]);
 			}
 			buf.flip();
@@ -229,7 +238,7 @@ public class GLUtil {
 
 			return texId;
 
-		} catch(Exception e){
+		} catch (Exception e) {
 			System.out.println("Failed to load texture");
 			e.printStackTrace();
 		}
