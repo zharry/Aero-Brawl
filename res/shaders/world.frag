@@ -37,7 +37,7 @@ void main(void) {
 	vec3 clrMult = vec3(1.0, 1.0, 1.0);
 //	if(hasDiffuseMap)
 //		clrMult *= texture2D(diffuseMap, tCoord).rgb;
-	clrMult *= (gl_LightSource[0].diffuse.rgb * clamp(dot(dir, normal), 0.0, 1.0) / dist * 10.0);
+	clrMult *= (gl_LightSource[0].diffuse.rgb * clamp(dot(dir, normal), 0.0, 1.0) / sqrt(dist) * 5.0);
 
 	float tot = 0.0;
 	float sum = 0.0;
@@ -52,5 +52,5 @@ void main(void) {
 		}
 	}
 
-	gl_FragColor = vec4(color.rgb * (clrMult * sum / tot / 2.0 + 0.5) * 1.2, 1);
+	gl_FragColor = vec4(color.rgb * (clrMult * sum / tot / 2.0 + 0.5), 1);
 }
