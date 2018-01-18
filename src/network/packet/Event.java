@@ -5,6 +5,7 @@
 
 package network.packet;
 
+// A dummy packet for delaying client connecting and disconnecting
 public class Event extends Packet {
 	public static final int CONNECT = 1;
 	public static final int DISCONNECT = 2;

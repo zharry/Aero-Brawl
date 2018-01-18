@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+// Listener for listening for events
 public class ServerListener extends Thread implements ConnectionListener {
 
 	public ServerHandler server;
@@ -27,6 +28,7 @@ public class ServerListener extends Thread implements ConnectionListener {
 		start();
 	}
 
+	// Thread for accepting connections
 	public void run() {
 		try {
 			while (true) {
@@ -39,6 +41,7 @@ public class ServerListener extends Thread implements ConnectionListener {
 		}
 	}
 
+	// Packet received from a client
 	public void received(Connection con, Object object) {
 		if (object instanceof PacketPing) {
 			NetworkUtil.processPing(con, (PacketPing) object, true);
@@ -53,6 +56,7 @@ public class ServerListener extends Thread implements ConnectionListener {
 		}
 	}
 
+	// Client connected
 	public void connected(Connection con) {
 		NetworkUtil.log(con, "Client connected!");
 		while (true) {
@@ -64,6 +68,7 @@ public class ServerListener extends Thread implements ConnectionListener {
 		}
 	}
 
+	// Client disconnected
 	public void disconnected(Connection con) {
 		NetworkUtil.log(con, "Client disconnected!");
 		while (true) {

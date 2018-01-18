@@ -12,8 +12,10 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.ArrayBlockingQueue;
 
+// Handler for handling queuing and handling network traffic
 public class ClientNetworkHandler {
 
+	// Queue the packets
 	public ArrayBlockingQueue<Packet> packets = new ArrayBlockingQueue<>(4096);
 
 	private Socket socket;
@@ -25,6 +27,7 @@ public class ClientNetworkHandler {
 		connection = new Connection(new ClientListener(this), socket);
 	}
 
+	// Send packet
 	public void sendPacket(Packet packet) {
 		connection.sendPacket(packet);
 	}

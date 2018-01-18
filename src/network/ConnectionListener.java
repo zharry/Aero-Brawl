@@ -5,11 +5,15 @@
 
 package network;
 
+// A listener for events on connection
 public interface ConnectionListener {
 
+	// Packet received
 	void received(Connection con, Object object);
 
+	// Connected
 	void connected(Connection con);
 
+	// Disconnected
 	void disconnected(Connection con);
 }

@@ -5,8 +5,10 @@
 
 package world;
 
+// Client side implementation of World
 public class WorldClient extends World {
 
+	// Default level
 	public Level level = new Level("", this);
 
 	public WorldClient() {

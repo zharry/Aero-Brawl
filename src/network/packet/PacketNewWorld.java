@@ -9,6 +9,7 @@ import util.AABB;
 
 import java.util.HashMap;
 
+// Packet for changing a world (server -> client)
 public class PacketNewWorld extends Packet {
 
 	private static final long serialVersionUID = -9125057284532008560L;

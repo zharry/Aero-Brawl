@@ -5,6 +5,7 @@
 
 package client;
 
+// An object that has been compiled and can be rendered
 public class RenderObject {
 	public String name;
 	public int displayList;

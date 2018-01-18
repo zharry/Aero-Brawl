@@ -38,6 +38,7 @@ import static org.lwjgl.opengl.GL30.*;
 import static org.lwjgl.opengl.GL32.GL_TEXTURE_2D_MULTISAMPLE;
 import static org.lwjgl.opengl.GL32.glTexImage2DMultisample;
 
+// Class for rendering all the graphics
 public class ClientRender {
 
 	public ClientHandler client;
@@ -61,41 +62,51 @@ public class ClientRender {
 
 	public int uViewShadow;
 
+	// Transform matrices
 	public FloatBuffer shadowProjection = BufferUtils.createFloatBuffer(16);
 	public FloatBuffer shadowView = BufferUtils.createFloatBuffer(16);
 	public FloatBuffer view = BufferUtils.createFloatBuffer(16);
 
+	// Cubemap directions for shadow
 	public Vec3[] cubemapDirs = { new Vec3(1.0, 0.0, 0.0), new Vec3(0.0, -1.0, 0.0), new Vec3(-1.0, 0.0, 0.0),
 			new Vec3(0.0, -1.0, 0.0), new Vec3(0.0, 1.0, 0.0), new Vec3(0.0, 0.0, 1.0), new Vec3(0.0, -1.0, 0.0),
 			new Vec3(0.0, 0.0, -1.0), new Vec3(0.0, 0.0, 1.0), new Vec3(0.0, -1.0, 0.0), new Vec3(0.0, 0.0, -1.0),
 			new Vec3(0.0, -1.0, 0.0), };
 
+	// Position of the light
 	public Vec3 lightPosition = new Vec3();
 
 	public int aTexCoord;
 
+	// Shaders
 	public int renderProgram;
 	public int postProgram;
 	public int shadowProgram;
 
+	// Post processing for antialiasing
 	public int finalRenderBuffer;
 	public int finalDepthTexture;
 	public int finalRenderTexture;
 
+	// Shadow buffer
 	public int shadowRenderBuffer;
 	public int shadowRenderTexture;
 
 	public int shadowMapSize = 1024;
 
+	// Models for the world and the player
 	public RenderObjectList worldModel, playerModel;
 
+	// Orientation of the player
 	public double rotX;
 	public double rotY;
 
+	// Antialiasing samples
 	public int samples = 4;
 
 	public double scale = 1;
 
+	// Some flags for user input
 	public boolean isCaptured;
 	public boolean isDebugOpen;
 	public boolean isGUIOpen;
@@ -105,6 +116,7 @@ public class ClientRender {
 
 	public static String openglVersion;
 
+	// List of buttons that the user can click on
 	public ArrayList<Button> buttons = new ArrayList<>();
 
 	public ContextCapabilities capabilities;
@@ -113,6 +125,7 @@ public class ClientRender {
 		this.client = client;
 	}
 
+	// Start the rendering
 	public void initRendering(int width, int height) throws LWJGLException {
 		Display.setDisplayMode(new DisplayMode(width, height));
 		Display.setResizable(true);
@@ -128,11 +141,14 @@ public class ClientRender {
 			throw new LWJGLException("OpenGL 1.1 is not supported.");
 		}
 
+		// Prompt the user to see whether they want to go for OpenGL 3.2
 		int res = JOptionPane.showConfirmDialog(null, "Use OpenGL 3.2?" + (capabilities.OpenGL32 ? "" : "\nYour computer doesn't seem to support it. Try it anyway?"), "OpenGL 3.2", JOptionPane.YES_NO_OPTION);
 		advancedOpenGL = res == JOptionPane.YES_OPTION;
 
+		// Start OpenGL related things
 		glInit();
 
+		// Start a frame counter
 		new Thread(() -> {
 			while (true) {
 				fps = frameCounter;
@@ -145,16 +161,19 @@ public class ClientRender {
 		}).start();
 	}
 
+	// Start OpenGL
 	public void glInit() {
 
 		glClearColor(0.5f, 0.5f, 1.0f, 1);
 
 		if(advancedOpenGL) {
 
+			// Load all shaders
 			renderProgram = GLUtil.loadProgram("/shaders/world.vert", "/shaders/world.frag");
 			postProgram = GLUtil.loadProgram("/shaders/post.vert", "/shaders/post.frag");
 			shadowProgram = GLUtil.loadProgram("/shaders/shadow.vert", "/shaders/shadow.frag");
 
+			// Find uniform locations, and set them
 			glUseProgram(postProgram);
 			uSamples = glGetUniformLocation(postProgram, "samples");
 			uTextureFinal = glGetUniformLocation(postProgram, "texture");
@@ -184,6 +203,7 @@ public class ClientRender {
 			glUniform1i(uDiffuseMap, 1);
 		}
 
+		// Some OpenGL flags
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -195,6 +215,7 @@ public class ClientRender {
 		glEnable(GL_COLOR_MATERIAL);
 
 		if(advancedOpenGL) {
+			// Generate the shadow mapping textures
 			shadowRenderBuffer = glGenFramebuffers();
 			glBindFramebuffer(GL_FRAMEBUFFER, shadowRenderBuffer);
 
@@ -207,6 +228,7 @@ public class ClientRender {
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
+			// Bind a texture for each face of the cubemap
 			for (int i = 0; i < 6; ++i) {
 				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowMapSize, shadowMapSize, 0,
 						GL_DEPTH_COMPONENT, GL_FLOAT, (ByteBuffer) null);
@@ -214,9 +236,11 @@ public class ClientRender {
 						shadowRenderTexture, 0);
 			}
 
+			// No draw buffer, only depth attachment
 			glDrawBuffer(GL_NONE);
 			glReadBuffer(GL_NONE);
 
+			// Error check
 			int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 			if (status != GL_FRAMEBUFFER_COMPLETE) {
 				System.err.println("FBO Error");
@@ -225,9 +249,13 @@ public class ClientRender {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
+		// Initialize GL utilities
 		GLUtil.init();
+
+		// Initialize font utilities
 		FontUtil.init();
 
+		// Add a bunch of buttons for the GUI
 		buttons.add(new Button(-100, 140, FontUtil.font36, "-", (b) -> {
 			sensitivity /= 1.2;
 		}));
@@ -262,6 +290,7 @@ public class ClientRender {
 			}));
 		}
 
+		// Load the player obj
 		try {
 			ObjLoader loader = new ObjLoader();
 			byte[] mtl = Util.readAllBytesFromStream(ClientRender.class.getResourceAsStream("/obj/player.mtl"));
@@ -276,9 +305,11 @@ public class ClientRender {
 
 	}
 
+	// Regenerate the post processing textures
 	public void resizeTextures() {
 		if (advancedOpenGL) {
 
+			// Delete previous textures
 			if (finalRenderTexture != 0) {
 				glDeleteTextures(finalRenderTexture);
 			}
@@ -295,6 +326,7 @@ public class ClientRender {
 			glUniform1i(uSamples, samples);
 			glUseProgram(0);
 
+			// Create framebuffers and textures
 			finalRenderTexture = glGenTextures();
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
 
@@ -320,8 +352,10 @@ public class ClientRender {
 		}
 	}
 
+	// Render the frame
 	public void render(double partialTick) {
 
+		// Load the level from the obj if the level has changed
 		if (client.levelDirty) {
 			GLUtil.cleanUp(worldModel);
 			worldModel = GLUtil.loadObjToList(client.world.level.loader.objects, aTexCoord);
@@ -330,6 +364,7 @@ public class ClientRender {
 
 		++frameCounter;
 
+		// Resize if display size changed
 		if (Display.getWidth() != width || Display.getHeight() != height) {
 			width = Display.getWidth();
 			height = Display.getHeight();
@@ -339,30 +374,39 @@ public class ClientRender {
 			glViewport(0, 0, width, height);
 		}
 
+		// Run render functions
 		glRun(partialTick);
 
+		// Update the frame
 		Display.update();
 
+		// Process mouse input
 		runInputMouse();
 
+		// Terminate if closed
 		if (Display.isCloseRequested()) {
 			client.running = false;
 		}
 	}
 
+	// Process mouse input
 	public void runInputMouse() {
 
+		// Capture mouse input
 		if(!isGUIOpen && !isCaptured && Mouse.isButtonDown(0)) {
 			isCaptured = true;
 			Mouse.setGrabbed(true);
 		}
 
+		// Process keyboard keybinds
 		while (Keyboard.next()) {
 			if (Keyboard.getEventKeyState()) {
 				if (Keyboard.getEventKey() == Keyboard.KEY_F3) {
+					// Toggle debug info
 					isDebugOpen = !isDebugOpen;
 				}
 				else if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
+					// Open options
 					isGUIOpen = !isGUIOpen;
 					if(isGUIOpen) {
 						isCaptured = false;
@@ -372,6 +416,7 @@ public class ClientRender {
 						Mouse.setGrabbed(true);
 					}
 				} else if(Keyboard.getEventKey() == Keyboard.KEY_F11) {
+					// Fullscreen
 					try {
 						if(Display.isFullscreen()) {
 							Display.setFullscreen(false);
@@ -387,17 +432,22 @@ public class ClientRender {
 			}
 		}
 
-		while(Mouse.next()) {
+		// Process mouse events
+		if(isGUIOpen) {
 			if(Mouse.getEventButton() == 0 && Mouse.getEventButtonState()) {
-				for(int i = buttons.size() - 1; i >= 0; --i) {
-					Button button = buttons.get(i);
-					if(button.isWithin(Mouse.getX(), height - Mouse.getY(), width)) {
-						button.listener.clicked(button);
+				if(isGUIOpen) {
+					// Process mouse events on the buttons
+					for (int i = buttons.size() - 1; i >= 0; --i) {
+						Button button = buttons.get(i);
+						if (button.isWithin(Mouse.getX(), height - Mouse.getY(), width)) {
+							button.listener.clicked(button);
+						}
 					}
 				}
 			}
 		}
 
+		// Rotate the player camera if the mouse is captured
 		if (isCaptured) {
 			rotX += -Mouse.getDX() * sensitivity;
 			rotY += Mouse.getDY() * sensitivity;
@@ -417,6 +467,7 @@ public class ClientRender {
 
 	}
 
+	// Run player movement input
 	public void runInput() {
 
 		if (isCaptured) {
@@ -425,6 +476,7 @@ public class ClientRender {
 			double smove = 0;
 			double ymove = 0;
 
+			// WASD + Space + Shift
 			if (Keyboard.isKeyDown(Keyboard.KEY_W))
 				fmove -= 1;
 			if (Keyboard.isKeyDown(Keyboard.KEY_S))
@@ -452,6 +504,7 @@ public class ClientRender {
 				mulFactor = 0.07;
 			}
 
+			// Change player velocity
 			client.player.velocity = client.player.velocity
 					.add(new Vec3(cx * smove + sx * fmove, client.player.spectate ? ymove : 0, -sx * smove + cx * fmove).mul(mulFactor));
 
@@ -459,12 +512,15 @@ public class ClientRender {
 		}
 	}
 
+	// GL functions to render frame
 	public void glRun(double partialTick) {
 
+		// Position of player at this frame
 		Vec3 newPos = Util.mix(client.player.lastPosition, client.player.position, partialTick)
 				.add(client.player.eyeOffset);
 
 		if(advancedOpenGL) {
+			// Render to shadow map if available
 			glBindFramebuffer(GL_FRAMEBUFFER, shadowRenderBuffer);
 			glViewport(0, 0, shadowMapSize, shadowMapSize);
 
@@ -488,12 +544,14 @@ public class ClientRender {
 		}
 
 		if(advancedOpenGL) {
+			// Actual rendering
 
 			glLight(GL_LIGHT0, GL_DIFFUSE,
 					(FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(1).flip());
 			glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put((float) lightPosition.x)
 					.put((float) lightPosition.y).put((float) lightPosition.z).put(1).flip());
 
+			// Render to each of the 6 faces
 			for (int i = 0; i < 6; ++i) {
 				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
 						shadowRenderTexture, 0);
@@ -504,12 +562,15 @@ public class ClientRender {
 				// glTranslated(-newPosT.x, -newPosT.y, -newPosT.z);
 				Vec3 center = cubemapDirs[i * 2].add(lightPosition);
 				Vec3 up = cubemapDirs[i * 2 + 1];
+
+				// Apply transform
 				GLU.gluLookAt((float) lightPosition.x, (float) lightPosition.y, (float) lightPosition.z, (float) center.x,
 						(float) center.y, (float) center.z, (float) up.x, (float) up.y, (float) up.z);
 				glGetFloat(GL_MODELVIEW_MATRIX, shadowView);
 				glUniformMatrix4(uViewShadow, false, shadowView);
 				glPopMatrix();
 
+				// Render the world, depth map only
 				renderWorld(partialTick);
 			}
 
@@ -520,6 +581,8 @@ public class ClientRender {
 			glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
 			glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
 		}
+
+		// Render to post processing buffer or screen
 
 		glViewport(0, 0, width, height);
 
@@ -533,6 +596,7 @@ public class ClientRender {
 		glEnable(GL_LIGHTING);
 		glEnable(GL_LIGHT0);
 
+		// Perspective matrix
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		GLU.gluPerspective(fov, (float) width / height, 0.01f, 1000);
@@ -542,11 +606,13 @@ public class ClientRender {
 		if(advancedOpenGL)
 			glPushMatrix();
 
+		// Compute camera rotation
 		Quat4 newRot = client.player.quat;
 		glRotated(Math.toDegrees(Math.acos(newRot.w) * 2), -newRot.x, -newRot.y, -newRot.z);
 
 		glTranslated(-newPos.x, -newPos.y, -newPos.z);
 
+		// Send view matrix if using shaders, otherwise move the light sources
 		if(advancedOpenGL) {
 			glGetFloat(GL_MODELVIEW_MATRIX, view);
 			glUniformMatrix4(uView, false, view);
@@ -558,6 +624,7 @@ public class ClientRender {
 					.put((float) lightPosition.y).put((float) lightPosition.z).put(1).flip());
 		}
 
+		// Actually render the world (onto the postprocessing buffer if available)
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
 		renderWorld(partialTick);
@@ -565,6 +632,7 @@ public class ClientRender {
 		glPopClientAttrib();
 
 		if (advancedOpenGL) {
+			// If we're using postprocessing buffer, render this buffer to the screen
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glUseProgram(postProgram);
 			glViewport(0, 0, width, height);
@@ -583,6 +651,7 @@ public class ClientRender {
 			glActiveTexture(GL_TEXTURE1);
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
 
+			// Fullscreen textured quad, drawing the image to the display
 			glBegin(GL_QUADS);
 			glTexCoord2d(0, 0);
 			glVertex2d(-1, -1);
@@ -601,6 +670,7 @@ public class ClientRender {
 		if(advancedOpenGL)
 			glUseProgram(0);
 
+		// Prepare to render the GUI
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_LIGHTING);
 		glDisable(GL_LIGHT0);
@@ -612,6 +682,7 @@ public class ClientRender {
 
 		glLoadIdentity();
 
+		// Render the GUI
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
 		renderGUI(partialTick);
@@ -619,6 +690,7 @@ public class ClientRender {
 		glPopClientAttrib();
 	}
 
+	// Render GUI
 	public void renderGUI(double partialTick) {
 
 		// Draw Debug
@@ -646,11 +718,14 @@ public class ClientRender {
 			if (i < 3)
 				msg[i++] = entry.getValue();
 
+		// Draw message text
 		FontUtil.drawCenterText(msg[0], FontUtil.font36, width / 2, 80);
 		FontUtil.drawCenterText(msg[1], FontUtil.font24, width / 2, 45);
 		FontUtil.drawCenterText(msg[2], FontUtil.font16, width / 2, 20);
 
+		// Draw the gui if open
 		if(isGUIOpen) {
+			// Darken background
 			glColor4d(0, 0, 0, 0.75);
 			glBegin(GL_QUADS);
 			glVertex2d(0, 0);
@@ -659,6 +734,7 @@ public class ClientRender {
 			glVertex2d(width, 0);
 			glEnd();
 
+			// Draw the text
 			glColor3d(1, 1, 1);
 			FontUtil.drawCenterText("Options", FontUtil.font36, width / 2, 50);
 
@@ -672,32 +748,27 @@ public class ClientRender {
 				FontUtil.drawCenterText(String.valueOf(samples), FontUtil.font24, width / 2, 340);
 			}
 
+			// Render each button
 			for(Button button : buttons) {
 				button.render(width);
 			}
 		}
 	}
 
+	// Render the world
 	public void renderWorld(double partialTick) {
 		if(advancedOpenGL)
 			glUniform1i(uHasDiffuseMap, 0);
 
 		glPushMatrix();
-		// Random random = new Random(102);
-		// for(int i = -10; i <= 10; ++i) {
-		// for(int j = -10; j <= 10; ++j) {
-		// if (random.nextInt(5) == 0) {
-		// glPushMatrix();
-		// glTranslated(i * 2, 0 * 2, j * 2);
-		// glCallList(GLUtil.cubeList);
-		// glPopMatrix();
-		// }
-		// }
-		// }
+
+		// Get the current level
 		Level level = client.world.level;
 		if (worldModel != null) {
+			// Go through each object in the world
 			for (RenderObject obj : worldModel.renderObjects) {
 				AABB aabb = level.aabbs.get(obj.name);
+				// Only render if server says it's renderable
 				if (!aabb.renderable)
 					continue;
 				// glUniform1i(uHasDiffuseMap, obj.diffuseTexture);
@@ -711,6 +782,8 @@ public class ClientRender {
 				if (mat != null && mat.diffuse != null) {
 					glColor3d(mat.diffuse.x, mat.diffuse.y, mat.diffuse.z);
 				}
+
+				// Render the object stored in the display list
 				glCallList(obj.displayList);
 			}
 		}
@@ -718,13 +791,17 @@ public class ClientRender {
 
 		glColor3d(1, 1, 1);
 
+		// Now draw every player
 		for (Entity entity : client.world.entities.values()) {
 			EntityPlayer player = (EntityPlayer) entity;
+			// Don't draw player if in spectator
 			if(player.spectate) {
 				continue;
 			}
 			glPushMatrix();
 			Vec3 pos = Util.mix(entity.lastPosition, entity.position, partialTick);
+
+			// Render the player at pos
 			glTranslated(pos.x, pos.y, pos.z);
 			GLUtil.renderObj(playerModel, uHasDiffuseMap);
 			glPopMatrix();

@@ -7,6 +7,7 @@ package network.server;
 
 import network.packet.Packet;
 
+// A packet to be sent to a player
 public class OutgoingPacket {
 	public long id;
 	public Packet packet;

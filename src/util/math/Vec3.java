@@ -7,6 +7,7 @@ package util.math;
 
 import java.io.Serializable;
 
+// Vector in 3D
 public class Vec3 implements Serializable {
 
 	private static final long serialVersionUID = -1714311416293929700L;

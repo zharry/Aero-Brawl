@@ -5,6 +5,7 @@
 
 package network.packet;
 
+// Packet for deleting entities (server -> client)
 public class PacketEntityDelete extends Packet {
 	private static final long serialVersionUID = 7282658972841172108L;
 	public long id;

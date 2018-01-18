@@ -45,6 +45,7 @@ public class ClientHandler {
 	public TreeMap<Long, String> messageQueue = new TreeMap<Long, String>();
 	private final int MESSAGEALIVE = 5000;
 
+	// Instantiate objects
 	public ClientHandler(String playerName, String ip, int port) throws IOException {
 
 		this.playerName = playerName;
@@ -55,6 +56,7 @@ public class ClientHandler {
 	}
 
 	public void run() {
+		// Start render
 		try {
 			render.initRendering(1280, 720);
 		} catch (LWJGLException e) {
@@ -66,17 +68,24 @@ public class ClientHandler {
 			System.exit(-1);
 		}
 
+		// Start network
+
 		initNetwork();
 
 		running = true;
 		lastUpdate = System.nanoTime();
 
+		// Main game loop
 		while (running) {
+
+			// Compute time delta
 			long currentTime = System.nanoTime();
 			timeDelta += (currentTime - lastUpdate) / nsPerTick;
 			lastUpdate = currentTime;
 
+			// More time than a tick has passed
 			while (timeDelta >= 1) {
+				// Run a tick
 				timeDelta -= 1;
 				world.preNetwork();
 				runNetwork();
@@ -85,27 +94,33 @@ public class ClientHandler {
 				checkMessageQueue();
 			}
 
+			// Draw a frame
 			render.render(timeDelta);
 		}
 
 		System.exit(0);
 	}
 
+	// Start networking
 	public void initNetwork() {
 		network.sendPacket(new PacketPlayerJoin(playerName));
 	}
 
+	// Process message queue
 	public void checkMessageQueue() {
 		while (!messageQueue.isEmpty() && System.currentTimeMillis() - MESSAGEALIVE > messageQueue.firstKey()) {
 			messageQueue.remove(messageQueue.firstKey());
 		}
 	}
 
+	// Process networking
 	public void runNetwork() {
+		// Process each packet in the queue
 		while (!network.packets.isEmpty()) {
 			Packet packet = network.packets.poll();
 			try {
 				if (packet instanceof PacketEntityUpdate) {
+					// Update entity properties (position, spectator, etc)
 					PacketEntityUpdate update = (PacketEntityUpdate) packet;
 					ByteBuffer buffer = ByteBuffer.wrap(update.entityUpdateData);
 					Entity entity = world.entities.get(update.id);
@@ -113,25 +128,30 @@ public class ClientHandler {
 						entity.monitor.deserialize(buffer);
 					}
 				} else if (packet instanceof PacketEntitySpawn) {
+					// Spawn in a entity into the world
 					PacketEntitySpawn spawn = (PacketEntitySpawn) packet;
 					Entity entity = EntityRegistry.idToClass.get(spawn.entityClassId).newInstance();
 					entity.id = spawn.id;
 					world.spawnEntity(entity);
 				} else if (packet instanceof PacketEntityDelete) {
+					// Remove an entity from the world
 					PacketEntityDelete delete = (PacketEntityDelete) packet;
 					world.entities.get(delete.id).dead = true;
 				} else if (packet instanceof PacketEntitySetPlayer) {
+					// Set an entity as player
 					PacketEntitySetPlayer setPlayer = (PacketEntitySetPlayer) packet;
 					System.out.println("Change player: " + setPlayer.id);
 					player = (EntityPlayer) world.entities.get(setPlayer.id);
 					spectator = setPlayer.spectator;
 				} else if (packet instanceof PacketColliderChange) {
+					// Change the state of a collider or an activator
 					PacketColliderChange change = (PacketColliderChange) packet;
 					AABB aabb = world.level.aabbs.get(change.colliderName);
 					aabb.collidable = change.collidable;
 					aabb.renderable = change.renderable;
 					aabb.material = change.material;
 				} else if (packet instanceof PacketNewWorld) {
+					// Tell the client to use a new world
 					PacketNewWorld newWorld = (PacketNewWorld) packet;
 					System.out.println("Loading level: " + newWorld.level);
 
@@ -145,6 +165,7 @@ public class ClientHandler {
 					world.entities.clear();
 					levelDirty = true;
 				} else if (packet instanceof PacketMessage) {
+					// Display a message to the client
 					PacketMessage message = (PacketMessage) packet;
 					String mesg = message.message;
 					messageQueue.put(System.currentTimeMillis(), mesg);
@@ -155,6 +176,7 @@ public class ClientHandler {
 			}
 		}
 
+		// Send the location of a player
 		network.sendPacket(new PacketPlayerInput(player.position.x, player.position.y, player.position.z, player.quat.w,
 				player.quat.x, player.quat.y, player.quat.z));
 	}

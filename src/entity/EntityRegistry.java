@@ -7,6 +7,7 @@ package entity;
 
 import java.util.HashMap;
 
+// A registry of all the entities that could exist
 public class EntityRegistry {
 
 	public static final HashMap<Class<? extends Entity>, Integer> classToId = new HashMap<>();

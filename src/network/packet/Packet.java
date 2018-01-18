@@ -7,6 +7,7 @@ package network.packet;
 
 import java.io.Serializable;
 
+// The parent packet class, for packets to extend to
 public class Packet implements Serializable {
 
 }

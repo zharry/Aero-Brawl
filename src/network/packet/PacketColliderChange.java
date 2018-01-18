@@ -5,6 +5,7 @@
 
 package network.packet;
 
+// Packet for collider property change (server -> client)
 public class PacketColliderChange extends Packet {
 
 	private static final long serialVersionUID = -4206140201403181215L;

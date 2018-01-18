@@ -15,6 +15,7 @@ import static org.lwjgl.opengl.GL13.*;
 
 public class FontUtil {
 
+	// All the font sizes
 	public static int font16 = 0;
 	public static int font24 = 1;
 	public static int font36 = 2;
@@ -22,6 +23,7 @@ public class FontUtil {
 
 	public static int[] font = new int[4];
 
+	// Dimensions of each character of each font
 	public static final Dimension[] fontMetric = {
 			new Dimension(10, 19),
 			new Dimension(14, 28),
@@ -29,6 +31,7 @@ public class FontUtil {
 			new Dimension(29, 57),
 	};
 
+	// Load all the textures
 	public static void init() {
 		font[font16] = GLUtil.loadTexture(FontUtil.class.getResourceAsStream("/fonts/font16.png"));
 		font[font24] = GLUtil.loadTexture(FontUtil.class.getResourceAsStream("/fonts/font24.png"));
@@ -36,6 +39,7 @@ public class FontUtil {
 		font[font48] = GLUtil.loadTexture(FontUtil.class.getResourceAsStream("/fonts/font48.png"));
 	}
 
+	// Compute the rendered dimensions of a string
 	public static Dimension getTextDimension(String s, int fontInd) {
 		int cp;
 
@@ -65,6 +69,7 @@ public class FontUtil {
 		return new Dimension(mx * fontMetric[fontInd].width, (y + 1) * fontMetric[fontInd].height);
 	}
 
+	// Draw the text at (x, y)
 	public static void drawText(String s, int fontInd, double x, double y) {
 		glPushMatrix();
 		glTranslated(x, y, 0);
@@ -72,15 +77,18 @@ public class FontUtil {
 		glPopMatrix();
 	}
 
+	// Draw the center of the text at (x, y)
 	public static void drawCenterText(String s, int fontInd, double x, double y) {
 		Dimension dim = FontUtil.getTextDimension(s, fontInd);
 		drawText(s, fontInd, x - dim.getWidth() / 2, y - dim.getHeight() / 2);
 	}
 
+	// Just draw the text
 	public static void drawText(String s, int fontInd) {
 
 		int cnt = s.codePointCount(0, s.length());
 
+		// Vertex buffers
 		FloatBuffer vertex = BufferUtils.createFloatBuffer(cnt * 8);
 		FloatBuffer texCoord = BufferUtils.createFloatBuffer(cnt * 8);
 
@@ -118,11 +126,13 @@ public class FontUtil {
 			float texX = cp % 16 * texWidth;
 			float texY = cp / 16 * texHeight;
 
+			// Draw a bunch of rectangles
 			vertex.put(verX).put(verY);
 			vertex.put(verX).put(verY + height);
 			vertex.put(verX + width).put(verY + height);
 			vertex.put(verX + width).put(verY);
 
+			// Texture them with the font texture
 			texCoord.put(texX).put(texY);
 			texCoord.put(texX).put(texY + texHeight);
 			texCoord.put(texX + texWidth).put(texY + texHeight);
@@ -137,6 +147,7 @@ public class FontUtil {
 		texCoord.flip();
 
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
+		// Enable blending
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -149,9 +160,11 @@ public class FontUtil {
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
+		// Send the array of vertices to be rendered
 		glVertexPointer(2, 0, vertex);
 		glTexCoordPointer(2, 0, texCoord);
 
+		// Draw them
 		glDrawArrays(GL_QUADS, 0, length / 2);
 
 		glDisableClientState(GL_VERTEX_ARRAY);

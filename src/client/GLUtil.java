@@ -78,6 +78,7 @@ public class GLUtil {
 //		glEndList();
 	}
 
+	// Delete all the display lists in a RenderObjectList
 	public static void cleanUp(RenderObjectList list) {
 		if(list == null) {
 			return;
@@ -87,6 +88,7 @@ public class GLUtil {
 		}
 	}
 
+	// Load an array of ObjLoader.Obj into a RenderObjectList
 	public static RenderObjectList loadObjToList(ArrayList<ObjLoader.Obj> allList, int aTexCoord) {
 
 		ArrayList<RenderObject> renderObjects = new ArrayList<>();
@@ -96,6 +98,7 @@ public class GLUtil {
 			int diffuseMap = 0;
 			glNewList(objList, GL_COMPILE);
 
+			// Determine material of object
 			ObjLoader.Material mat = obj.material;
 			if (mat != null) {
 				if (mat.diffuse != null) {
@@ -105,8 +108,11 @@ public class GLUtil {
 					diffuseMap = GLUtil.loadTexture(mat.diffuseMap);
 				}
 			}
+
+			// Go through all the faces
 			for (ObjLoader.Face f : obj.face) {
 				glBegin(GL_POLYGON);
+				// Put in all the vertices of the polygon
 				for (int i = 0; i < f.vertices.length; ++i) {
 					if(ClientRender.advancedOpenGL) {
 						if (f.textures[i] != null) {
@@ -120,6 +126,7 @@ public class GLUtil {
 			}
 			glEndList();
 
+			// Finally, create the RenderObject
 			RenderObject robj = new RenderObject();
 			robj.name = obj.name;
 			robj.diffuseTexture = diffuseMap;
@@ -127,26 +134,36 @@ public class GLUtil {
 			robj.displayList = objList;
 			renderObjects.add(robj);
 		}
+
+		// Return the list of RenderObject that was created
 		return new RenderObjectList(renderObjects);
 	}
 
+	// Render an RenderObjectList
 	public static void renderObj(RenderObjectList list, int uHasDiffuseMap) {
 		if (list == null) {
 			return;
 		}
+		// Go through each object
 		for (RenderObject obj : list.renderObjects) {
 			if(ClientRender.advancedOpenGL) {
 				glUniform1i(uHasDiffuseMap, obj.diffuseTexture);
 				glBindTexture(GL_TEXTURE_2D, obj.diffuseTexture);
 			}
+
+			// Determine material of the object
 			if (obj.material != null && obj.material.diffuse != null) {
 				glColor3d(obj.material.diffuse.x, obj.material.diffuse.y, obj.material.diffuse.z);
 			}
+
+			// Render the list that was previously stored
 			glCallList(obj.displayList);
 		}
 	}
 
+	// Load a vertex and a fragment shader
 	public static int loadProgram(String vert, String frag) {
+		// Load the shaders
 		int vertShader = loadShader(vert, GL_VERTEX_SHADER);
 		int fragShader = loadShader(frag, GL_FRAGMENT_SHADER);
 		if (vertShader == 0 && vert != null || fragShader == 0 && frag != null) {
@@ -154,12 +171,14 @@ public class GLUtil {
 			return 0;
 		}
 
+		// Create the program in OpenGL
 		int prog = glCreateProgram();
 		if (vert != null)
 			glAttachShader(prog, vertShader);
 		if (frag != null)
 			glAttachShader(prog, fragShader);
 
+		// Link it
 		glLinkProgram(prog);
 		if (glGetProgrami(prog, GL_LINK_STATUS) == GL_FALSE) {
 			System.err.println("Cannot link program");
@@ -168,6 +187,7 @@ public class GLUtil {
 			return 0;
 		}
 
+		// Validate it
 		glValidateProgram(prog);
 		if (glGetProgrami(prog, GL_VALIDATE_STATUS) == GL_FALSE) {
 			System.err.println("Cannot validate program");
@@ -176,9 +196,11 @@ public class GLUtil {
 			return 0;
 		}
 
+		// Done
 		return prog;
 	}
 
+	// Load a shader
 	public static int loadShader(String name, int type) {
 		if (name == null) {
 			return 0;
@@ -189,8 +211,10 @@ public class GLUtil {
 		}
 
 		try {
+			// Read all the bytes
 			byte[] bytes = Util.readAllBytesFromStream(GLUtil.class.getResourceAsStream(name));
 			glShaderSource(shader, (ByteBuffer) BufferUtils.createByteBuffer(bytes.length).put(bytes).flip());
+			// Compile it
 			glCompileShader(shader);
 			if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
 				System.err.println("Shader loading failed: " + name);
@@ -206,6 +230,7 @@ public class GLUtil {
 		return 0;
 	}
 
+	// Load a texture
 	public static int loadTexture(String name) {
 		System.out.println(new File("obj", name));
 		try (FileInputStream input = new FileInputStream(new File("obj", name))) {
@@ -217,18 +242,24 @@ public class GLUtil {
 		return 0;
 	}
 
+	// Actually load a texture
 	public static int loadTexture(InputStream stream) {
 		try {
 			System.out.println("Loading texture");
+
+			// Load into BufferedImage
 			BufferedImage image = ImageIO.read(stream);
 			stream.close();
 			DataBufferByte buffer = (DataBufferByte) image.getRaster().getDataBuffer();
 			byte[] data = buffer.getData();
 			ByteBuffer buf = BufferUtils.createByteBuffer(data.length);
+			// Reorder the bytes so OpenGL would read them correctly
 			for (int i = 0; i < data.length / 4; ++i) {
 				buf.put(data[i * 4 + 1]).put(data[i * 4 + 2]).put(data[i * 4 + 3]).put(data[i * 4]);
 			}
 			buf.flip();
+
+			// Create the texture
 			int texId = glGenTextures();
 			glBindTexture(GL_TEXTURE_2D, texId);
 
@@ -237,8 +268,10 @@ public class GLUtil {
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+			// Load the texture with the data
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image.getWidth(), image.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buf);
 
+			// Done
 			return texId;
 
 		} catch (Exception e) {

@@ -5,6 +5,7 @@
 
 package network.packet;
 
+// Packet for setting a player (server -> client)
 public class PacketEntitySetPlayer extends Packet {
 	private static final long serialVersionUID = 3367697712511583896L;
 	public long id;

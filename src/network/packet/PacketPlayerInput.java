@@ -5,6 +5,7 @@
 
 package network.packet;
 
+// Packet for telling the server to move player (client -> server)
 public class PacketPlayerInput extends Packet {
 
 	private static final long serialVersionUID = -1078255662234793214L;

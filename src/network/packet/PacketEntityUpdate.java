@@ -5,6 +5,7 @@
 
 package network.packet;
 
+// Packet for updating an entity and its properties (server -> client)
 public class PacketEntityUpdate extends Packet {
 
 	private static final long serialVersionUID = -4034881404794001381L;

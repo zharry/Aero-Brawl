@@ -8,6 +8,7 @@ package network.server;
 import network.Connection;
 import network.packet.Packet;
 
+// A packet coming from a client
 public class IncomingPacket {
 
 	public Connection connection;

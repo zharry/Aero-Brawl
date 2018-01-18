@@ -5,6 +5,7 @@
 
 package network.packet;
 
+// Packet for notifying the server for a new player (client -> server)
 public class PacketPlayerJoin extends Packet {
 
 	private static final long serialVersionUID = 6102831404706918429L;

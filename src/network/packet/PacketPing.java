@@ -5,6 +5,7 @@
 
 package network.packet;
 
+// Packet for ping (server <-> client)
 public class PacketPing extends Packet {
 
 	private static final long serialVersionUID = -7753893073579570084L;

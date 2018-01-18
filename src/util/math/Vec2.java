@@ -5,6 +5,7 @@
 
 package util.math;
 
+// Vector in 2D
 public class Vec2 {
 	public double x, y;
 	public Vec2() {
