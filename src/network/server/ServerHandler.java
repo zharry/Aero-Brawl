@@ -5,21 +5,32 @@
 
 package network.server;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import entity.Entity;
 import entity.EntityPlayer;
 import entity.EntityRegistry;
 import network.Connection;
-import network.packet.*;
+import network.packet.Event;
+import network.packet.Packet;
+import network.packet.PacketEntitySetPlayer;
+import network.packet.PacketEntitySpawn;
+import network.packet.PacketEntityUpdate;
+import network.packet.PacketNewWorld;
+import network.packet.PacketPing;
+import network.packet.PacketPlayerInput;
+import network.packet.PacketPlayerJoin;
 import util.math.Quat4;
 import util.math.Vec3;
 import world.Level;
 import world.WorldServer;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 
 public class ServerHandler {
 
@@ -57,7 +68,7 @@ public class ServerHandler {
 			addLevel("level3_Guess");
 			addLevel("level4_Climb");
 			addLevel("level5_Collaboration");
-			// addLevel("level6_Betrayal");
+			addLevel("level6_Betrayal");
 		} catch (IOException e) {
 			System.err.println("Cannot load level file");
 			e.printStackTrace();
