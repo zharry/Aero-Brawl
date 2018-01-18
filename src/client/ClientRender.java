@@ -99,6 +99,7 @@ public class ClientRender {
 	public boolean isCaptured;
 	public boolean isDebugOpen;
 	public boolean isGUIOpen;
+	public boolean vsync = true;
 
 	public static boolean advancedOpenGL = true;
 
@@ -235,8 +236,14 @@ public class ClientRender {
 			sensitivity *= 1.2;
 		}));
 
+		buttons.add(new Button(0, 240, FontUtil.font24, "On", (b) -> {
+			vsync = !vsync;
+			Display.setVSyncEnabled(vsync);
+			b.label = vsync ? "On" : "Off";
+		}));
+
 		if(advancedOpenGL) {
-			buttons.add(new Button(-100, 240, FontUtil.font36, "-", (b) -> {
+			buttons.add(new Button(-100, 340, FontUtil.font36, "-", (b) -> {
 				samples--;
 				if (samples < 1) {
 					samples = 1;
@@ -245,7 +252,7 @@ public class ClientRender {
 				}
 			}));
 
-			buttons.add(new Button(100, 240, FontUtil.font36, "+", (b) -> {
+			buttons.add(new Button(100, 340, FontUtil.font36, "+", (b) -> {
 				samples++;
 				if (samples > 16) {
 					samples = 16;
@@ -656,9 +663,11 @@ public class ClientRender {
 			FontUtil.drawCenterText("Mouse sensitivity", FontUtil.font24, width / 2, 100);
 			FontUtil.drawCenterText(String.format("%.2f", sensitivity), FontUtil.font24, width / 2, 140);
 
+			FontUtil.drawCenterText("VSync", FontUtil.font24, width / 2, 200);
+
 			if(advancedOpenGL) {
-				FontUtil.drawCenterText("Antialiasing samples", FontUtil.font24, width / 2, 200);
-				FontUtil.drawCenterText(String.valueOf(samples), FontUtil.font24, width / 2, 240);
+				FontUtil.drawCenterText("Antialiasing samples", FontUtil.font24, width / 2, 300);
+				FontUtil.drawCenterText(String.valueOf(samples), FontUtil.font24, width / 2, 340);
 			}
 
 			for(Button button : buttons) {
