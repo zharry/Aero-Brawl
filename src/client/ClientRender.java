@@ -6,6 +6,7 @@
 package client;
 
 import entity.Entity;
+import entity.EntityPlayer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -346,7 +347,7 @@ public class ClientRender {
 
 			double fmove = 0;
 			double smove = 0;
-			// double ymove = 0;
+			double ymove = 0;
 
 			if (Keyboard.isKeyDown(Keyboard.KEY_W))
 				fmove -= 1;
@@ -360,6 +361,10 @@ public class ClientRender {
 				if (client.player.onGround) {
 					client.player.velocity = client.player.velocity.add(new Vec3(0, 0.32, 0));
 				}
+				ymove += 1;
+			}
+			if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+				ymove -= 1;
 			}
 
 			double sx = Math.sin(Math.toRadians(rotX));
@@ -372,7 +377,7 @@ public class ClientRender {
 			}
 
 			client.player.velocity = client.player.velocity
-					.add(new Vec3(cx * smove + sx * fmove, 0, -sx * smove + cx * fmove).mul(mulFactor));
+					.add(new Vec3(cx * smove + sx * fmove, client.player.spectate ? ymove : 0, -sx * smove + cx * fmove).mul(mulFactor));
 
 			scale *= Math.pow(1.001, Mouse.getDWheel());
 			if (Keyboard.isKeyDown(Keyboard.KEY_N)) {
@@ -619,6 +624,9 @@ public class ClientRender {
 		glColor3d(1, 1, 1);
 
 		for (Entity entity : client.world.entities.values()) {
+			if(((EntityPlayer) entity).spectate) {
+				continue;
+			}
 			glPushMatrix();
 			Vec3 pos = Util.mix(entity.lastPosition, entity.position, partialTick);
 			glTranslated(pos.x, pos.y, pos.z);

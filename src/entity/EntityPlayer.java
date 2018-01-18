@@ -27,6 +27,9 @@ public class EntityPlayer extends Entity {
 	public boolean onGround;
 	public boolean prevOnGround;
 
+	@Synchronize
+	public boolean spectate;
+
 	public EntityPlayer() {
 	}
 
@@ -34,15 +37,24 @@ public class EntityPlayer extends Entity {
 	public void tick() {
 		super.tick();
 		if (world.isClient) {
-			runCollision();
+			if(!spectate) {
+				runCollision();
+			} else {
+				onGround = false;
+			}
+
 			position = position.add(velocity);
-			velocity = velocity.add(new Vec3(0, -0.045, 0));
+			if(!spectate) {
+				velocity = velocity.add(new Vec3(0, -0.045, 0));
+			}
 			if (onGround) {
 				velocity = velocity.mul(0.5);
 			} else {
 				velocity = velocity.mul(0.98);
 			}
 		} else {
+			if(spectate)
+				return;
 			WorldServer server = (WorldServer) world;
 			Level level = server.levels.get(this.level);
 			AABB newAABB = playerAABB.offset(position);

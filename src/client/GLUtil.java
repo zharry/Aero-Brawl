@@ -186,7 +186,7 @@ public class GLUtil {
 		}
 
 		try {
-			byte[] bytes = Util.readAllBytes(GLUtil.class.getResourceAsStream(name));
+			byte[] bytes = Util.readAllBytesFromStream(GLUtil.class.getResourceAsStream(name));
 			glShaderSource(shader, (ByteBuffer) BufferUtils.createByteBuffer(bytes.length).put(bytes).flip());
 			glCompileShader(shader);
 			if (glGetShaderi(shader, GL_COMPILE_STATUS) == GL_FALSE) {
