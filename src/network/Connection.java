@@ -50,10 +50,14 @@ public class Connection {
 				socket.close();
 			} catch (IOException e) {
 			}
+			writeThread.interrupt();
 		}
 	}
 
 	public class ReadThread extends Thread {
+		public ReadThread() {
+			setName("ReadThread for " + socket.getInetAddress());
+		}
 		public void run() {
 			try {
 				while(isConnected) {
@@ -67,6 +71,9 @@ public class Connection {
 	}
 
 	public class WriteThread extends Thread {
+		public WriteThread() {
+			setName("WriteThread for " + socket.getInetAddress());
+		}
 		public void run() {
 			try {
 				while(isConnected) {
