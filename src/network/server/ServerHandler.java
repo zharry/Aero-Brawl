@@ -5,32 +5,22 @@
 
 package network.server;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.concurrent.ArrayBlockingQueue;
-
 import entity.Entity;
 import entity.EntityPlayer;
 import entity.EntityRegistry;
 import network.Connection;
-import network.packet.Event;
-import network.packet.Packet;
-import network.packet.PacketEntitySetPlayer;
-import network.packet.PacketEntitySpawn;
-import network.packet.PacketEntityUpdate;
-import network.packet.PacketNewWorld;
-import network.packet.PacketPing;
-import network.packet.PacketPlayerInput;
-import network.packet.PacketPlayerJoin;
+import network.packet.*;
 import util.math.Quat4;
 import util.math.Vec3;
 import world.Level;
 import world.WorldServer;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class ServerHandler {
 
@@ -53,6 +43,8 @@ public class ServerHandler {
 	public ArrayBlockingQueue<IncomingPacket> receiveQueue = new ArrayBlockingQueue<>(4096);
 	public ArrayBlockingQueue<OutgoingPacket> outgoingQueue = new ArrayBlockingQueue<>(4096);
 
+	public ArrayBlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(4096);
+
 	private ByteBuffer buffer = ByteBuffer.allocate(65536);
 
 	public ServerHandler(int port) throws IOException {
@@ -62,16 +54,17 @@ public class ServerHandler {
 
 		world = new WorldServer(this);
 
-		try {
-			addLevel("level1_Welcome");
-			addLevel("level2_Maze");
-			addLevel("level3_Guess");
-			addLevel("level4_Climb");
-			addLevel("level5_Collaboration");
-			addLevel("level6_Betrayal");
-		} catch (IOException e) {
-			System.err.println("Cannot load level file");
-			e.printStackTrace();
+		for(File f : Level.baseDir.listFiles()) {
+			if(f.isDirectory()) {
+				String levelName = f.getName();
+				try {
+					addLevel(levelName);
+					System.out.println("Loaded " + levelName);
+				} catch (IOException e) {
+					System.err.println("Cannot load level file: " + levelName);
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 
@@ -156,6 +149,56 @@ public class ServerHandler {
 		int tpsProc = 0;
 		while (true) {
 
+			while(!commandQueue.isEmpty()) {
+				String command = commandQueue.poll();
+				try {
+					String[] splitted = command.split(" +");
+					switch (splitted[0]) {
+						case "tps":
+							System.out.println("[Info]: Target TPS: " + TARGET_TPS + "\n[Info]: Current TPS: " + CURRENT_TPS);
+							break;
+						case "pingall":
+							for (Connection c : connections.values()) {
+								c.sendPacket(new PacketPing(true));
+							}
+							break;
+						case "tp":
+							if (!world.levels.containsKey(splitted[1])) {
+								System.err.println("No such level: " + splitted[1]);
+								break;
+							}
+							for (Entity entity : world.entities.values()) {
+								world.setEntityLevel(entity, splitted[1]);
+							}
+							break;
+						case "reload":
+							try {
+								ArrayList<Entity> reloadEntityList = new ArrayList<>();
+								for(Entity entity : world.entities.values()) {
+									if(entity.level.equals(splitted[1])) {
+										reloadEntityList.add(entity);
+									}
+								}
+								addLevel(splitted[1]);
+								for(Entity entity : reloadEntityList) {
+									world.setEntityLevel(entity, splitted[1]);
+								}
+								System.out.println("Reloaded");
+							} catch(Exception e) {
+								System.err.println("Cannot load level");
+								e.printStackTrace();
+							}
+							break;
+						case "stop":
+							System.exit(0);
+							break;
+					}
+				} catch(Exception e) {
+					System.err.println("Exception occurred when processing command: " + command);
+					e.printStackTrace();
+				}
+			}
+
 			sendImmediately = true;
 			// Receive Input
 			while (!receiveQueue.isEmpty()) {
@@ -239,20 +282,9 @@ public class ServerHandler {
 			Scanner s = new Scanner(System.in);
 			while (true) {
 				String cmd = s.nextLine();
-				switch (cmd) {
-				case "tps":
-					System.out.println("[Info]: Target TPS: " + TARGET_TPS + "\n[Info]: Current TPS: " + CURRENT_TPS);
-					break;
-				case "pingall":
-					for (Connection c : connections.values()) {
-						c.sendPacket(new PacketPing(true));
-					}
-					break;
-				case "stop":
-					System.exit(0);
-					break;
-				default:
-					break;
+				try {
+					commandQueue.put(cmd);
+				} catch(InterruptedException e) {
 				}
 			}
 		}

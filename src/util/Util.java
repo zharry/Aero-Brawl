@@ -36,6 +36,12 @@ public class Util {
 		return b;
 	}
 
+	public static byte[] readAllBytesFromStream(InputStream input) throws IOException {
+		byte[] b = readAllBytes(input);
+		input.close();
+		return b;
+	}
+
 	public static byte[] getBytes(String s) {
 		return s.getBytes(charset);
 	}

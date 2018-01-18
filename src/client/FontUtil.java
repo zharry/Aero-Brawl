@@ -65,6 +65,18 @@ public class FontUtil {
 		return new Dimension(mx * fontMetric[fontInd].width, (y + 1) * fontMetric[fontInd].height);
 	}
 
+	public static void drawText(String s, int fontInd, double x, double y) {
+		glPushMatrix();
+		glTranslated(x, y, 0);
+		FontUtil.drawText(s, fontInd);
+		glPopMatrix();
+	}
+
+	public static void drawCenterText(String s, int fontInd, double x, double y) {
+		Dimension dim = FontUtil.getTextDimension(s, fontInd);
+		drawText(s, fontInd, x - dim.getWidth() / 2, y - dim.getHeight() / 2);
+	}
+
 	public static void drawText(String s, int fontInd) {
 
 		int cnt = s.codePointCount(0, s.length());

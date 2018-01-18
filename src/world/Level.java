@@ -69,8 +69,8 @@ public class Level {
 		try {
 			handler = (LevelHandler) Class.forName(level).newInstance();
 		} catch(Exception e) {
-			System.err.println("Cannot load level class!");
-			throw new IOException(e);
+			e.printStackTrace();
+			System.err.println("Cannot load level class! Using fallback.");
 		}
 
 		if(!world.isClient) {

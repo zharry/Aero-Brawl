@@ -24,59 +24,59 @@ import static org.lwjgl.opengl.GL20.*;
 
 public class GLUtil {
 
-	public static int cubeList;
+//	public static int cubeList;
 
 	public static void init() {
-		cubeList = glGenLists(1);
-		glNewList(cubeList, GL_COMPILE);
-
-		glBegin(GL_QUADS);
-
-		glColor3d(1, 0, 0);
-		glNormal3d(0, 0, 1);
-		glVertex3d(-1, -1, 1);
-		glVertex3d(1, -1, 1);
-		glVertex3d(1, 1, 1);
-		glVertex3d(-1, 1, 1);
-
-		glColor3d(0, 1, 0);
-		glNormal3d(0, 0, -1);
-		glVertex3d(-1, 1, -1);
-		glVertex3d(1, 1, -1);
-		glVertex3d(1, -1, -1);
-		glVertex3d(-1, -1, -1);
-
-		glColor3d(0, 0, 1);
-		glNormal3d(0, 1, 0);
-		glVertex3d(-1, 1, 1);
-		glVertex3d(1, 1, 1);
-		glVertex3d(1, 1, -1);
-		glVertex3d(-1, 1, -1);
-
-		glColor3d(1, 0, 1);
-		glNormal3d(0, -1, 0);
-		glVertex3d(-1, -1, -1);
-		glVertex3d(1, -1, -1);
-		glVertex3d(1, -1, 1);
-		glVertex3d(-1, -1, 1);
-
-		glColor3d(1, 1, 0);
-		glNormal3d(1, 0, 0);
-		glVertex3d(1, -1, -1);
-		glVertex3d(1, 1, -1);
-		glVertex3d(1, 1, 1);
-		glVertex3d(1, -1, 1);
-
-		glColor3d(0, 1, 1);
-		glNormal3d(-1, 0, 0);
-		glVertex3d(-1, -1, 1);
-		glVertex3d(-1, 1, 1);
-		glVertex3d(-1, 1, -1);
-		glVertex3d(-1, -1, -1);
-
-		glEnd();
-
-		glEndList();
+//		cubeList = glGenLists(1);
+//		glNewList(cubeList, GL_COMPILE);
+//
+//		glBegin(GL_QUADS);
+//
+//		glColor3d(1, 0, 0);
+//		glNormal3d(0, 0, 1);
+//		glVertex3d(-1, -1, 1);
+//		glVertex3d(1, -1, 1);
+//		glVertex3d(1, 1, 1);
+//		glVertex3d(-1, 1, 1);
+//
+//		glColor3d(0, 1, 0);
+//		glNormal3d(0, 0, -1);
+//		glVertex3d(-1, 1, -1);
+//		glVertex3d(1, 1, -1);
+//		glVertex3d(1, -1, -1);
+//		glVertex3d(-1, -1, -1);
+//
+//		glColor3d(0, 0, 1);
+//		glNormal3d(0, 1, 0);
+//		glVertex3d(-1, 1, 1);
+//		glVertex3d(1, 1, 1);
+//		glVertex3d(1, 1, -1);
+//		glVertex3d(-1, 1, -1);
+//
+//		glColor3d(1, 0, 1);
+//		glNormal3d(0, -1, 0);
+//		glVertex3d(-1, -1, -1);
+//		glVertex3d(1, -1, -1);
+//		glVertex3d(1, -1, 1);
+//		glVertex3d(-1, -1, 1);
+//
+//		glColor3d(1, 1, 0);
+//		glNormal3d(1, 0, 0);
+//		glVertex3d(1, -1, -1);
+//		glVertex3d(1, 1, -1);
+//		glVertex3d(1, 1, 1);
+//		glVertex3d(1, -1, 1);
+//
+//		glColor3d(0, 1, 1);
+//		glNormal3d(-1, 0, 0);
+//		glVertex3d(-1, -1, 1);
+//		glVertex3d(-1, 1, 1);
+//		glVertex3d(-1, 1, -1);
+//		glVertex3d(-1, -1, -1);
+//
+//		glEnd();
+//
+//		glEndList();
 	}
 
 	public static void cleanUp(RenderObjectList list) {

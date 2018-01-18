@@ -21,8 +21,6 @@ import util.math.Quat4;
 import util.math.Vec3;
 import world.Level;
 
-import java.awt.*;
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -225,8 +223,8 @@ public class ClientRender {
 
 		try {
 			ObjLoader loader = new ObjLoader();
-			byte[] mtl = Util.readAllBytesFromFile(new File("obj/player.mtl"));
-			byte[] obj = Util.readAllBytesFromFile(new File("obj/player.obj"));
+			byte[] mtl = Util.readAllBytesFromStream(ClientRender.class.getResourceAsStream("/obj/player.mtl"));
+			byte[] obj = Util.readAllBytesFromStream(ClientRender.class.getResourceAsStream("/obj/player.obj"));
 			loader.loadMtl(mtl);
 			loader.load(obj);
 			playerModel = GLUtil.loadObjToList(loader.objects, aTexCoord);
@@ -248,7 +246,6 @@ public class ClientRender {
 		++frameCounter;
 
 		if (Display.getWidth() != width || Display.getHeight() != height) {
-			System.out.println("Resize");
 			width = Display.getWidth();
 			height = Display.getHeight();
 
@@ -563,22 +560,10 @@ public class ClientRender {
 		for (Map.Entry<Long, String> entry : client.messageQueue.descendingMap().entrySet())
 			if (i < 3)
 				msg[i++] = entry.getValue();
-		Dimension[] dims = { FontUtil.getTextDimension(msg[0], FontUtil.font36),
-				FontUtil.getTextDimension(msg[1], FontUtil.font24),
-				FontUtil.getTextDimension(msg[2], FontUtil.font16) };
 
-		glPushMatrix();
-		glTranslated(width / 2 - dims[0].getWidth() / 2, 65 + dims[0].getHeight() / 20, 0);
-		FontUtil.drawText(msg[0], FontUtil.font36);
-		glPopMatrix();
-		glPushMatrix();
-		glTranslated(width / 2 - dims[1].getWidth() / 2, 30 + dims[1].getHeight() / 20, 0);
-		FontUtil.drawText(msg[1], FontUtil.font24);
-		glPopMatrix();
-		glPushMatrix();
-		glTranslated(width / 2 - dims[2].getWidth() / 2, 5 + dims[2].getHeight() / 20, 0);
-		FontUtil.drawText(msg[2], FontUtil.font16);
-		glPopMatrix();
+		FontUtil.drawCenterText(msg[0], FontUtil.font36, width / 2, 80);
+		FontUtil.drawCenterText(msg[1], FontUtil.font24, width / 2, 45);
+		FontUtil.drawCenterText(msg[2], FontUtil.font16, width / 2, 20);
 
 		if(isGUIOpen) {
 			glColor4d(0, 0, 0, 0.75);
@@ -588,6 +573,9 @@ public class ClientRender {
 			glVertex2d(width, height);
 			glVertex2d(width, 0);
 			glEnd();
+
+			glColor3d(1, 1, 1);
+			FontUtil.drawCenterText("Options", FontUtil.font36, width / 2, 50);
 		}
 	}
 
