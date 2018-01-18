@@ -9,6 +9,7 @@ package com.jmr.wrapper.common.exceptions;
  * @version 1.0 7/19/2014
  */
 
+@SuppressWarnings("serial")
 public class NNClientCantConnect extends Exception {
 
 	public NNClientCantConnect() {
