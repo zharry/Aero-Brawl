@@ -252,11 +252,10 @@ public class Level {
 					activators.put(name, aabb);
 					break;
 				case "boundary":
+				case "light":
 					colliders.put(name, aabb);
 					aabb.renderable = false;
 					break;
-				case "light":
-					aabb.renderable = false;
 			}
 		}
 	}

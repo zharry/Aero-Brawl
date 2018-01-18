@@ -5,6 +5,7 @@
 
 package client;
 
+import entity.Entity;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Keyboard;
@@ -580,19 +581,14 @@ public class ClientRender {
 		glTranslated(0, 0, 0);
 		glColor3d(1, 1, 1);
 
-		// for(Entity entity : client.world.entities.values()) {
-		// if(entity == client.player) {
-		// continue;
-		// }
-		// glPushMatrix();
-		// Vec3 pos = Util.mix(entity.lastPosition, entity.position,
-		// partialTick);
-		// glTranslated(pos.x, pos.y, pos.z);
-		// Quat4 rot = Util.mixLinear(entity.lastQuat, entity.quat,
-		// partialTick);
-		// glRotated(Math.toDegrees(Math.acos(rot.w)), rot.x, rot.y, rot.z);
-		// GLUtil.renderObj(playerModel, uHasDiffuseMap);
-		// glPopMatrix();
-		// }
+		for(Entity entity : client.world.entities.values()) {
+			glPushMatrix();
+			Vec3 pos = Util.mix(entity.lastPosition, entity.position, partialTick);
+			glTranslated(pos.x, pos.y, pos.z);
+			Quat4 rot = Util.mixLinear(entity.lastQuat, entity.quat, partialTick);
+			glRotated(Math.toDegrees(Math.acos(rot.w)), -rot.x, -rot.y, -rot.z);
+			glCallList(GLUtil.cubeList);
+			glPopMatrix();
+		}
 	}
 }

@@ -50,7 +50,7 @@ public class ServerHandler {
 
 		server = new Server(port, port);
 		server.setListener(new ServerListener(this));
-		server.getConfig().PACKET_BUFFER_SIZE = 4096;
+		server.getConfig().PACKET_BUFFER_SIZE = 64000;
 		if (server.isConnected()) {
 			System.out.println("Server is now listening on 0.0.0.0:" + port);
 		}

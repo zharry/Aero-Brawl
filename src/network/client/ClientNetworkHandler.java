@@ -5,13 +5,12 @@
 
 package network.client;
 
-import java.net.ConnectException;
-import java.util.concurrent.ArrayBlockingQueue;
-
 import com.jmr.wrapper.client.Client;
 import com.jmr.wrapper.common.Connection;
-
 import network.packet.Packet;
+
+import java.net.ConnectException;
+import java.util.concurrent.ArrayBlockingQueue;
 
 public class ClientNetworkHandler {
 
@@ -24,7 +23,7 @@ public class ClientNetworkHandler {
 
 		client = new Client(IP, port, port);
 		client.setListener(new ClientListener(this));
-		client.getConfig().PACKET_BUFFER_SIZE = 4096;
+		client.getConfig().PACKET_BUFFER_SIZE = 64000;
 		client.connect();
 		if (client.isConnected()) {
 			System.out.println("Client connected to " + IP + ":" + port);
