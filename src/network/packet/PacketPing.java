@@ -7,6 +7,7 @@ package network.packet;
 
 public class PacketPing extends Packet {
 
+	private static final long serialVersionUID = -7753893073579570084L;
 	private long time;
 	private boolean fromServer;
 

@@ -7,6 +7,7 @@ package network.packet;
 
 public class PacketPlayerJoin extends Packet {
 
+	private static final long serialVersionUID = 6102831404706918429L;
 	public String playerName;
 
 	public PacketPlayerJoin(String playerName) {

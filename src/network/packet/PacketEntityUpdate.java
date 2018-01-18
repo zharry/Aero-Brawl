@@ -7,6 +7,7 @@ package network.packet;
 
 public class PacketEntityUpdate extends Packet {
 
+	private static final long serialVersionUID = -4034881404794001381L;
 	public long id;
 	public boolean force;
 	public byte[] entityUpdateData;

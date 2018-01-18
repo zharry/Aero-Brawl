@@ -6,6 +6,7 @@
 package network.packet;
 
 public class PacketEntitySetPlayer extends Packet {
+	private static final long serialVersionUID = 3367697712511583896L;
 	public long id;
 
 	public boolean spectator;

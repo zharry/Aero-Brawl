@@ -2,6 +2,7 @@ package network.packet;
 
 public class PacketColliderChange extends Packet {
 
+	private static final long serialVersionUID = -4206140201403181215L;
 	public String colliderName;
 
 	public boolean collidable;

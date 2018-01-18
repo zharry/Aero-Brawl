@@ -6,6 +6,7 @@
 package network.packet;
 
 public class PacketEntitySpawn extends Packet {
+	private static final long serialVersionUID = 8766787807554641760L;
 	public long id;
 	public int entityClassId;
 

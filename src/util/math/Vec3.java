@@ -7,9 +7,9 @@ package util.math;
 
 import java.io.Serializable;
 
-@SuppressWarnings("serial")
 public class Vec3 implements Serializable {
 
+	private static final long serialVersionUID = -1714311416293929700L;
 	public final double x, y, z;
 
 	public Vec3() {

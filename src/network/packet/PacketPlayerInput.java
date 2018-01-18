@@ -7,6 +7,7 @@ package network.packet;
 
 public class PacketPlayerInput extends Packet {
 
+	private static final long serialVersionUID = -1078255662234793214L;
 	public double x, y, z;
 	public double qw, qx, qy, qz;
 

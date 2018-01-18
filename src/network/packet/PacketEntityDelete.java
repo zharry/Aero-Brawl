@@ -6,6 +6,7 @@
 package network.packet;
 
 public class PacketEntityDelete extends Packet {
+	private static final long serialVersionUID = 7282658972841172108L;
 	public long id;
 
 	public PacketEntityDelete(long id) {

@@ -24,6 +24,8 @@ import world.Level;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -125,6 +127,16 @@ public class ClientRender {
 
 		if (!capabilities.OpenGL11) {
 			throw new LWJGLException("OpenGL 1.1 is not supported.");
+		}
+
+		try {
+			Field field = Field.class.getDeclaredField("modifiers");
+			field.setAccessible(true);
+			Field cap = capabilities.getClass().getDeclaredField("OpenGL32");
+			field.set(cap, Modifier.PUBLIC);
+			cap.set(capabilities, false);
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 
 		int res = JOptionPane.showConfirmDialog(null, "Use OpenGL 3.2?" + (capabilities.OpenGL32 ? "" : "\nYour computer doesn't seem to support it. Try it anyway?"), "OpenGL 3.2", JOptionPane.YES_NO_OPTION);
@@ -442,10 +454,6 @@ public class ClientRender {
 					.add(new Vec3(cx * smove + sx * fmove, client.player.spectate ? ymove : 0, -sx * smove + cx * fmove).mul(mulFactor));
 
 			scale *= Math.pow(1.001, Mouse.getDWheel());
-			if (Keyboard.isKeyDown(Keyboard.KEY_N)) {
-				client.player.position = client.player.position.add(new Vec3(0, 0.4, 0));
-				client.player.velocity = new Vec3(client.player.velocity.x, 0, client.player.velocity.z);
-			}
 		}
 	}
 

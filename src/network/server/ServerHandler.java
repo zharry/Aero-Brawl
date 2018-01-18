@@ -54,7 +54,13 @@ public class ServerHandler {
 
 		world = new WorldServer(this);
 
-		for(File f : Level.baseDir.listFiles()) {
+		File[] fs = Level.baseDir.listFiles();
+
+		if(fs == null) {
+			throw new RuntimeException("Cannot find obj directory");
+		}
+
+		for(File f : fs) {
 			if(f.isDirectory()) {
 				String levelName = f.getName();
 				try {

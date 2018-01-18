@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 public class AABB implements Serializable {
 
+	private static final long serialVersionUID = -8091941695978007333L;
 	public boolean collidable = true;
 	public boolean renderable = true;
 	public String material;
