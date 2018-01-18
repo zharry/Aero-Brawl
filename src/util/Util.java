@@ -11,10 +11,13 @@ import util.math.Vec3;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
 
 public class Util {
 
 	public static final Charset charset = Charset.forName("UTF-8");
+
+	public static final DecimalFormat format = new DecimalFormat(" 0.0000;-0.0000");
 
 	public static byte[] readAllBytes(InputStream input) throws IOException {
 		ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -35,6 +38,10 @@ public class Util {
 
 	public static byte[] getBytes(String s) {
 		return s.getBytes(charset);
+	}
+
+	public static String vectorToString(Vec3 vec) {
+		return "[" + format.format(vec.x) + ", " + format.format(vec.y) + ", " + format.format(vec.z) + "]";
 	}
 
 	public static String getString(byte[] b) {

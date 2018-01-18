@@ -15,7 +15,6 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
 import org.lwjgl.opengl.GLContext;
 import org.lwjgl.util.glu.GLU;
-import org.lwjgl.util.glu.Sphere;
 import util.AABB;
 import util.Util;
 import util.math.Quat4;
@@ -99,6 +98,8 @@ public class ClientRender {
 
 	public static boolean isDebugOpen;
 
+	public static String openglVersion;
+
 	public ContextCapabilities capabilities;
 
 	public ClientRender(ClientHandler client) {
@@ -111,7 +112,8 @@ public class ClientRender {
 		Display.create();
 		Display.setVSyncEnabled(true);
 
-		System.out.println(glGetString(GL_VERSION));
+		openglVersion = glGetString(GL_VERSION);
+		System.out.println(openglVersion);
 
 		capabilities = GLContext.getCapabilities();
 
@@ -331,6 +333,14 @@ public class ClientRender {
 			double smove = 0;
 			// double ymove = 0;
 
+			while(Keyboard.next()) {
+				if(Keyboard.getEventKeyState()) {
+					if (Keyboard.getEventKey() == Keyboard.KEY_F3) {
+						isDebugOpen = !isDebugOpen;
+					}
+				}
+			}
+
 			if (Keyboard.isKeyDown(Keyboard.KEY_W))
 				fmove -= 1;
 			if (Keyboard.isKeyDown(Keyboard.KEY_S))
@@ -461,12 +471,6 @@ public class ClientRender {
 
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
-		Sphere sphere = new Sphere();
-		glPushMatrix();
-		glTranslated(lightPosition.x, lightPosition.y, lightPosition.z);
-		glColor3d(0, 0, 0);
-		sphere.draw(0.1f, 8, 8);
-		glPopMatrix();
 		renderWorld(partialTick);
 		glPopAttrib();
 		glPopClientAttrib();
@@ -526,8 +530,20 @@ public class ClientRender {
 	}
 
 	public void renderGUI(double partialTick) {
+
 		// Draw Debug
-		FontUtil.drawText("FPS: " + fps + "\nPartial Tick: " + partialTick, FontUtil.font16);
+		if(isDebugOpen) {
+			StringBuilder builder = new StringBuilder();
+			builder.append("FPS: ").append(fps).append('\n');
+			builder.append("OpenGL: ").append(openglVersion).append('\n');
+			builder.append('\n');
+			builder.append("Position: ").append(Util.vectorToString(client.player.position)).append('\n');
+			builder.append("Velocity: ").append(Util.vectorToString(client.player.velocity)).append('\n');
+			builder.append("On ground: ").append(client.player.onGround).append('\n');
+			builder.append("Level: ").append(client.world.level.level).append('\n');
+			builder.append("AABBs: ").append(client.world.level.aabbs.size()).append('\n');
+			FontUtil.drawText(builder.toString(), FontUtil.font16);
+		}
 
 		// Draw Messages (If Any)
 		int i = 0;
