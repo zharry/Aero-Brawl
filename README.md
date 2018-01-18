@@ -1,6 +1,18 @@
 # Fraternize
 Grade 12 ICS Summative project
 
+## How to Play
+- Use WASD to Move
+- Space to Jump
+- F3 Opens Debug
+- Esc Opens Settings
+
+## System Requirements
+- OpenGL 1.1, Java 8
+- Dual Core 2GHz CPU
+- 1GB Of System Memory
+- (Recommended) Dedicated GPU with 512MB of VRAM
+
 ## Map Modeling Specs
 ### Collidable, Rendered Objects
 1. Collider.ID (Collider ID must correspond with Activator ID)
