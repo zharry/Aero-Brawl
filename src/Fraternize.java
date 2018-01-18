@@ -50,7 +50,7 @@ public class Fraternize {
 				while (true) {
 					try {
 						String[] serverIPPort = ((String) JOptionPane.showInputDialog(null, "Server IP:Port",
-								"Connect to server", JOptionPane.PLAIN_MESSAGE, null, null, "localhost")).split(":");
+								"Connect to server", JOptionPane.PLAIN_MESSAGE, null, null, "fraternizegame.ml")).split(":");
 						serverIP = serverIPPort[0];
 						serverPort = serverIPPort.length == 1 ? SERVER_PORT : Integer.parseInt(serverIPPort[1]);
 						break;
