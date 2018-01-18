@@ -75,7 +75,7 @@ public class ServerHandler {
 			addLevel("level2_Maze");
 			addLevel("level3_Guess");
 			addLevel("level4_Climb");
-			// addLevel("level5_Collaboration");
+			 addLevel("level5_Collaboration");
 			// addLevel("level6_Betrayal");
 		} catch (IOException e) {
 			System.err.println("Cannot load level file");
