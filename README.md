@@ -5,6 +5,7 @@ Grade 12 ICS Summative project
 - Use WASD to Move
 - Space to Jump
 - F3 Opens Debug
+- F11 Toggles Fullscreen
 - Esc Opens Settings
 
 ## System Requirements

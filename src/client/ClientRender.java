@@ -96,9 +96,9 @@ public class ClientRender {
 
 	public double scale = 1;
 
-	public static boolean isCaptured;
-	public static boolean isDebugOpen;
-	public static boolean isGUIOpen;
+	public boolean isCaptured;
+	public boolean isDebugOpen;
+	public boolean isGUIOpen;
 
 	public static boolean advancedOpenGL = true;
 
@@ -287,7 +287,6 @@ public class ClientRender {
 			glUseProgram(postProgram);
 			glUniform1i(uSamples, samples);
 			glUseProgram(0);
-			System.out.println(samples);
 
 			finalRenderTexture = glGenTextures();
 			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
@@ -356,7 +355,7 @@ public class ClientRender {
 				if (Keyboard.getEventKey() == Keyboard.KEY_F3) {
 					isDebugOpen = !isDebugOpen;
 				}
-				if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
+				else if (Keyboard.getEventKey() == Keyboard.KEY_ESCAPE) {
 					isGUIOpen = !isGUIOpen;
 					if(isGUIOpen) {
 						isCaptured = false;
@@ -364,6 +363,17 @@ public class ClientRender {
 					} else {
 						isCaptured = true;
 						Mouse.setGrabbed(true);
+					}
+				} else if(Keyboard.getEventKey() == Keyboard.KEY_F11) {
+					try {
+						if(Display.isFullscreen()) {
+							Display.setFullscreen(false);
+						} else {
+							Display.setDisplayModeAndFullscreen(Display.getDesktopDisplayMode());
+						}
+					} catch(LWJGLException e) {
+						System.err.println("Cannot set fullscreen");
+						e.printStackTrace();
 					}
 				}
 			}
