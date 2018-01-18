@@ -1,3 +1,8 @@
+// Jacky Liao and Harry Zhang
+// Jan 18, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package util;
 
 import util.math.CollisionFace;

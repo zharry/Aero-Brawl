@@ -1,7 +1,12 @@
-import java.util.ArrayList;
+// Jacky Liao and Harry Zhang
+// Jan 18, 2017
+// Summative
+// ICS4U Ms.Strelkovska
 
 import entity.EntityPlayer;
 import world.DefaultLevel;
+
+import java.util.ArrayList;
 
 public class level3_Guess extends DefaultLevel {
 

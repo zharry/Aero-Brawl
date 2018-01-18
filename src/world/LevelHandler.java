@@ -1,8 +1,13 @@
+// Jacky Liao and Harry Zhang
+// Jan 18, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package world;
 
-import java.util.ArrayList;
-
 import entity.EntityPlayer;
+
+import java.util.ArrayList;
 
 public abstract class LevelHandler {
 
