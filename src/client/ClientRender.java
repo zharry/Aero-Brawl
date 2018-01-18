@@ -23,10 +23,9 @@ import util.math.Vec3;
 import world.Level;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
 import java.util.Map;
 
 import static org.lwjgl.opengl.GL11.*;
@@ -47,6 +46,8 @@ public class ClientRender {
 	public float fov = 90;
 	public int width;
 	public int height;
+
+	public static double sensitivity = 1;
 
 	public int uSamples;
 	public int uTextureFinal;
@@ -77,6 +78,7 @@ public class ClientRender {
 	public int shadowProgram;
 
 	public int finalRenderBuffer;
+	public int finalDepthTexture;
 	public int finalRenderTexture;
 
 	public int shadowRenderBuffer;
@@ -97,7 +99,11 @@ public class ClientRender {
 	public static boolean isDebugOpen;
 	public static boolean isGUIOpen;
 
+	public static boolean advancedOpenGL = true;
+
 	public static String openglVersion;
+
+	public ArrayList<Button> buttons = new ArrayList<>();
 
 	public ContextCapabilities capabilities;
 
@@ -116,19 +122,13 @@ public class ClientRender {
 
 		capabilities = GLContext.getCapabilities();
 
-		if (!capabilities.OpenGL30) {
-			throw new LWJGLException("OpenGL 3.0 is not supported.");
+		if (!capabilities.OpenGL11) {
+			throw new LWJGLException("OpenGL 1.1 is not supported.");
 		}
 
-		try {
-			Field field = Field.class.getDeclaredField("modifiers");
-			field.setAccessible(true);
-			Field cap = capabilities.getClass().getDeclaredField("OpenGL32");
-			field.set(cap, Modifier.PUBLIC);
-			cap.set(capabilities, true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		if(!capabilities.OpenGL32) {
+			advancedOpenGL = false;
+//		}
 
 		glInit();
 
@@ -148,37 +148,40 @@ public class ClientRender {
 
 		glClearColor(0.5f, 0.5f, 1.0f, 1);
 
-		renderProgram = GLUtil.loadProgram("/shaders/world.vert", "/shaders/world.frag");
-		postProgram = GLUtil.loadProgram("/shaders/post.vert", "/shaders/post.frag");
-		shadowProgram = GLUtil.loadProgram("/shaders/shadow.vert", "/shaders/shadow.frag");
+		if(advancedOpenGL) {
 
-		glUseProgram(postProgram);
-		uSamples = glGetUniformLocation(postProgram, "samples");
-		uTextureFinal = glGetUniformLocation(postProgram, "texture");
-		glUniform1i(uSamples, samples);
+			renderProgram = GLUtil.loadProgram("/shaders/world.vert", "/shaders/world.frag");
+			postProgram = GLUtil.loadProgram("/shaders/post.vert", "/shaders/post.frag");
+			shadowProgram = GLUtil.loadProgram("/shaders/shadow.vert", "/shaders/shadow.frag");
 
-		glActiveTexture(GL_TEXTURE1);
-		glUniform1i(uTextureFinal, 1);
+			glUseProgram(postProgram);
+			uSamples = glGetUniformLocation(postProgram, "samples");
+			uTextureFinal = glGetUniformLocation(postProgram, "texture");
+			glUniform1i(uSamples, samples);
 
-		glUseProgram(shadowProgram);
-		uViewShadow = glGetUniformLocation(shadowProgram, "view");
+			glActiveTexture(GL_TEXTURE1);
+			glUniform1i(uTextureFinal, 1);
 
-		glUseProgram(renderProgram);
+			glUseProgram(shadowProgram);
+			uViewShadow = glGetUniformLocation(shadowProgram, "view");
 
-		uDiffuseMap = glGetUniformLocation(renderProgram, "diffuseMap");
-		uShadowMap = glGetUniformLocation(renderProgram, "shadowMap");
-		uHasDiffuseMap = glGetUniformLocation(renderProgram, "hasDiffuseMap");
-		aTexCoord = glGetAttribLocation(renderProgram, "texCoord");
+			glUseProgram(renderProgram);
 
-		glUniform1i(uShadowMap, 1);
+			uDiffuseMap = glGetUniformLocation(renderProgram, "diffuseMap");
+			uShadowMap = glGetUniformLocation(renderProgram, "shadowMap");
+			uHasDiffuseMap = glGetUniformLocation(renderProgram, "hasDiffuseMap");
+			aTexCoord = glGetAttribLocation(renderProgram, "texCoord");
 
-		uShadowMapSize = glGetUniformLocation(renderProgram, "shadowMapSize");
-		uView = glGetUniformLocation(renderProgram, "currView");
+			glUniform1i(uShadowMap, 1);
 
-		glUniform1f(uShadowMapSize, shadowMapSize);
+			uShadowMapSize = glGetUniformLocation(renderProgram, "shadowMapSize");
+			uView = glGetUniformLocation(renderProgram, "currView");
 
-		glActiveTexture(GL_TEXTURE1);
-		glUniform1i(uDiffuseMap, 1);
+			glUniform1f(uShadowMapSize, shadowMapSize);
+
+			glActiveTexture(GL_TEXTURE1);
+			glUniform1i(uDiffuseMap, 1);
+		}
 
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
@@ -190,37 +193,73 @@ public class ClientRender {
 		glEnable(GL_LIGHT0);
 		glEnable(GL_COLOR_MATERIAL);
 
-		shadowRenderBuffer = glGenFramebuffers();
-		glBindFramebuffer(GL_FRAMEBUFFER, shadowRenderBuffer);
+		if(advancedOpenGL) {
+			shadowRenderBuffer = glGenFramebuffers();
+			glBindFramebuffer(GL_FRAMEBUFFER, shadowRenderBuffer);
 
-		shadowRenderTexture = glGenTextures();
-		glBindTexture(GL_TEXTURE_CUBE_MAP, shadowRenderTexture);
+			shadowRenderTexture = glGenTextures();
+			glBindTexture(GL_TEXTURE_CUBE_MAP, shadowRenderTexture);
 
-		glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-		glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+			glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-		for (int i = 0; i < 6; ++i) {
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowMapSize, shadowMapSize, 0,
-					GL_DEPTH_COMPONENT, GL_FLOAT, (ByteBuffer) null);
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-					shadowRenderTexture, 0);
+			for (int i = 0; i < 6; ++i) {
+				glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_DEPTH_COMPONENT, shadowMapSize, shadowMapSize, 0,
+						GL_DEPTH_COMPONENT, GL_FLOAT, (ByteBuffer) null);
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+						shadowRenderTexture, 0);
+			}
+
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+
+			int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+			if (status != GL_FRAMEBUFFER_COMPLETE) {
+				System.err.println("FBO Error");
+			}
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
-
-		glDrawBuffer(GL_NONE);
-		glReadBuffer(GL_NONE);
-
-		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-		if (status != GL_FRAMEBUFFER_COMPLETE) {
-			System.err.println("FBO Error");
-		}
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		GLUtil.init();
 		FontUtil.init();
+
+		buttons.add(new Button(-100, 140, FontUtil.font36, "-", (b) -> {
+			sensitivity /= 1.2;
+		}));
+
+		buttons.add(new Button(100, 140, FontUtil.font36, "+", (b) -> {
+			sensitivity *= 1.2;
+		}));
+
+		buttons.add(new Button(0, 240, FontUtil.font24, "On", (b) -> {
+			advancedOpenGL = !advancedOpenGL;
+			if(advancedOpenGL)
+				b.label = "On";
+			else
+				b.label = "Off";
+		}));
+
+		buttons.add(new Button(-100, 340, FontUtil.font36, "-", (b) -> {
+			samples --;
+			if(samples < 1) {
+				samples = 1;
+			} else {
+				resizeTextures();
+			}
+		}));
+
+		buttons.add(new Button(100, 340, FontUtil.font36, "+", (b) -> {
+			samples ++;
+			if(samples > 16) {
+				samples = 16;
+			} else {
+				resizeTextures();
+			}
+		}));
 
 		try {
 			ObjLoader loader = new ObjLoader();
@@ -234,6 +273,51 @@ public class ClientRender {
 			e.printStackTrace();
 		}
 
+	}
+
+	public void resizeTextures() {
+		if (advancedOpenGL) {
+
+			if (finalRenderTexture != 0) {
+				glDeleteTextures(finalRenderTexture);
+			}
+
+			if (finalDepthTexture != 0) {
+				glDeleteTextures(finalDepthTexture);
+			}
+
+			if (finalRenderBuffer != 0) {
+				glDeleteRenderbuffers(finalRenderBuffer);
+			}
+
+			glUseProgram(postProgram);
+			glUniform1i(uSamples, samples);
+			glUseProgram(0);
+			System.out.println(samples);
+
+			finalRenderTexture = glGenTextures();
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
+
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA32F, width, height, false);
+
+			finalDepthTexture = glGenTextures();
+			glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalDepthTexture);
+			glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH_COMPONENT32F, width, height,
+					false);
+
+			finalRenderBuffer = glGenFramebuffers();
+			glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE,
+					finalRenderTexture, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE,
+					finalDepthTexture, 0);
+
+			int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+
+			if (status != GL_FRAMEBUFFER_COMPLETE) {
+				System.out.println("Framebuffer failed: " + status);
+			}
+		}
 	}
 
 	public void render(double partialTick) {
@@ -250,38 +334,7 @@ public class ClientRender {
 			width = Display.getWidth();
 			height = Display.getHeight();
 
-			if (capabilities.OpenGL32) {
-
-				if (finalRenderTexture != 0) {
-					glDeleteTextures(finalRenderTexture);
-				}
-				if (finalRenderBuffer != 0) {
-					glDeleteRenderbuffers(finalRenderBuffer);
-				}
-
-				finalRenderTexture = glGenTextures();
-				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalRenderTexture);
-
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_RGBA32F, width, height, false);
-
-				int finalDepthTexture = glGenTextures();
-				glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, finalDepthTexture);
-				glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, samples, GL_DEPTH_COMPONENT32F, width, height,
-						false);
-
-				finalRenderBuffer = glGenFramebuffers();
-				glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D_MULTISAMPLE,
-						finalRenderTexture, 0);
-				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D_MULTISAMPLE,
-						finalDepthTexture, 0);
-
-				int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-				if (status != GL_FRAMEBUFFER_COMPLETE) {
-					System.out.println("Framebuffer failed: " + status);
-				}
-			}
+			resizeTextures();
 
 			glViewport(0, 0, width, height);
 		}
@@ -322,9 +375,20 @@ public class ClientRender {
 			}
 		}
 
+		while(Mouse.next()) {
+			if(Mouse.getEventButton() == 0 && Mouse.getEventButtonState()) {
+				for(int i = buttons.size() - 1; i >= 0; --i) {
+					Button button = buttons.get(i);
+					if(button.isWithin(Mouse.getX(), height - Mouse.getY(), width)) {
+						button.listener.clicked(button);
+					}
+				}
+			}
+		}
+
 		if (isCaptured) {
-			rotX += -Mouse.getDX();
-			rotY += Mouse.getDY();
+			rotX += -Mouse.getDX() * sensitivity;
+			rotY += Mouse.getDY() * sensitivity;
 			if (rotY > 90) {
 				rotY = 90;
 			}
@@ -388,26 +452,26 @@ public class ClientRender {
 	}
 
 	public void glRun(double partialTick) {
-		glBindFramebuffer(GL_FRAMEBUFFER, shadowRenderBuffer);
-		glViewport(0, 0, shadowMapSize, shadowMapSize);
-
-		glUseProgram(shadowProgram);
-
-		glEnable(GL_DEPTH_TEST);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		double sfov = 2.0 * Math.toDegrees(Math.atan(shadowMapSize / (shadowMapSize - 0.5)));
-		GLU.gluPerspective((float) sfov, 1, 0.01f, 1000);
-		glGetFloat(GL_PROJECTION_MATRIX, shadowProjection);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
 
 		Vec3 newPos = Util.mix(client.player.lastPosition, client.player.position, partialTick)
 				.add(client.player.eyeOffset);
 
-		double ang = System.nanoTime() / 10000000000.0 % 1 * 2 * Math.PI;
-		// double ang = 0;
+		if(advancedOpenGL) {
+			glBindFramebuffer(GL_FRAMEBUFFER, shadowRenderBuffer);
+			glViewport(0, 0, shadowMapSize, shadowMapSize);
+
+			glUseProgram(shadowProgram);
+
+			glEnable(GL_DEPTH_TEST);
+
+			glMatrixMode(GL_PROJECTION);
+			glLoadIdentity();
+			double sfov = 2.0 * Math.toDegrees(Math.atan(shadowMapSize / (shadowMapSize - 0.5)));
+			GLU.gluPerspective((float) sfov, 1, 0.01f, 1000);
+			glGetFloat(GL_PROJECTION_MATRIX, shadowProjection);
+			glMatrixMode(GL_MODELVIEW);
+			glLoadIdentity();
+		}
 
 		AABB aabb = client.world.level.aabbs.get("Light.0.000");
 
@@ -415,45 +479,47 @@ public class ClientRender {
 			lightPosition = aabb.max.add(aabb.min).mul(0.5);
 		}
 
-		glLight(GL_LIGHT0, GL_DIFFUSE,
-				(FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(1).flip());
-		glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put((float) lightPosition.x)
-				.put((float) lightPosition.y).put((float) lightPosition.z).put(1).flip());
+		if(advancedOpenGL) {
 
-		for (int i = 0; i < 6; ++i) {
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
-					shadowRenderTexture, 0);
-			glClear(GL_DEPTH_BUFFER_BIT);
+			glLight(GL_LIGHT0, GL_DIFFUSE,
+					(FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(1).flip());
+			glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put((float) lightPosition.x)
+					.put((float) lightPosition.y).put((float) lightPosition.z).put(1).flip());
 
-			glPushMatrix();
+			for (int i = 0; i < 6; ++i) {
+				glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+						shadowRenderTexture, 0);
+				glClear(GL_DEPTH_BUFFER_BIT);
 
-			// glTranslated(-newPosT.x, -newPosT.y, -newPosT.z);
-			Vec3 center = cubemapDirs[i * 2].add(lightPosition);
-			Vec3 up = cubemapDirs[i * 2 + 1];
-			GLU.gluLookAt((float) lightPosition.x, (float) lightPosition.y, (float) lightPosition.z, (float) center.x,
-					(float) center.y, (float) center.z, (float) up.x, (float) up.y, (float) up.z);
-			glGetFloat(GL_MODELVIEW_MATRIX, shadowView);
-			glUniformMatrix4(uViewShadow, false, shadowView);
-			glPopMatrix();
+				glPushMatrix();
 
-			renderWorld(partialTick);
-		}
+				// glTranslated(-newPosT.x, -newPosT.y, -newPosT.z);
+				Vec3 center = cubemapDirs[i * 2].add(lightPosition);
+				Vec3 up = cubemapDirs[i * 2 + 1];
+				GLU.gluLookAt((float) lightPosition.x, (float) lightPosition.y, (float) lightPosition.z, (float) center.x,
+						(float) center.y, (float) center.z, (float) up.x, (float) up.y, (float) up.z);
+				glGetFloat(GL_MODELVIEW_MATRIX, shadowView);
+				glUniformMatrix4(uViewShadow, false, shadowView);
+				glPopMatrix();
 
-		glUseProgram(renderProgram);
+				renderWorld(partialTick);
+			}
 
-		if (capabilities.OpenGL32) {
+			glUseProgram(renderProgram);
+
 			glBindFramebuffer(GL_FRAMEBUFFER, finalRenderBuffer);
 
 			glClampColor(GL_CLAMP_VERTEX_COLOR, GL_FALSE);
 			glClampColor(GL_CLAMP_FRAGMENT_COLOR, GL_FALSE);
-		} else {
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
 		glViewport(0, 0, width, height);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, shadowRenderTexture);
+
+		if(advancedOpenGL) {
+			glBindTexture(GL_TEXTURE_CUBE_MAP, shadowRenderTexture);
+		}
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_LIGHTING);
@@ -465,21 +531,24 @@ public class ClientRender {
 		glMatrixMode(GL_MODELVIEW);
 		glLoadIdentity();
 
-		glPushMatrix();
+		if(advancedOpenGL)
+			glPushMatrix();
 
 		Quat4 newRot = client.player.quat;
 		glRotated(Math.toDegrees(Math.acos(newRot.w) * 2), -newRot.x, -newRot.y, -newRot.z);
 
 		glTranslated(-newPos.x, -newPos.y, -newPos.z);
 
-		glGetFloat(GL_MODELVIEW_MATRIX, view);
-
-		float[] array = new float[16];
-		shadowProjection.get(array);
-		shadowProjection.position(0);
-
-		glUniformMatrix4(uView, false, view);
-		glPopMatrix();
+		if(advancedOpenGL) {
+			glGetFloat(GL_MODELVIEW_MATRIX, view);
+			glUniformMatrix4(uView, false, view);
+			glPopMatrix();
+		} else {
+			glLight(GL_LIGHT0, GL_DIFFUSE,
+					(FloatBuffer) BufferUtils.createFloatBuffer(4).put(1).put(1).put(1).put(1).flip());
+			glLight(GL_LIGHT0, GL_POSITION, (FloatBuffer) BufferUtils.createFloatBuffer(4).put((float) lightPosition.x)
+					.put((float) lightPosition.y).put((float) lightPosition.z).put(1).flip());
+		}
 
 		glPushAttrib(GL_ALL_ATTRIB_BITS);
 		glPushClientAttrib(GL_ALL_CLIENT_ATTRIB_BITS);
@@ -487,7 +556,7 @@ public class ClientRender {
 		glPopAttrib();
 		glPopClientAttrib();
 
-		if (capabilities.OpenGL32) {
+		if (advancedOpenGL) {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glUseProgram(postProgram);
 			glViewport(0, 0, width, height);
@@ -521,7 +590,8 @@ public class ClientRender {
 			glEnd();
 		}
 
-		glUseProgram(0);
+		if(advancedOpenGL)
+			glUseProgram(0);
 
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_LIGHTING);
@@ -581,6 +651,19 @@ public class ClientRender {
 
 			glColor3d(1, 1, 1);
 			FontUtil.drawCenterText("Options", FontUtil.font36, width / 2, 50);
+
+			FontUtil.drawCenterText("Mouse sensitivity", FontUtil.font24, width / 2, 100);
+			FontUtil.drawCenterText(String.format("%.2f", sensitivity), FontUtil.font24, width / 2, 140);
+
+
+			FontUtil.drawCenterText("Advanced OpenGL", FontUtil.font24, width / 2, 200);
+
+			FontUtil.drawCenterText("Antialiasing samples", FontUtil.font24, width / 2, 300);
+			FontUtil.drawCenterText(String.valueOf(samples), FontUtil.font24, width / 2, 340);
+
+			for(Button button : buttons) {
+				button.render(width);
+			}
 		}
 	}
 
