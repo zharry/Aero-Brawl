@@ -189,6 +189,13 @@ public class ServerHandler {
 								e.printStackTrace();
 							}
 							break;
+						case "spectate":
+							EntityPlayer player = ((EntityPlayer) world.entities.get(Long.parseLong(splitted[1])));
+							player.spectate = Boolean.parseBoolean(splitted[2]);
+							world.forceUpdate(player);
+							System.out.println(player.spectate);
+
+							break;
 						case "stop":
 							System.exit(0);
 							break;
