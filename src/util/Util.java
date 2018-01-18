@@ -9,9 +9,7 @@ import util.math.Quat4;
 import util.math.Vec2;
 import util.math.Vec3;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.Charset;
 
 public class Util {
@@ -26,6 +24,13 @@ public class Util {
 			output.write(b, 0, read);
 		}
 		return output.toByteArray();
+	}
+
+	public static byte[] readAllBytesFromFile(File f) throws IOException {
+		FileInputStream input = new FileInputStream(f);
+		byte[] b = readAllBytes(input);
+		input.close();
+		return b;
 	}
 
 	public static byte[] getBytes(String s) {

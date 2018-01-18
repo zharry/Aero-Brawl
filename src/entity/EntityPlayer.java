@@ -21,7 +21,7 @@ public class EntityPlayer extends Entity {
 
 	public String playerName;
 
-	public final AABB playerAABB = new AABB(new Vec3(-0.25, 0, -0.25), new Vec3(0.25, 1.8, 0.25));
+	public final AABB playerAABB = new AABB(new Vec3(-0.325, 0, -0.325), new Vec3(0.325, 1.8, 0.325));
 	public final Vec3 eyeOffset = new Vec3(0, 1.6, 0);
 
 	public boolean onGround;
