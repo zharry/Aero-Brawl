@@ -12,4 +12,4 @@ Grade 12 ICS Summative project
 ### Non-collidable, Non-rendered Objects
 1. Light.TYPE.ID (TYPE is 0 for Shadow Casting, 1 for Non-shadow Casting)
 2. Boundary.ID
-3. Marker.ID (Use Marker.Spawn for Spawn marker) 
+3. Marker.ID (Use Marker.Spawn for Spawn marker)
