@@ -140,7 +140,8 @@ public class FontUtil {
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		glClientActiveTexture(GL_TEXTURE1);
+		if(ClientRender.advancedOpenGL)
+			glClientActiveTexture(GL_TEXTURE1);
 
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, font[fontInd]);

@@ -22,6 +22,7 @@ import util.math.Quat4;
 import util.math.Vec3;
 import world.Level;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
@@ -126,9 +127,12 @@ public class ClientRender {
 			throw new LWJGLException("OpenGL 1.1 is not supported.");
 		}
 
-//		if(!capabilities.OpenGL32) {
+		int res = JOptionPane.showConfirmDialog(null, "Use OpenGL 3.2?" + (capabilities.OpenGL32 ? "" : "\nYour computer doesn't seem to support it. Try it anyway?"), "OpenGL 3.2", JOptionPane.YES_NO_OPTION);
+		if(res == JOptionPane.YES_OPTION) {
+			advancedOpenGL = true;
+		} else {
 			advancedOpenGL = false;
-//		}
+		}
 
 		glInit();
 
@@ -235,31 +239,25 @@ public class ClientRender {
 			sensitivity *= 1.2;
 		}));
 
-		buttons.add(new Button(0, 240, FontUtil.font24, "On", (b) -> {
-			advancedOpenGL = !advancedOpenGL;
-			if(advancedOpenGL)
-				b.label = "On";
-			else
-				b.label = "Off";
-		}));
+		if(advancedOpenGL) {
+			buttons.add(new Button(-100, 240, FontUtil.font36, "-", (b) -> {
+				samples--;
+				if (samples < 1) {
+					samples = 1;
+				} else {
+					resizeTextures();
+				}
+			}));
 
-		buttons.add(new Button(-100, 340, FontUtil.font36, "-", (b) -> {
-			samples --;
-			if(samples < 1) {
-				samples = 1;
-			} else {
-				resizeTextures();
-			}
-		}));
-
-		buttons.add(new Button(100, 340, FontUtil.font36, "+", (b) -> {
-			samples ++;
-			if(samples > 16) {
-				samples = 16;
-			} else {
-				resizeTextures();
-			}
-		}));
+			buttons.add(new Button(100, 240, FontUtil.font36, "+", (b) -> {
+				samples++;
+				if (samples > 16) {
+					samples = 16;
+				} else {
+					resizeTextures();
+				}
+			}));
+		}
 
 		try {
 			ObjLoader loader = new ObjLoader();
@@ -620,6 +618,7 @@ public class ClientRender {
 			builder.append("Memory: ").append((Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) / 1048576)
 					.append("/").append(Runtime.getRuntime().totalMemory() / 1048576).append(" MiB").append('\n');
 			builder.append("OpenGL: ").append(openglVersion).append('\n');
+			builder.append("Advanced OpenGL: ").append(advancedOpenGL).append('\n');
 			builder.append('\n');
 			builder.append("Position: ").append(Util.vectorToString(client.player.position)).append('\n');
 			builder.append("Velocity: ").append(Util.vectorToString(client.player.velocity)).append('\n');
@@ -655,11 +654,10 @@ public class ClientRender {
 			FontUtil.drawCenterText("Mouse sensitivity", FontUtil.font24, width / 2, 100);
 			FontUtil.drawCenterText(String.format("%.2f", sensitivity), FontUtil.font24, width / 2, 140);
 
-
-			FontUtil.drawCenterText("Advanced OpenGL", FontUtil.font24, width / 2, 200);
-
-			FontUtil.drawCenterText("Antialiasing samples", FontUtil.font24, width / 2, 300);
-			FontUtil.drawCenterText(String.valueOf(samples), FontUtil.font24, width / 2, 340);
+			if(advancedOpenGL) {
+				FontUtil.drawCenterText("Antialiasing samples", FontUtil.font24, width / 2, 200);
+				FontUtil.drawCenterText(String.valueOf(samples), FontUtil.font24, width / 2, 240);
+			}
 
 			for(Button button : buttons) {
 				button.render(width);
@@ -668,7 +666,8 @@ public class ClientRender {
 	}
 
 	public void renderWorld(double partialTick) {
-		glUniform1i(uHasDiffuseMap, 0);
+		if(advancedOpenGL)
+			glUniform1i(uHasDiffuseMap, 0);
 
 		glPushMatrix();
 		// Random random = new Random(102);

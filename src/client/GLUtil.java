@@ -19,7 +19,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL12.GL_CLAMP_TO_EDGE;
 import static org.lwjgl.opengl.GL20.*;
 
 public class GLUtil {
@@ -109,8 +108,10 @@ public class GLUtil {
 			for (ObjLoader.Face f : obj.face) {
 				glBegin(GL_POLYGON);
 				for (int i = 0; i < f.vertices.length; ++i) {
-					if (f.textures[i] != null) {
-						glVertexAttrib2d(aTexCoord, f.textures[i].x, 1 - f.textures[i].y);
+					if(ClientRender.advancedOpenGL) {
+						if (f.textures[i] != null) {
+							glVertexAttrib2d(aTexCoord, f.textures[i].x, 1 - f.textures[i].y);
+						}
 					}
 					glNormal3d(f.normals[i].x, f.normals[i].y, f.normals[i].z);
 					glVertex3d(f.vertices[i].x, f.vertices[i].y, f.vertices[i].z);
@@ -134,8 +135,10 @@ public class GLUtil {
 			return;
 		}
 		for (RenderObject obj : list.renderObjects) {
-			glUniform1i(uHasDiffuseMap, obj.diffuseTexture);
-			glBindTexture(GL_TEXTURE_2D, obj.diffuseTexture);
+			if(ClientRender.advancedOpenGL) {
+				glUniform1i(uHasDiffuseMap, obj.diffuseTexture);
+				glBindTexture(GL_TEXTURE_2D, obj.diffuseTexture);
+			}
 			if (obj.material != null && obj.material.diffuse != null) {
 				glColor3d(obj.material.diffuse.x, obj.material.diffuse.y, obj.material.diffuse.z);
 			}
@@ -229,8 +232,8 @@ public class GLUtil {
 			int texId = glGenTextures();
 			glBindTexture(GL_TEXTURE_2D, texId);
 
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
