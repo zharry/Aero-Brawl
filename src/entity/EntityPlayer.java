@@ -59,7 +59,10 @@ public class EntityPlayer extends Entity {
 		if(!world.isClient) {
 			WorldServer server = (WorldServer) world;
 			Level currLevel = server.levels.get(level);
-			teleportTo(currLevel.locations.get(marker));
+			Vec3 pos = currLevel.locations.get(marker);
+			if(pos == null)
+				throw new RuntimeException("No such marker: " + marker);
+			teleportTo(pos);
 		}
 	}
 
