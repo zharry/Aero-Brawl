@@ -8,4 +8,5 @@ javac -cp dependency/lwjgl.jar;dependency/lwjgl_util.jar -d output @sources.txt
 del sources.txt
 pause
 echo Running...
-java -Djava.library.path=dependency/native/windows -cp dependency/lwjgl.jar;dependency/lwjgl_util.jar;res;output AeroBrawlMain
+java -Djava.library.path=dependency/native/windows -cp dependency/lwjgl.jar;dependency/lwjgl_util.jar;res;output Fraternize
+pause
