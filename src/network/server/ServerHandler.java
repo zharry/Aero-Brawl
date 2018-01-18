@@ -195,6 +195,11 @@ public class ServerHandler {
 								e.printStackTrace();
 							}
 							break;
+						case "list":
+							for(Map.Entry<Long, Connection> conn : connections.entrySet()) {
+								System.out.println(conn.getKey() + ": " + conn.getValue().socket.getInetAddress());
+							}
+							break;
 						case "spectate":
 							EntityPlayer player = ((EntityPlayer) world.entities.get(Long.parseLong(splitted[1])));
 							if(splitted.length > 2) {

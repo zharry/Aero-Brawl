@@ -629,6 +629,7 @@ public class ClientRender {
 			builder.append("OpenGL: ").append(openglVersion).append('\n');
 			builder.append("Advanced OpenGL: ").append(advancedOpenGL).append('\n');
 			builder.append('\n');
+			builder.append("Id: ").append(client.player.id).append('\n');
 			builder.append("Position: ").append(Util.vectorToString(client.player.position)).append('\n');
 			builder.append("Velocity: ").append(Util.vectorToString(client.player.velocity)).append('\n');
 			builder.append("On ground: ").append(client.player.onGround).append('\n');
@@ -717,7 +718,8 @@ public class ClientRender {
 		glColor3d(1, 1, 1);
 
 		for (Entity entity : client.world.entities.values()) {
-			if(((EntityPlayer) entity).spectate) {
+			EntityPlayer player = (EntityPlayer) entity;
+			if(player.spectate) {
 				continue;
 			}
 			glPushMatrix();
