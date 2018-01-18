@@ -375,6 +375,7 @@ public class ClientRender {
 					try {
 						if(Display.isFullscreen()) {
 							Display.setFullscreen(false);
+							Display.setResizable(true);
 						} else {
 							Display.setDisplayModeAndFullscreen(Display.getDesktopDisplayMode());
 						}
