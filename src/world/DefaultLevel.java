@@ -10,11 +10,8 @@ public abstract class DefaultLevel extends LevelHandler {
 	public void activator(String name, ArrayList<EntityPlayer> playerList) {
 		String[] args = name.split("\\.");
 
-		System.out.println("Activator!: " + playerList);
-
 		// Move Player to the next level
 		if (name.startsWith("Activator.Exit")) {
-			System.out.println("Stepped on Exit!");
 			String nextLevel = args[2];
 			for (EntityPlayer player : playerList)
 				world.setEntityLevel(player, nextLevel);
