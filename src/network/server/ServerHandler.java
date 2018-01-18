@@ -170,11 +170,12 @@ public class ServerHandler {
 							id = random.nextLong();
 							connectionsLookup.put(incoming.connection, id);
 						} else if (p.status == Event.DISCONNECT) {
+							if(id != null) {
+								world.entities.get(id).dead = true;
 
-							world.entities.get(id).dead = true;
-
-							connections.remove(id);
-							connectionsLookup.remove(incoming.connection);
+								connections.remove(id);
+								connectionsLookup.remove(incoming.connection);
+							}
 						}
 					} else if (packet instanceof PacketPlayerJoin) {
 						PacketPlayerJoin p = (PacketPlayerJoin) packet;

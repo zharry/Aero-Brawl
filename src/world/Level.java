@@ -10,10 +10,7 @@ import util.math.Vec3;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 
 public class Level {
 
@@ -38,6 +35,9 @@ public class Level {
 
 	public HashMap<String, HashSet<Long>> playerActivators = new HashMap<>();
 	public HashMap<String, HashSet<Long>> playerColliders = new HashMap<>();
+
+	public ArrayList<ProcessEntry> queueActivators = new ArrayList<>();
+	public ArrayList<ProcessEntry> queueColliders = new ArrayList<>();
 
 	public HashSet<String> dirtyActivators = new HashSet<>();
 	public HashSet<String> dirtyColliders = new HashSet<>();
@@ -82,6 +82,39 @@ public class Level {
 
 	public void runAll() {
 		if(!world.isClient) {
+			for(ProcessEntry entry : queueActivators) {
+				String key = entry.key;
+				long id = entry.id;
+				boolean intersecting = entry.intersecting;
+				HashSet<Long> activators = playerActivators.computeIfAbsent(key, k -> new HashSet<>());
+				if (activators.contains(id) != intersecting) {
+					dirtyActivators.add(key);
+					if (intersecting) {
+						activators.add(id);
+					} else {
+						activators.remove(id);
+					}
+				}
+			}
+
+			for(ProcessEntry entry : queueColliders) {
+				String key = entry.key;
+				long id = entry.id;
+				boolean intersecting = entry.intersecting;
+				HashSet<Long> colliders = playerColliders.computeIfAbsent(key, k -> new HashSet<>());
+				if (colliders.contains(id) != intersecting) {
+					dirtyColliders.add(key);
+					if (intersecting) {
+						colliders.add(id);
+					} else {
+						colliders.remove(id);
+					}
+				}
+			}
+
+			queueActivators.clear();
+			queueColliders.clear();
+
 			for(String k : dirtyActivators) {
 				ArrayList<EntityPlayer> listPlayers = new ArrayList<>();
 				for(Long id : playerActivators.get(k)) {
@@ -110,45 +143,27 @@ public class Level {
 					e.printStackTrace();
 				}
 			}
+			dirtyActivators.clear();
+			dirtyColliders.clear();
 		}
 	}
 
-	public void clearIteration() {
-		dirtyActivators.clear();
-		dirtyColliders.clear();
-	}
-
 	public void flushPlayer(long id) {
+		System.out.println("Flushing player: " + id);
 		for(String key : playerActivators.keySet()) {
 			processActivators(key, id, false);
 		}
 		for(String key : playerColliders.keySet()) {
-			processActivators(key, id, false);
+			processColliders(key, id, false);
 		}
 	}
 
 	public void processActivators(String key, long id, boolean intersecting) {
-		HashSet<Long> activators = playerActivators.computeIfAbsent(key, k -> new HashSet<>());
-		if(activators.contains(id) != intersecting) {
-			dirtyActivators.add(key);
-			if(intersecting) {
-				activators.add(id);
-			} else {
-				activators.remove(id);
-			}
-		}
+		queueActivators.add(new ProcessEntry(key, id, intersecting));
 	}
 
 	public void processColliders(String key, long id, boolean intersecting) {
-		HashSet<Long> colliders = playerColliders.computeIfAbsent(key, k -> new HashSet<>());
-		if(colliders.contains(id) != intersecting) {
-			dirtyColliders.add(key);
-			if(intersecting) {
-				colliders.add(id);
-			} else {
-				colliders.remove(id);
-			}
-		}
+		queueColliders.add(new ProcessEntry(key, id, intersecting));
 	}
 
 	public void setCollidable(String object, boolean collidable) {
@@ -221,18 +236,40 @@ public class Level {
 			String[] splits = name.split("\\.");
 			String check = splits[0].toLowerCase();
 
-			if (check.equals("marker")) {
-				aabb.renderable = false;
-				if (splits[1].toLowerCase().startsWith("spawn")) {
-					spawnLocation = locations.get(name);
-				}
-			} else if (check.equals("collider") || check.equals("floor") || check.equals("wall") || check.equals("boundery")) {
-				colliders.put(name, aabb);
-			} else if (check.equals("activator")) {
-				activators.put(name, aabb);
-			} else if(check.equals("light") || check.equals("boundary")) {
-				aabb.renderable = false;
+			switch(check) {
+				case "marker":
+					aabb.renderable = false;
+					if (splits[1].toLowerCase().startsWith("spawn")) {
+						spawnLocation = locations.get(name);
+					}
+					break;
+				case "collider":
+				case "floor":
+				case "wall":
+					colliders.put(name, aabb);
+					break;
+				case "activator":
+					activators.put(name, aabb);
+					break;
+				case "boundary":
+					colliders.put(name, aabb);
+					aabb.renderable = false;
+					break;
+				case "light":
+					aabb.renderable = false;
 			}
+		}
+	}
+
+	public static class ProcessEntry {
+		public String key;
+		public long id;
+		public boolean intersecting;
+
+		public ProcessEntry(String key, long id, boolean intersecting) {
+			this.key = key;
+			this.id = id;
+			this.intersecting = intersecting;
 		}
 	}
 
