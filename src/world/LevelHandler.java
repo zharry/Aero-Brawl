@@ -13,6 +13,6 @@ public abstract class LevelHandler {
 
 	public abstract void onPlayerJoin(EntityPlayer player);
 
-	public abstract void collideOther(String object, ArrayList<EntityPlayer> playerList);
+	public abstract void collideCollider(String object, ArrayList<EntityPlayer> playerList);
 
 }

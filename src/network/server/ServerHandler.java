@@ -5,23 +5,36 @@
 
 package network.server;
 
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
+
 import com.jmr.wrapper.common.Connection;
 import com.jmr.wrapper.common.exceptions.NNCantStartServer;
 import com.jmr.wrapper.server.ConnectionManager;
 import com.jmr.wrapper.server.Server;
+
 import entity.Entity;
 import entity.EntityPlayer;
 import entity.EntityRegistry;
-import network.packet.*;
+import network.packet.Event;
+import network.packet.Packet;
+import network.packet.PacketEntitySetPlayer;
+import network.packet.PacketEntitySpawn;
+import network.packet.PacketEntityUpdate;
+import network.packet.PacketNewWorld;
+import network.packet.PacketPing;
+import network.packet.PacketPlayerInput;
+import network.packet.PacketPlayerJoin;
 import util.math.Quat4;
 import util.math.Vec3;
 import world.Level;
 import world.WorldServer;
-
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 
 public class ServerHandler {
 
@@ -60,7 +73,10 @@ public class ServerHandler {
 		try {
 			addLevel("level1_Welcome");
 			addLevel("level2_Maze");
-			addLevel("level3_Collaboration");
+			addLevel("level3_Guess");
+			addLevel("level4_Climb");
+			// addLevel("level5_Collaboration");
+			// addLevel("level6_Betrayal");
 		} catch (IOException e) {
 			System.err.println("Cannot load level file");
 			e.printStackTrace();
@@ -125,8 +141,8 @@ public class ServerHandler {
 
 		queuePacket(player.id, new PacketNewWorld(player.level, level.obj, level.mtl, level.aabbs));
 
-		for(Entity entity : world.entities.values()) {
-			if(entity.level.equals(player.level)) {
+		for (Entity entity : world.entities.values()) {
+			if (entity.level.equals(player.level)) {
 				queuePacket(id, new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())));
 				buffer.clear();
 				entity.monitor.serialize(buffer, true);
@@ -170,7 +186,7 @@ public class ServerHandler {
 							id = random.nextLong();
 							connectionsLookup.put(incoming.connection, id);
 						} else if (p.status == Event.DISCONNECT) {
-							if(id != null) {
+							if (id != null) {
 								world.entities.get(id).dead = true;
 
 								connections.remove(id);
@@ -232,6 +248,7 @@ public class ServerHandler {
 
 		public void run() {
 			// Server Console
+			@SuppressWarnings("resource")
 			Scanner s = new Scanner(System.in);
 			while (true) {
 				String cmd = s.nextLine();
@@ -245,7 +262,7 @@ public class ServerHandler {
 						c.sendTcp(new PacketPing(true));
 					break;
 				case "stop":
-				    System.exit(0);
+					System.exit(0);
 					break;
 				default:
 					break;

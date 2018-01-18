@@ -1,8 +1,8 @@
 package world;
 
-import entity.EntityPlayer;
-
 import java.util.ArrayList;
+
+import entity.EntityPlayer;
 
 public abstract class DefaultLevel extends LevelHandler {
 
@@ -34,7 +34,7 @@ public abstract class DefaultLevel extends LevelHandler {
 						player.sendMessage(colPlayers - playerList.size() + " more player(s) required!");
 				level.setCollidable("Collider." + id, true);
 				level.setRenderable("Collider." + id, true);
-			// Enable corresponding collider
+				// Enable corresponding collider
 			}
 		}
 	}
@@ -46,9 +46,12 @@ public abstract class DefaultLevel extends LevelHandler {
 		player.sendMessage("Level " + levelID + ": " + levelDesc);
 	}
 
-	public void collideOther(String object, ArrayList<EntityPlayer> playerList) {
-		for (EntityPlayer player : playerList) 
-			player.teleportTo("Marker.Spawn");
+	public void collideCollider(String object, ArrayList<EntityPlayer> playerList) {
+		if (object.startsWith("Collider.")) {
+			String ID = object.split("\\.")[1];
+			for (EntityPlayer player : playerList)
+				player.teleportTo("Activator." + ID);
+		}
 	}
 
 }

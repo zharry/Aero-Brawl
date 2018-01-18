@@ -7,6 +7,7 @@ package util.math;
 
 import java.io.Serializable;
 
+@SuppressWarnings("serial")
 public class Vec3 implements Serializable {
 
 	public final double x, y, z;

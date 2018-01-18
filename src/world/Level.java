@@ -52,7 +52,7 @@ public class Level {
 	public LevelHandler handler = new LevelHandler() {
 		public void activator(String name, ArrayList<EntityPlayer> playerList) { }
 		public void onPlayerJoin(EntityPlayer player) { }
-		public void collideOther(String object, ArrayList<EntityPlayer> playerList) { }
+		public void collideCollider(String object, ArrayList<EntityPlayer> playerList) { }
 	};
 
 	public void loadLevelFromFile() throws IOException {
@@ -137,7 +137,7 @@ public class Level {
 					listPlayers.add((EntityPlayer) world.entities.get(id));
 				}
 				try {
-					handler.collideOther(k, listPlayers);
+					handler.collideCollider(k, listPlayers);
 				} catch(Exception e) {
 					System.err.println("Custom level code errored: " + level);
 					e.printStackTrace();
