@@ -590,7 +590,6 @@ public class ClientRender {
 		}
 		glPopMatrix();
 
-		glTranslated(0, 0, 0);
 		glColor3d(1, 1, 1);
 
 		for (Entity entity : client.world.entities.values()) {
