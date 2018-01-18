@@ -7,7 +7,6 @@ package client;
 
 import org.lwjgl.BufferUtils;
 import util.Util;
-import world.Level;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -80,11 +79,11 @@ public class GLUtil {
 		glEndList();
 	}
 
-	public static RenderObjectList loadObjToList(Level level, int aTexCoord) {
+		public static RenderObjectList loadObjToList(ArrayList<ObjLoader.Obj> allList, int aTexCoord) {
 
 		ArrayList<RenderObject> renderObjects = new ArrayList<>();
 
-		for(ObjLoader.Obj obj : level.loader.objects) {
+		for(ObjLoader.Obj obj : allList) {
 			int objList = glGenLists(1);
 			int diffuseMap = 0;
 			glNewList(objList, GL_COMPILE);
