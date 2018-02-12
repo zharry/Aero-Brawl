@@ -1,5 +1,5 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
@@ -13,11 +13,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 
+// Class for loading an .obj or .mtl file
 public class ObjLoader {
 
+	// List of objects
 	public ArrayList<Obj> objects = new ArrayList<>();
+
+	// List of materials
 	public HashMap<String, Material> materials = new HashMap<>();
 
+	// Load .obj
 	public void load(byte[] data) {
 		ArrayList<Vec3> vertexCoord = new ArrayList<>();
 		ArrayList<Vec2> textureCoord = new ArrayList<>();
@@ -28,6 +33,7 @@ public class ObjLoader {
 
 		Material usedMaterial = null;
 
+		// Read line by line
 		StringTokenizer tokenizer = new StringTokenizer(new String(data, Charset.forName("ASCII")), "\r\n", false);
 		while(tokenizer.hasMoreElements()) {
 			String token = tokenizer.nextToken().trim();
@@ -36,6 +42,7 @@ public class ObjLoader {
 			}
 			String[] tok = token.split(" ");
 			switch (tok[0]) {
+				// Vertex coordinate
 				case "v": {
 					Vec3 vec = new Vec3(Double.parseDouble(tok[1]), Double.parseDouble(tok[2]), Double.parseDouble(tok[3]));
 					if (tok.length == 5) {
@@ -44,15 +51,18 @@ public class ObjLoader {
 					vertexCoord.add(vec);
 					break;
 				}
+				// Vertex texture coordinate
 				case "vt": {
 					Vec2 vec = new Vec2(Double.parseDouble(tok[1]), Double.parseDouble(tok[2]));
 					textureCoord.add(vec);
 					break;
 				}
+				// Vertex normal
 				case "vn":
 					Vec3 normal = new Vec3(Double.parseDouble(tok[1]), Double.parseDouble(tok[2]), Double.parseDouble(tok[3]));
 					normals.add(normal);
 					break;
+				// A face
 				case "f":
 					Face face = new Face(tok.length - 1);
 					for (int i = 0; i < tok.length - 1; ++i) {
@@ -67,6 +77,7 @@ public class ObjLoader {
 					}
 					faces.add(face);
 					break;
+				// A new object
 				case "o":
 					if(faces.size() > 0) {
 						objects.add(new Obj(objName, faces, usedMaterial));
@@ -91,6 +102,7 @@ public class ObjLoader {
 //						}
 //					}
 //					break;
+				// A new material
 				case "usemtl":
 					if(tok.length > 1) {
 						usedMaterial = materials.get(tok[1]);
@@ -103,6 +115,7 @@ public class ObjLoader {
 		}
 	}
 
+	// Load a .mtl file
 	public HashMap<String, Material> loadMtl(byte[] data) {
 		StringTokenizer tokenizer = new StringTokenizer(new String(data, Charset.forName("ASCII")), "\r\n", false);
 		String matName = "";
@@ -111,6 +124,7 @@ public class ObjLoader {
 
 		Material material = new Material();
 
+		// Read line by line
 		while(tokenizer.hasMoreElements()) {
 			String token = tokenizer.nextToken().trim();
 			if(token.length() == 0 || token.startsWith("#")) {
@@ -118,6 +132,7 @@ public class ObjLoader {
 			}
 			String[] tok = token.split(" ");
 			switch (tok[0]) {
+				// New material name
 				case "newmtl":
 					if(tok.length != 2) {
 						System.err.println("No material name specified");
@@ -128,11 +143,13 @@ public class ObjLoader {
 						material.name = matName;
 					}
 					break;
+				// Diffuse colour
 				case "Kd":
 					if(tok.length == 4) {
 						material.diffuse = new Vec3(Double.parseDouble(tok[1]), Double.parseDouble(tok[2]), Double.parseDouble(tok[3]));
 					}
 					break;
+				// Diffuse texture map
 				case "map_Kd":
 					if(tok.length == 2) {
 						material.diffuseMap = tok[1];
@@ -141,11 +158,13 @@ public class ObjLoader {
 			}
 		}
 
+		// Add the material in
 		materials.put(matName, material);
 
 		return materials;
 	}
 
+	// A face, consisting of vertices
 	public static class Face {
 		public Vec3[] vertices;
 		public Vec2[] textures;
@@ -157,6 +176,7 @@ public class ObjLoader {
 		}
 	}
 
+	// A material
 	public static class Material{
 
 		public String name;
@@ -171,6 +191,7 @@ public class ObjLoader {
 		public String diffuseMap;
 	}
 
+	// An object, consisting of faces and materials
 	public static class Obj {
 		public String name;
 		public ArrayList<Face> face;

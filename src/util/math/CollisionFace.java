@@ -1,7 +1,15 @@
+// Jacky Liao and Harry Zhang
+// Jan 18, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package util.math;
+
+// A face for collision
 
 public class CollisionFace implements Comparable<CollisionFace> {
 
+	// Directions
 	public static final int
 			NEGX = 0,
 			NEGY = 1,
@@ -70,12 +78,14 @@ public class CollisionFace implements Comparable<CollisionFace> {
 		return Double.compare(dist, face.dist);
 	}
 
+	// Determine if this face collides with another moving face
 	public double collide(CollisionFace other, Vec3 velOther) {
 		if(type != (other.type + 3) % 6)
 			return Double.NaN;
 		double velMain;
 		double vel1;
 		double vel2;
+		// Determine which velocities are important
 		switch(type % 3) {
 			case NEGX:
 				velMain = velOther.x;
@@ -96,24 +106,31 @@ public class CollisionFace implements Comparable<CollisionFace> {
 				return Double.NaN;
 		}
 
+		// If not moving, don't collide
 		if(Math.abs(velMain) < 1e-9)
 			return Double.NaN;
 
+		// Calculate time of collision
 		double timeDiff = (coord1 - other.coord1) / velMain;
 
+		// If won't collide within this tick, return no result
 		if(!(0 <= timeDiff && timeDiff <= 1)) {
 			return Double.NaN;
 		}
 
+		// Compute the bounds when collision would happen
 		double min1 = other.coord2a1 + vel1 * timeDiff;
 		double max1 = other.coord2a2 + vel1 * timeDiff;
 		double min2 = other.coord2b1 + vel2 * timeDiff;
 		double max2 = other.coord2b2 + vel2 * timeDiff;
 
+		// If bounds is within the this current bound
 		if(min1 <= coord2a2 && coord2a1 <= max1 && min2 <= coord2b2 && coord2b1 <= max2) {
+			// Collides
 			return timeDiff;
 		}
 
+		// Otherwise, doesn't collide
 		return Double.NaN;
 
 	}

@@ -1,10 +1,11 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
 package network.packet;
 
+// Packet for ping (server <-> client)
 public class PacketPing extends Packet {
 
 	private static final long serialVersionUID = -7753893073579570084L;

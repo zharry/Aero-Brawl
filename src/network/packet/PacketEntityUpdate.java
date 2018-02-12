@@ -1,10 +1,11 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
 package network.packet;
 
+// Packet for updating an entity and its properties (server -> client)
 public class PacketEntityUpdate extends Packet {
 
 	private static final long serialVersionUID = -4034881404794001381L;

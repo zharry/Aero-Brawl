@@ -1,10 +1,11 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
 package network.packet;
 
+// Packet for spawning an entity (server -> client)
 public class PacketEntitySpawn extends Packet {
 	private static final long serialVersionUID = 8766787807554641760L;
 	public long id;

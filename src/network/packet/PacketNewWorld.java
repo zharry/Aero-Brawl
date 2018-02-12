@@ -1,5 +1,5 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
@@ -9,6 +9,7 @@ import util.AABB;
 
 import java.util.HashMap;
 
+// Packet for changing a world (server -> client)
 public class PacketNewWorld extends Packet {
 
 	private static final long serialVersionUID = -9125057284532008560L;

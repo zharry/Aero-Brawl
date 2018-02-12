@@ -1,5 +1,5 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
@@ -9,20 +9,25 @@ import util.math.Quat4;
 import util.math.Vec3;
 import world.World;
 
+// An entity
 public abstract class Entity {
 
 	public long id;
 	public boolean dead;
-	public World world;
 
+	// World and level the player is in
+	public World world;
 	public String level;
 
+	// Synchronize this across all clients
 	@Synchronize
 	public Vec3 position = new Vec3();
 
+	// Synchronize this across all clients
 	@Synchronize
 	public Vec3 velocity = new Vec3();
 
+	// Synchronize this across all clients
 	@Synchronize
 	public Quat4 quat = new Quat4();
 
@@ -40,5 +45,6 @@ public abstract class Entity {
 		lastQuat = quat;
 	}
 
+	// A field monitor to monitor when field changes
 	public final FieldMonitor monitor = new FieldMonitor(this);
 }

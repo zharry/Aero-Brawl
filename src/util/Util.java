@@ -1,5 +1,5 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
@@ -13,6 +13,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 
+// Some utilities
 public class Util {
 
 	public static final Charset charset = Charset.forName("UTF-8");
@@ -62,6 +63,7 @@ public class Util {
 		return b.sub(a).mul(factor).add(a);
 	}
 
+	// Intersect the line defined by l1 + d1t, and l2 + d2t
 	public static Vec2 intersectLine(Vec2 l1, Vec2 d1, Vec2 l2, Vec2 d2) {
 		double fact = d1.cross(d2);
 		Vec2 diff = l1.sub(l2);
@@ -70,6 +72,7 @@ public class Util {
 		return new Vec2(t1, t2);
 	}
 
+	// Self explanatory
 	public static Vec2 intersectRay(Vec2 r1, Vec2 d1, Vec2 l2, Vec2 d2) {
 		Vec2 v = intersectLine(r1, d1, l2, d2);
 		if(0 <= v.x && 0 <= v.y && v.y <= 1) {
@@ -78,24 +81,13 @@ public class Util {
 		return null;
 	}
 
+	// Self explanatory
 	public static Vec2 intersectSegment(Vec2 l1, Vec2 d1, Vec2 l2, Vec2 d2) {
 		Vec2 v = intersectLine(l1, d1, l2, d2);
 		if(0 <= v.x && v.x <= 1 && 0 <= v.y && v.y <= 1) {
 			return new Vec2(v.x, v.y);
 		}
 		return null;
-	}
-
-	public static boolean isPointInside(Vec2[] pts, Vec2 p) {
-		boolean inside = false;
-		for(int i = 0; i < pts.length; ++i) {
-			Vec2 pt1 = pts[i];
-			Vec2 pt2 = pts[i == pts.length - 1 ? 0 : i + 1];
-			if(intersectRay(p, new Vec2(1, 0), pt1, pt2.sub(pt1)) != null) {
-				inside = !inside;
-			}
-		}
-		return inside;
 	}
 
 	public static Vec3 max(Vec3 a, Vec3 b) {

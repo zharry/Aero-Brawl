@@ -1,10 +1,11 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
 package util.math;
 
+// A quaternion to represent rotation
 public class Quat4 {
 	public final double w, x, y, z;
 
@@ -29,6 +30,7 @@ public class Quat4 {
 		this.z = z;
 	}
 
+	// Hamiltonian product
 	public Quat4 prod(Quat4 q) {
 		return new Quat4(
 				w * q.w - x * q.x - y * q.y - z * q.z,
@@ -38,11 +40,13 @@ public class Quat4 {
 		);
 	}
 
+	// Apply quaternion
 	public Vec3 apply(Vec3 v) {
 		Quat4 res = prod(new Quat4(0, v.x, v.y, v.z)).prod(conj());
 		return new Vec3(res.x, res.y, res.z);
 	}
 
+	// Normalize quaternion
 	public Quat4 normalize() {
 		double m = 1.0 / len();
 		return new Quat4(w * m, x * m, y * m, z * m);

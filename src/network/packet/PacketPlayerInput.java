@@ -1,10 +1,11 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
 package network.packet;
 
+// Packet for telling the server to move player (client -> server)
 public class PacketPlayerInput extends Packet {
 
 	private static final long serialVersionUID = -1078255662234793214L;

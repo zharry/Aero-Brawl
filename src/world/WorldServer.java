@@ -1,5 +1,5 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
@@ -17,12 +17,15 @@ import network.server.ServerHandler;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 
+// Server side implementation of World
 public class WorldServer extends World {
 
 	private ByteBuffer buffer = ByteBuffer.allocate(65536);
 
+	// Handler to handle network
 	public ServerHandler handler;
 
+	// List of levels
 	public HashMap<String, Level> levels = new HashMap<>();
 
 	public WorldServer(ServerHandler handler) {
@@ -30,6 +33,7 @@ public class WorldServer extends World {
 		this.handler = handler;
 	}
 
+	// When ticking, update all the entity, send to everyone
 	public void tick() {
 		super.tick();
 		for(Entity entity : entities.values()) {
@@ -46,6 +50,7 @@ public class WorldServer extends World {
 		}
 	}
 
+	// Force update entity property to everyone
 	public void forceUpdate(Entity entity) {
 		buffer.clear();
 		entity.monitor.serialize(buffer, true);
@@ -56,10 +61,12 @@ public class WorldServer extends World {
 		handler.queueBroadcast(entity.level, new PacketEntityUpdate(entity.id, true, bytes));
 	}
 
+	// Broadcast the message to everyone
 	public void broadcastMessage(String message, String level) {
 		handler.queueBroadcast(level, new PacketMessage(message));
 	}
 
+	// Change the level of an entity
 	public void setEntityLevel(Entity entity, String level) {
 		if(!levels.containsKey(level)) {
 			throw new RuntimeException("No such level: " + level);
@@ -70,14 +77,17 @@ public class WorldServer extends World {
 //		handler.queueBroadcast(entity.level, new PacketEntitySpawn(entity.id, EntityRegistry.classToId.get(entity.getClass())));
 	}
 
+	// Process entity deletion
 	protected void onEntityDelete(Entity entity) {
 		levels.get(entity.level).flushPlayer(entity.id);
 		handler.queueBroadcast(entity.level, new PacketEntityDelete(entity.id));
 	}
 
+	// Process entity spawn
 	protected void onEntitySpawn(Entity entity) {
 		if(entity instanceof EntityPlayer) {
 			try {
+				// Call onPlayerJoin on the LevelHandler
 				levels.get(entity.level).handler.onPlayerJoin((EntityPlayer) entity);
 			} catch(Exception e) {
 				System.err.println("Custom level code errored: " + entity.level);

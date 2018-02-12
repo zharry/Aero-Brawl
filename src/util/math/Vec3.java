@@ -1,5 +1,5 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
@@ -7,6 +7,7 @@ package util.math;
 
 import java.io.Serializable;
 
+// Vector in 3D
 public class Vec3 implements Serializable {
 
 	private static final long serialVersionUID = -1714311416293929700L;

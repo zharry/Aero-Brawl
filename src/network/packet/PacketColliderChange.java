@@ -1,5 +1,11 @@
+// Jacky Liao and Harry Zhang
+// Jan 18, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package network.packet;
 
+// Packet for collider property change (server -> client)
 public class PacketColliderChange extends Packet {
 
 	private static final long serialVersionUID = -4206140201403181215L;

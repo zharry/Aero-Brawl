@@ -1,5 +1,5 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
@@ -7,6 +7,7 @@ package entity;
 
 import java.util.HashMap;
 
+// A registry of all the entities that could exist
 public class EntityRegistry {
 
 	public static final HashMap<Class<? extends Entity>, Integer> classToId = new HashMap<>();

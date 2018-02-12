@@ -1,10 +1,11 @@
 // Jacky Liao and Harry Zhang
-// Jan 12, 2017
+// Jan 18, 2017
 // Summative
 // ICS4U Ms.Strelkovska
 
 package network.packet;
 
+// Packet for setting a player (server -> client)
 public class PacketEntitySetPlayer extends Packet {
 	private static final long serialVersionUID = 3367697712511583896L;
 	public long id;

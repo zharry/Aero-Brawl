@@ -1,3 +1,8 @@
+// Jacky Liao and Harry Zhang
+// Jan 18, 2017
+// Summative
+// ICS4U Ms.Strelkovska
+
 package world;
 
 import client.ObjLoader;
@@ -20,6 +25,7 @@ public class Level {
 	public byte[] obj;
 	public byte[] mtl;
 
+	// Separated AABBs
 	public HashMap<String, AABB> aabbs = new HashMap<>();
 
 	public HashMap<String, AABB> colliders = new HashMap<>();
@@ -33,12 +39,15 @@ public class Level {
 
 	public World world;
 
+	// List of colliders and activators being activated
 	public HashMap<String, HashSet<Long>> playerActivators = new HashMap<>();
 	public HashMap<String, HashSet<Long>> playerColliders = new HashMap<>();
 
+	// Queued up to be processed
 	public ArrayList<ProcessEntry> queueActivators = new ArrayList<>();
 	public ArrayList<ProcessEntry> queueColliders = new ArrayList<>();
 
+	// Marked to be processed
 	public HashSet<String> dirtyActivators = new HashSet<>();
 	public HashSet<String> dirtyColliders = new HashSet<>();
 
@@ -49,12 +58,14 @@ public class Level {
 
 	public Vec3 spawnLocation = new Vec3();
 
+	// Default handler
 	public LevelHandler handler = new LevelHandler() {
 		public void activator(String name, ArrayList<EntityPlayer> playerList) { }
 		public void onPlayerJoin(EntityPlayer player) { }
 		public void collideCollider(String object, ArrayList<EntityPlayer> playerList) { }
 	};
 
+	// Read level from a file
 	public void loadLevelFromFile() throws IOException {
 		FileInputStream input = new FileInputStream(new File(new File(baseDir, level), "world.mtl"));
 		mtl = Util.readAllBytes(input);
@@ -67,6 +78,7 @@ public class Level {
 		loadLevel();
 
 		try {
+			// Create instance of the level class
 			handler = (LevelHandler) Class.forName(level).newInstance();
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -80,8 +92,10 @@ public class Level {
 
 	}
 
+	// Calculate all the activators and colliders being activated
 	public void runAll() {
 		if(!world.isClient) {
+			// Process all activators
 			for(ProcessEntry entry : queueActivators) {
 				String key = entry.key;
 				long id = entry.id;
@@ -97,6 +111,7 @@ public class Level {
 				}
 			}
 
+			// Process all colliders
 			for(ProcessEntry entry : queueColliders) {
 				String key = entry.key;
 				long id = entry.id;
@@ -115,6 +130,7 @@ public class Level {
 			queueActivators.clear();
 			queueColliders.clear();
 
+			// For activated activators and collided colliders, run the function in the handler
 			for(String k : dirtyActivators) {
 				ArrayList<EntityPlayer> listPlayers = new ArrayList<>();
 				for(Long id : playerActivators.get(k)) {
@@ -148,6 +164,7 @@ public class Level {
 		}
 	}
 
+	// Remove player from all collider and activator list
 	public void flushPlayer(long id) {
 		System.out.println("Flushing player: " + id);
 		for(String key : playerActivators.keySet()) {
@@ -158,14 +175,17 @@ public class Level {
 		}
 	}
 
+	// Update player activator state
 	public void processActivators(String key, long id, boolean intersecting) {
 		queueActivators.add(new ProcessEntry(key, id, intersecting));
 	}
 
+	// Update player collider state
 	public void processColliders(String key, long id, boolean intersecting) {
 		queueColliders.add(new ProcessEntry(key, id, intersecting));
 	}
 
+	// Change the collidability of an AABB
 	public void setCollidable(String object, boolean collidable) {
 		AABB aabb = aabbs.get(object);
 		if(aabb == null)
@@ -174,6 +194,7 @@ public class Level {
 		forceUpdate(object, aabb);
 	}
 
+	// Change the renderability of an AABB
 	public void setRenderable(String object, boolean renderable) {
 		AABB aabb = aabbs.get(object);
 		if(aabb == null)
@@ -182,6 +203,7 @@ public class Level {
 		forceUpdate(object, aabb);
 	}
 
+	// Change the material of an AABB
 	public void setMaterial(String object, String material) {
 		AABB aabb = aabbs.get(object);
 		if(aabb == null)
@@ -190,6 +212,7 @@ public class Level {
 		forceUpdate(object, aabb);
 	}
 
+	// Force update an AABB to all players
 	private void forceUpdate(String name, AABB aabb) {
 		if(!world.isClient) {
 			WorldServer server = (WorldServer) world;
@@ -197,12 +220,14 @@ public class Level {
 		}
 	}
 
+	// Load a level from .obj and .mtl file
 	public void loadLevel() {
 		loader.materials = loader.loadMtl(mtl);
 		loader.load(obj);
 		loadAllAABB();
 	}
 
+	// Parse all the AABBs from the .obj file
 	public void loadAllAABB() {
 		for(ObjLoader.Obj obj : loader.objects) {
 
@@ -229,6 +254,7 @@ public class Level {
 		}
 	}
 
+	// Separate it into colliders, activators, etc.
 	public void split() {
 		for(Map.Entry<String, AABB> entry : aabbs.entrySet()) {
 			String name = entry.getKey();
@@ -260,6 +286,7 @@ public class Level {
 		}
 	}
 
+	// Entries to be processed. Used for queuing player activator/collider activation
 	public static class ProcessEntry {
 		public String key;
 		public long id;
