@@ -1,5 +1,5 @@
 # Fraternize
-Grade 12 ICS Summative project. [Website](http://fraternize.ml)
+Grade 12 ICS Summative project. [Website](https://zharry.ca/projects/grade12/fraternize/)
 
 ## How to Play
 - Use WASD to Move

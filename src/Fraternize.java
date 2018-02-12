@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class Fraternize {
 
-	public static final String VERSION = "0.0.0.1";
+	public static final String VERSION = "1.0 (Tech Demo)";
 	public static final String TITLE = "Fraternize";
 	public static final int SERVER_PORT = 9001;
 
@@ -49,7 +49,7 @@ public class Fraternize {
 				while (true) {
 					try {
 						String[] serverIPPort = ((String) JOptionPane.showInputDialog(null, "Server IP:Port",
-								"Connect to server", JOptionPane.PLAIN_MESSAGE, null, null, "fraternizegame.ml")).split(":");
+								"Connect to server", JOptionPane.PLAIN_MESSAGE, null, null, "fraternize.zharry.ca")).split(":");
 						serverIP = serverIPPort[0];
 						serverPort = serverIPPort.length == 1 ? SERVER_PORT : Integer.parseInt(serverIPPort[1]);
 						break;
